@@ -8,47 +8,47 @@ import androidx.work.WorkManager;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 保活管理器
- * 管理 WorkManager 定时保活任务
+ * 保活управление器
+ * управление WorkManager 定时保活задача
  */
 public class KeepAliveManager {
     private static final String TAG = "KeepAliveManager";
     private static final String KEEP_ALIVE_WORK_NAME = "keep_alive_work";
 
     /**
-     * 启动定时保活任务
-     * 每15分钟执行一次（Android WorkManager 最小间隔）
+     * Запуск定时保活задача
+     * 每15 мин.выполнение一 раз（Android WorkManager минимум间隔)
      */
     public static void startKeepAliveWork(Context context) {
-        AppLog.d(TAG, "启动定时保活任务（每15分钟）");
+        AppLog.d(TAG, "Запуск定时保活задача（每15 мин.)");
 
-        // 创建周期性任务请求
+        // 创建周期性задача求
         PeriodicWorkRequest keepAliveWork = new PeriodicWorkRequest.Builder(
                 KeepAliveWorker.class,
-                15, // 最小间隔15分钟
+                15, // минимум间隔15 мин.
                 TimeUnit.MINUTES
         ).build();
 
-        // 使用 KEEP 策略：如果已存在，保持现有任务
+        // использование KEEP 策略：Если существует，保持现有задача
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 KEEP_ALIVE_WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
                 keepAliveWork
         );
 
-        AppLog.d(TAG, "定时保活任务已启动");
+        AppLog.d(TAG, "定时保活задачаЗапущено");
     }
 
     /**
-     * 停止定时保活任务
+     * Остановка定时保活задача
      */
     public static void stopKeepAliveWork(Context context) {
-        AppLog.d(TAG, "停止定时保活任务");
+        AppLog.d(TAG, "Остановка定时保活задача");
         WorkManager.getInstance(context).cancelUniqueWork(KEEP_ALIVE_WORK_NAME);
     }
 
     /**
-     * 检查保活任务是否正在运行
+     * проверка保活задача 否Выполняется Работа
      */
     public static boolean isKeepAliveWorkRunning(Context context) {
         try {
@@ -58,7 +58,7 @@ public class KeepAliveManager {
                     .stream()
                     .anyMatch(workInfo -> !workInfo.getState().isFinished());
         } catch (Exception e) {
-            AppLog.e(TAG, "检查保活任务状态失败", e);
+            AppLog.e(TAG, "проверка保活задачаСтатусОшибка", e);
             return false;
         }
     }

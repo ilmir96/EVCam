@@ -9,28 +9,28 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * 视频分组模型
- * 将同一时间戳录制的多路视频组合在一起（前/后/左/右）
- * 文件命名格式：yyyyMMdd_HHmmss_{position}.mp4
+ * Видео分 групп模型
+ * 将同一时间戳Запись 多 кам.Видео групп合 一起（前/后/左/右)
+ * Файл命名格式：yyyyMMdd_HHmmss_{position}.mp4
  */
 public class VideoGroup {
     
-    /** 摄像头位置常量 */
+    /** КамераПозиция常量 */
     public static final String POSITION_FRONT = "front";
     public static final String POSITION_BACK = "back";
     public static final String POSITION_LEFT = "left";
     public static final String POSITION_RIGHT = "right";
     
-    /** 时间戳前缀，如 "20260131_1254" */
+    /** 时间戳前缀，если "20260131_1254" */
     private final String timestampPrefix;
     
-    /** 录制时间（解析自文件名） */
+    /** Запись时间（解析自Файл名) */
     private final Date recordTime;
     
-    /** 各位置的视频文件 */
+    /** 各Позиция ВидеоФайл */
     private final Map<String, File> videoFiles;
     
-    /** 总文件大小（所有位置之和） */
+    /** 总Файл大小（所有Позиция之 и ) */
     private long totalSize;
     
     public VideoGroup(String timestampPrefix) {
@@ -41,8 +41,8 @@ public class VideoGroup {
     }
     
     /**
-     * 添加视频文件到分组
-     * @param file 视频文件
+     * 添加ВидеоФайл до 分 групп
+     * @param file ВидеоФайл
      */
     public void addFile(File file) {
         String position = extractPosition(file.getName());
@@ -53,9 +53,9 @@ public class VideoGroup {
     }
     
     /**
-     * 从文件名提取时间戳前缀
-     * @param fileName 文件名，如 "20260131_125430_front.mp4"
-     * @return 时间戳前缀，如 "20260131_125430"
+     *  от Файл名提取时间戳前缀
+     * @param fileName Файл名，если "20260131_125430_front.mp4"
+     * @return 时间戳前缀，если "20260131_125430"
      */
     public static String extractTimestampPrefix(String fileName) {
         // 移除扩展名
@@ -65,7 +65,7 @@ public class VideoGroup {
             nameWithoutExt = fileName.substring(0, dotIndex);
         }
         
-        // 找到最后一个下划线，它之前是时间戳
+        // 找 до 最后一 шт.划线，它до 时间戳
         int lastUnderscore = nameWithoutExt.lastIndexOf('_');
         if (lastUnderscore > 0) {
             return nameWithoutExt.substring(0, lastUnderscore);
@@ -74,9 +74,9 @@ public class VideoGroup {
     }
     
     /**
-     * 从文件名提取摄像头位置
-     * @param fileName 文件名，如 "20260131_125430_front.mp4"
-     * @return 位置，如 "front"
+     *  от Файл名提取КамераПозиция
+     * @param fileName Файл名，если "20260131_125430_front.mp4"
+     * @return Позиция，если "front"
      */
     public static String extractPosition(String fileName) {
         // 移除扩展名
@@ -86,7 +86,7 @@ public class VideoGroup {
             nameWithoutExt = fileName.substring(0, dotIndex);
         }
         
-        // 找到最后一个下划线，它之后是位置
+        // 找 до 最后一 шт.划线，它после Позиция
         int lastUnderscore = nameWithoutExt.lastIndexOf('_');
         if (lastUnderscore > 0 && lastUnderscore < nameWithoutExt.length() - 1) {
             return nameWithoutExt.substring(lastUnderscore + 1).toLowerCase();
@@ -95,7 +95,7 @@ public class VideoGroup {
     }
     
     /**
-     * 解析时间戳为日期
+     * 解析时间戳为 д.期
      */
     private Date parseTimestamp(String timestamp) {
         try {
@@ -117,7 +117,7 @@ public class VideoGroup {
     }
     
     /**
-     * 获取格式化的日期时间字符串
+     * Получение格式化  д.期时间字符串
      */
     public String getFormattedDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -125,7 +125,7 @@ public class VideoGroup {
     }
     
     /**
-     * 获取格式化的日期字符串
+     * Получение格式化  д.期字符串
      */
     public String getFormattedDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -133,7 +133,7 @@ public class VideoGroup {
     }
     
     /**
-     * 获取格式化的时间字符串
+     * Получение格式化 时间字符串
      */
     public String getFormattedTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
@@ -141,51 +141,51 @@ public class VideoGroup {
     }
     
     /**
-     * 获取指定位置的视频文件
-     * @param position 位置（front/back/left/right）
-     * @return 文件，可能为null
+     * Получение指定Позиция ВидеоФайл
+     * @param position Позиция（front/back/left/right)
+     * @return Файл，可能为null
      */
     public File getVideoFile(String position) {
         return videoFiles.get(position);
     }
     
     /**
-     * 获取前置摄像头视频
+     * ПолучениеФронтальнаяКамераВидео
      */
     public File getFrontVideo() {
         return videoFiles.get(POSITION_FRONT);
     }
     
     /**
-     * 获取后置摄像头视频
+     * ПолучениеЗадняяКамераВидео
      */
     public File getBackVideo() {
         return videoFiles.get(POSITION_BACK);
     }
     
     /**
-     * 获取左侧摄像头视频
+     * Получение左侧КамераВидео
      */
     public File getLeftVideo() {
         return videoFiles.get(POSITION_LEFT);
     }
     
     /**
-     * 获取右侧摄像头视频
+     * Получение右侧КамераВидео
      */
     public File getRightVideo() {
         return videoFiles.get(POSITION_RIGHT);
     }
     
     /**
-     * 获取所有视频文件
+     * Получение所有ВидеоФайл
      */
     public Map<String, File> getAllVideoFiles() {
         return new HashMap<>(videoFiles);
     }
     
     /**
-     * 获取第一个可用的缩略图文件（用于列表显示）
+     * ПолучениеПервый шт.Доступно 缩略图Файл（用于列表显示)
      * 优先级：front > back > left > right
      */
     public File getThumbnailFile() {
@@ -202,21 +202,21 @@ public class VideoGroup {
     }
     
     /**
-     * 获取视频路数
+     * ПолучениеВидео кам.数
      */
     public int getVideoCount() {
         return videoFiles.size();
     }
     
     /**
-     * 获取总文件大小
+     * Получение总Файл大小
      */
     public long getTotalSize() {
         return totalSize;
     }
     
     /**
-     * 获取格式化的文件大小字符串
+     * Получение格式化 Файл大小字符串
      */
     public String getFormattedSize() {
         if (totalSize < 1024) {
@@ -231,15 +231,15 @@ public class VideoGroup {
     }
     
     /**
-     * 检查是否有指定位置的视频
+     * проверка 否有指定Позиция Видео
      */
     public boolean hasVideo(String position) {
         return videoFiles.containsKey(position);
     }
     
     /**
-     * 删除所有视频文件
-     * @return 成功删除的文件数
+     * 删除所有ВидеоФайл
+     * @return Успешно删除 Файл数
      */
     public int deleteAll() {
         int deleted = 0;

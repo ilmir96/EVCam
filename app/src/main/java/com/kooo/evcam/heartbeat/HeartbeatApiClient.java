@@ -19,8 +19,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * 心跳推图 API 客户端
- * 负责 HTTPS 请求发送和签名生成
+ * Мониторинг API 客户端
+ * 负责 HTTPS 求Отправка и 签名生成
  */
 public class HeartbeatApiClient {
     private static final String TAG = "HeartbeatApiClient";
@@ -32,50 +32,50 @@ public class HeartbeatApiClient {
         client = new OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)  // 写入超时较长（上传图片）
+                .writeTimeout(60, TimeUnit.SECONDS)  // 写入таймаут较长（传Изображение)
                 .build();
     }
     
     /**
-     * 发送心跳请求
+     * Отправка心跳求
      * 
-     * @param serverUrl 服务器地址
+     * @param serverUrl Адрес сервера
      * @param vehicleId 车辆ID
      * @param secretKey 通信密钥
-     * @param imageBytes 图片数据
-     * @param imageWidth 图片宽度
-     * @param imageHeight 图片高度
-     * @param cameraCount 摄像头数量
-     * @param appStatus App 状态 JSON 字符串
-     * @return 请求是否成功
+     * @param imageBytes Изображение数据
+     * @param imageWidth Изображение宽度
+     * @param imageHeight ИзображениеВысокий度
+     * @param cameraCount Камера数量
+     * @param appStatus App Статус JSON 字符串
+     * @return 求 否Успешно
      */
     public HeartbeatResult sendHeartbeat(String serverUrl, String vehicleId, String secretKey,
                                           byte[] imageBytes, int imageWidth, int imageHeight,
                                           int cameraCount, String appStatus) {
         if (serverUrl == null || serverUrl.isEmpty()) {
-            return new HeartbeatResult(false, "服务器地址未配置");
+            return new HeartbeatResult(false, "Адрес сервера не настроен");
         }
         
         if (imageBytes == null || imageBytes.length == 0) {
-            return new HeartbeatResult(false, "图片数据为空");
+            return new HeartbeatResult(false, "Данные изображения пусты");
         }
         
         try {
-            // 生成请求参数
+            // 生成求参数
             long timestamp = System.currentTimeMillis();
             String nonce = generateNonce();
             String signature = generateSignature(vehicleId, timestamp, nonce, secretKey);
             
             if (signature == null) {
-                return new HeartbeatResult(false, "签名生成失败");
+                return new HeartbeatResult(false, "Ошибка генерации подписи");
             }
             
-            // 构建 JSON 请求体
+            // 构建 JSON 求体
             String imageBase64 = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
             String jsonBody = buildJsonBody(vehicleId, timestamp, nonce, signature,
                     imageBase64, imageWidth, imageHeight, imageBytes.length, cameraCount, appStatus);
             
-            // 发送请求
+            // Отправка求
             RequestBody body = RequestBody.create(jsonBody, JSON);
             Request request = new Request.Builder()
                     .url(serverUrl)
@@ -87,32 +87,32 @@ public class HeartbeatApiClient {
                     .addHeader("X-Signature", signature)
                     .build();
             
-            AppLog.d(TAG, "发送心跳请求: " + serverUrl + ", 图片大小: " + (imageBytes.length / 1024) + "KB");
+            AppLog.d(TAG, "Отправка心跳求: " + serverUrl + ", Изображение大小: " + (imageBytes.length / 1024) + "KB");
             
             try (Response response = client.newCall(request).execute()) {
                 int code = response.code();
                 String responseBody = response.body() != null ? response.body().string() : "";
                 
                 if (response.isSuccessful()) {
-                    AppLog.d(TAG, "心跳请求成功: " + code);
-                    return new HeartbeatResult(true, "成功", code, responseBody);
+                    AppLog.d(TAG, "心跳求Успешно: " + code);
+                    return new HeartbeatResult(true, "Успешно", code, responseBody);
                 } else {
-                    AppLog.w(TAG, "心跳请求失败: " + code + ", " + responseBody);
+                    AppLog.w(TAG, "心跳求Ошибка: " + code + ", " + responseBody);
                     return new HeartbeatResult(false, "HTTP " + code + ": " + responseBody, code, responseBody);
                 }
             }
             
         } catch (IOException e) {
-            AppLog.e(TAG, "心跳请求网络错误: " + e.getMessage());
-            return new HeartbeatResult(false, "网络错误: " + e.getMessage());
+            AppLog.e(TAG, "心跳求СетьОшибка: " + e.getMessage());
+            return new HeartbeatResult(false, "СетьОшибка: " + e.getMessage());
         } catch (Exception e) {
-            AppLog.e(TAG, "心跳请求异常: " + e.getMessage(), e);
-            return new HeartbeatResult(false, "异常: " + e.getMessage());
+            AppLog.e(TAG, "心跳求аномалия: " + e.getMessage(), e);
+            return new HeartbeatResult(false, "аномалия: " + e.getMessage());
         }
     }
     
     /**
-     * 生成请求签名
+     * 生成求签名
      * signature = HMAC-SHA256(vehicleId + timestamp + nonce, secretKey)
      */
     public static String generateSignature(String vehicleId, long timestamp, String nonce, String secretKey) {
@@ -138,7 +138,7 @@ public class HeartbeatApiClient {
             return sb.toString();
             
         } catch (Exception e) {
-            AppLog.e(TAG, "签名生成失败: " + e.getMessage());
+            AppLog.e(TAG, "Ошибка генерации подписи: " + e.getMessage());
             return null;
         }
     }
@@ -151,7 +151,7 @@ public class HeartbeatApiClient {
     }
     
     /**
-     * 构建 JSON 请求体
+     * 构建 JSON 求体
      */
     private String buildJsonBody(String vehicleId, long timestamp, String nonce, String signature,
                                   String imageBase64, int imageWidth, int imageHeight,
@@ -159,20 +159,20 @@ public class HeartbeatApiClient {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         
-        // 认证信息
+        // 认证Информация
         sb.append("\"vehicleId\":\"").append(escapeJson(vehicleId)).append("\",");
         sb.append("\"timestamp\":").append(timestamp).append(",");
         sb.append("\"nonce\":\"").append(escapeJson(nonce)).append("\",");
         sb.append("\"signature\":\"").append(escapeJson(signature)).append("\",");
         
-        // 图片数据
+        // Изображение数据
         sb.append("\"imageBase64\":\"").append(imageBase64).append("\",");
         sb.append("\"imageWidth\":").append(imageWidth).append(",");
         sb.append("\"imageHeight\":").append(imageHeight).append(",");
         sb.append("\"imageSizeBytes\":").append(imageSizeBytes).append(",");
         sb.append("\"cameraCount\":").append(cameraCount).append(",");
         
-        // App 状态（已经是 JSON 对象，直接嵌入）
+        // App Статус（经  JSON  象，直接嵌入)
         if (appStatus != null && !appStatus.isEmpty()) {
             sb.append("\"status\":").append(appStatus);
         } else {
@@ -198,7 +198,7 @@ public class HeartbeatApiClient {
     }
     
     /**
-     * 心跳请求结果
+     * 心跳求结果
      */
     public static class HeartbeatResult {
         public final boolean success;

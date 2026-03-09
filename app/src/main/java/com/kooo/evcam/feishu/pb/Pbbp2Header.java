@@ -39,7 +39,7 @@ public class Pbbp2Header {
     }
 
     /**
-     * 从二进制数据解析 Header
+     *  от 二进制数据解析 Header
      */
     public static Pbbp2Header parseFrom(byte[] data) throws IOException {
         Pbbp2Header header = new Pbbp2Header();

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Telegram 图片上传服务
- * 负责将拍摄的照片上传到 Telegram
+ * Telegram Изображение传Сервис
+ * 负责将拍 Фото传 до  Telegram
  */
 public class TelegramPhotoUploadService {
     private static final String TAG = "TelegramPhotoUpload";
@@ -30,22 +30,22 @@ public class TelegramPhotoUploadService {
     }
 
     /**
-     * 上传图片文件到 Telegram
-     * @param photoFiles 图片文件列表
+     * 传ИзображениеФайл до  Telegram
+     * @param photoFiles ИзображениеФайл列表
      * @param chatId Telegram Chat ID
-     * @param callback 上传回调
+     * @param callback 传回调
      */
     public void uploadPhotos(List<File> photoFiles, long chatId, UploadCallback callback) {
         new Thread(() -> {
             try {
                 if (photoFiles == null || photoFiles.isEmpty()) {
-                    callback.onError("没有图片文件可上传");
+                    callback.onError("Нет фото для отправки");
                     return;
                 }
 
-                callback.onProgress("开始上传 " + photoFiles.size() + " 张照片...");
+                callback.onProgress("Начало отправки " + photoFiles.size() + " фото...");
 
-                // 发送 "正在上传照片" 状态
+                // Отправка "Выполняется 传Фото" Статус
                 apiClient.sendChatAction(chatId, "upload_photo");
 
                 List<String> uploadedFiles = new ArrayList<>();
@@ -55,14 +55,14 @@ public class TelegramPhotoUploadService {
                     File photoFile = photoFiles.get(i);
 
                     if (!photoFile.exists()) {
-                        AppLog.w(TAG, "图片文件不存在: " + photoFile.getPath());
-                        failedFiles.add(photoFile.getName() + " (文件不存在)");
+                        AppLog.w(TAG, "ИзображениеФайлне существует: " + photoFile.getPath());
+                        failedFiles.add(photoFile.getName() + " (файл не найден)");
                         continue;
                     }
 
-                    callback.onProgress("正在上传 (" + (i + 1) + "/" + photoFiles.size() + "): " + photoFile.getName());
+                    callback.onProgress("Отправка (" + (i + 1) + "/" + photoFiles.size() + "): " + photoFile.getName());
 
-                    // 重试上传（最多2次，减少等待时间）
+                    // 重试传（最多2 раз，减少ожидание时间)
                     boolean uploadSuccess = false;
                     int retryCount = 0;
                     int maxRetries = 2;
@@ -71,63 +71,63 @@ public class TelegramPhotoUploadService {
                     while (!uploadSuccess && retryCount < maxRetries) {
                         try {
                             if (retryCount > 0) {
-                                callback.onProgress("重试第 " + retryCount + " 次: " + photoFile.getName());
-                                Thread.sleep(1500); // 重试前等待1.5秒
+                                callback.onProgress("Повтор #" + retryCount + "  раз: " + photoFile.getName());
+                                Thread.sleep(1500); // 重试前ожидание1.5 сек.
                             }
 
-                            // 发送 "正在上传照片" 状态
+                            // Отправка "Выполняется 传Фото" Статус
                             apiClient.sendChatAction(chatId, "upload_photo");
 
-                            // 直接上传并发送图片
-                            String caption = "照片 " + (i + 1) + "/" + photoFiles.size();
+                            // 直接传并ОтправкаИзображение
+                            String caption = "Фото " + (i + 1) + "/" + photoFiles.size();
                             apiClient.sendPhoto(chatId, photoFile, caption);
 
                             uploadedFiles.add(photoFile.getName());
-                            AppLog.d(TAG, "图片上传成功: " + photoFile.getName());
+                            AppLog.d(TAG, "Изображение传Успешно: " + photoFile.getName());
                             uploadSuccess = true;
 
                         } catch (Exception e) {
                             retryCount++;
                             lastError = e.getMessage();
-                            AppLog.e(TAG, "上传图片失败 (尝试 " + retryCount + "/" + maxRetries + "): " + photoFile.getName(), e);
+                            AppLog.e(TAG, "传ИзображениеОшибка (попытка " + retryCount + "/" + maxRetries + "): " + photoFile.getName(), e);
 
                             if (retryCount >= maxRetries) {
-                                // 达到最大重试次数，记录到失败列表
-                                failedFiles.add(photoFile.getName() + " (" + (lastError != null ? lastError : "未知错误") + ")");
+                                // 达 до максимум重试 раз数，记录 до Список ошибок
+                                failedFiles.add(photoFile.getName() + " (" + (lastError != null ? lastError : "НеизвестноОшибка") + ")");
                                 break;
                             }
                         }
                     }
 
-                    // 延迟500ms后再上传下一张照片
+                    // 延迟500ms后再传一 фото
                     if (i < photoFiles.size() - 1) {
                         Thread.sleep(500);
                     }
                 }
 
-                // 统一处理上传结果
+                // 统一处理传结果
                 if (uploadedFiles.isEmpty()) {
-                    // 所有文件都失败
-                    String errorMsg = "❌ 所有图片上传失败\n失败列表:\n" + String.join("\n", failedFiles);
+                    // 所有ФайлвсеОшибка
+                    String errorMsg = "❌ Ошибка загрузки всех фото\nСписок ошибок:\n" + String.join("\n", failedFiles);
                     callback.onError(errorMsg);
                     apiClient.sendMessage(chatId, errorMsg);
                 } else if (failedFiles.isEmpty()) {
-                    // 全部成功
-                    String successMessage = "✅ 图片上传完成！共上传 " + uploadedFiles.size() + " 张照片";
+                    // ВсеУспешно
+                    String successMessage = "✅ Загрузка фото завершена！Всего загружено " + uploadedFiles.size() + " фото";
                     callback.onSuccess(successMessage);
-                    // 等待2秒，确保图片消息投递完成后再发送完成消息
+                    // ожидание2 сек.，确保Изображение消息投递завершение后再Отправказавершение消息
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException ignored) {}
                     apiClient.sendMessage(chatId, successMessage);
                 } else {
-                    // 部分成功，部分失败
-                    String mixedMessage = "⚠️ 上传完成（部分失败）\n" +
-                            "成功: " + uploadedFiles.size() + " 张\n" +
-                            "失败: " + failedFiles.size() + " 张\n\n" +
-                            "失败列表:\n" + String.join("\n", failedFiles);
-                    callback.onSuccess(mixedMessage); // 仍然视为成功（至少有部分上传）
-                    // 等待2秒，确保图片消息投递完成后再发送完成消息
+                    // 部分Успешно，Частичная ошибка
+                    String mixedMessage = "⚠️ Загрузка завершена（Частичная ошибка)\n" +
+                            "Успешно: " + uploadedFiles.size() + "  шт.\n" +
+                            "Ошибка: " + failedFiles.size() + "  шт.\n\n" +
+                            "Список ошибок:\n" + String.join("\n", failedFiles);
+                    callback.onSuccess(mixedMessage); // 仍然视为Успешно（至少有部分传)
+                    // ожидание2 сек.，确保Изображение消息投递завершение后再Отправказавершение消息
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException ignored) {}
@@ -135,14 +135,14 @@ public class TelegramPhotoUploadService {
                 }
 
             } catch (Exception e) {
-                AppLog.e(TAG, "上传过程出错", e);
-                callback.onError("上传过程出错: " + e.getMessage());
+                AppLog.e(TAG, "传过程出错", e);
+                callback.onError("Ошибка при загрузке: " + e.getMessage());
             }
         }).start();
     }
 
     /**
-     * 上传单张图片
+     * 传单 шт.Изображение
      */
     public void uploadPhoto(File photoFile, long chatId, UploadCallback callback) {
         List<File> files = new ArrayList<>();

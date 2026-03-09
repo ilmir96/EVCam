@@ -21,15 +21,15 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 /**
- * 版本更新管理器
- * 负责检查新版本和下载 APK 文件
+ * 版本обновлениеуправление器
+ * 负责проверка新版本 и скачивание APK Файл
  */
 public class VersionUpdateManager {
     private static final String TAG = "VersionUpdateManager";
     
-    // 默认更新服务器配置
+    // По умолчаниюобновлениеСервис器конфигурация
     private static final String VERSION_FILE = "version.txt";
-    // APK 文件名格式：EVCam-v{版本号}-release.apk
+    // APK Файл名格式：EVCam-v{版本号}-release.apk
     private static final String APK_FILE_PATTERN = "EVCam-v%s-release.apk";
     
     private final Context context;
@@ -37,11 +37,11 @@ public class VersionUpdateManager {
     private final OkHttpClient httpClient;
     private final Handler mainHandler;
     
-    // 当前下载任务，用于取消
+    // Текущийскачиваниезадача，用于Отмена
     private Call currentDownloadCall;
     
     /**
-     * 版本检查回调
+     * 版本проверка回调
      */
     public interface UpdateCheckCallback {
         /**
@@ -51,36 +51,36 @@ public class VersionUpdateManager {
         void onUpdateAvailable(String newVersion);
         
         /**
-         * 已是最新版本
+         *  Последняя версия
          */
         void onNoUpdate();
         
         /**
-         * 检查失败
-         * @param error 错误信息
+         * проверкаОшибка
+         * @param error ОшибкаИнформация
          */
         void onError(String error);
     }
     
     /**
-     * 下载回调
+     * скачивание回调
      */
     public interface DownloadCallback {
         /**
-         * 下载进度更新
+         * скачивание进度обновление
          * @param progress 进度百分比 (0-100)
          */
         void onProgress(int progress);
         
         /**
-         * 下载完成
-         * @param apkFile 下载的 APK 文件
+         * скачиваниезавершение
+         * @param apkFile скачивание  APK Файл
          */
         void onComplete(File apkFile);
         
         /**
-         * 下载失败
-         * @param error 错误信息
+         * скачиваниеОшибка
+         * @param error ОшибкаИнформация
          */
         void onError(String error);
     }
@@ -90,7 +90,7 @@ public class VersionUpdateManager {
         this.appConfig = new AppConfig(context);
         this.mainHandler = new Handler(Looper.getMainLooper());
         
-        // 配置 OkHttpClient
+        // конфигурация OkHttpClient
         this.httpClient = new OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
@@ -99,7 +99,7 @@ public class VersionUpdateManager {
     }
     
     /**
-     * 获取当前应用版本号
+     * ПолучениеТекущийПриложение版本号
      */
     public String getCurrentVersion() {
         try {
@@ -107,13 +107,13 @@ public class VersionUpdateManager {
                     .getPackageInfo(context.getPackageName(), 0);
             return packageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            AppLog.e(TAG, "获取版本号失败: " + e.getMessage());
+            AppLog.e(TAG, "Получение版本号Ошибка: " + e.getMessage());
             return "unknown";
         }
     }
     
     /**
-     * 获取更新服务器基础 URL
+     * ПолучениеобновлениеСервис器基础 URL
      */
     private String getBaseUrl() {
         String url = appConfig.getUpdateServerUrl();
@@ -128,7 +128,7 @@ public class VersionUpdateManager {
     }
     
     /**
-     * 检查是否配置了更新服务器
+     * проверка 否конфигурацияобновлениеСервис器
      */
     public boolean isUpdateServerConfigured() {
         String url = appConfig.getUpdateServerUrl();
@@ -136,17 +136,17 @@ public class VersionUpdateManager {
     }
     
     /**
-     * 检查更新
+     * проверкаобновление
      */
     public void checkUpdate(UpdateCheckCallback callback) {
         String baseUrl = getBaseUrl();
         if (baseUrl == null) {
-            mainHandler.post(() -> callback.onError("未配置更新服务器地址"));
+            mainHandler.post(() -> callback.onError("Не указан адрес сервера обновлений"));
             return;
         }
         
         String versionUrl = baseUrl + VERSION_FILE;
-        AppLog.d(TAG, "检查版本更新: " + versionUrl);
+        AppLog.d(TAG, "проверка版本обновление: " + versionUrl);
         
         Request request = new Request.Builder()
                 .url(versionUrl)
@@ -156,36 +156,36 @@ public class VersionUpdateManager {
         httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                AppLog.e(TAG, "版本检查失败: " + e.getMessage());
-                mainHandler.post(() -> callback.onError("网络错误: " + e.getMessage()));
+                AppLog.e(TAG, "版本проверкаОшибка: " + e.getMessage());
+                mainHandler.post(() -> callback.onError("СетьОшибка: " + e.getMessage()));
             }
             
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     if (!response.isSuccessful()) {
-                        AppLog.e(TAG, "版本检查失败，HTTP 状态码: " + response.code());
-                        mainHandler.post(() -> callback.onError("服务器错误: " + response.code()));
+                        AppLog.e(TAG, "版本проверкаОшибка，HTTP Статус码: " + response.code());
+                        mainHandler.post(() -> callback.onError("Ошибка сервера: " + response.code()));
                         return;
                     }
                     
                     ResponseBody body = response.body();
                     if (body == null) {
-                        mainHandler.post(() -> callback.onError("服务器返回空响应"));
+                        mainHandler.post(() -> callback.onError("Сервер вернул пустой ответ"));
                         return;
                     }
                     
                     String remoteVersion = body.string().trim();
-                    AppLog.d(TAG, "服务器版本: " + remoteVersion);
+                    AppLog.d(TAG, "Сервис器Версия: " + remoteVersion);
                     
                     // 验证版本号格式
                     if (!isValidVersionFormat(remoteVersion)) {
-                        mainHandler.post(() -> callback.onError("无效的版本号格式: " + remoteVersion));
+                        mainHandler.post(() -> callback.onError("Неверный формат версии: " + remoteVersion));
                         return;
                     }
                     
                     String currentVersion = getCurrentVersion();
-                    AppLog.d(TAG, "当前版本: " + currentVersion + ", 远程版本: " + remoteVersion);
+                    AppLog.d(TAG, "ТекущийВерсия: " + currentVersion + ", УдалённыйВерсия: " + remoteVersion);
                     
                     if (isNewerVersion(remoteVersion, currentVersion)) {
                         mainHandler.post(() -> callback.onUpdateAvailable(remoteVersion));
@@ -200,20 +200,20 @@ public class VersionUpdateManager {
     }
     
     /**
-     * 下载 APK 文件
-     * @param newVersion 新版本号，用于构建文件名和命名本地文件
+     * скачивание APK Файл
+     * @param newVersion 新版本号，用于构建Файл名 и 命名本地Файл
      */
     public void downloadApk(String newVersion, DownloadCallback callback) {
         String baseUrl = getBaseUrl();
         if (baseUrl == null) {
-            mainHandler.post(() -> callback.onError("未配置更新服务器地址"));
+            mainHandler.post(() -> callback.onError("Не указан адрес сервера обновлений"));
             return;
         }
         
-        // 根据版本号构建 APK 文件名
+        // 根据版本号构建 APK Файл名
         String apkFileName = String.format(APK_FILE_PATTERN, newVersion);
         String apkUrl = baseUrl + apkFileName;
-        AppLog.d(TAG, "开始下载 APK: " + apkUrl);
+        AppLog.d(TAG, "Вкл始скачивание APK: " + apkUrl);
         
         Request request = new Request.Builder()
                 .url(apkUrl)
@@ -226,11 +226,11 @@ public class VersionUpdateManager {
             public void onFailure(Call call, IOException e) {
                 currentDownloadCall = null;
                 if (call.isCanceled()) {
-                    AppLog.d(TAG, "下载已取消");
-                    mainHandler.post(() -> callback.onError("下载已取消"));
+                    AppLog.d(TAG, "Загрузка отменена");
+                    mainHandler.post(() -> callback.onError("Загрузка отменена"));
                 } else {
-                    AppLog.e(TAG, "下载失败: " + e.getMessage());
-                    mainHandler.post(() -> callback.onError("下载失败: " + e.getMessage()));
+                    AppLog.e(TAG, "скачиваниеОшибка: " + e.getMessage());
+                    mainHandler.post(() -> callback.onError("скачиваниеОшибка: " + e.getMessage()));
                 }
             }
             
@@ -239,40 +239,40 @@ public class VersionUpdateManager {
                 currentDownloadCall = null;
                 
                 if (!response.isSuccessful()) {
-                    AppLog.e(TAG, "下载失败，HTTP 状态码: " + response.code());
-                    mainHandler.post(() -> callback.onError("服务器错误: " + response.code()));
+                    AppLog.e(TAG, "скачиваниеОшибка，HTTP Статус码: " + response.code());
+                    mainHandler.post(() -> callback.onError("Ошибка сервера: " + response.code()));
                     response.close();
                     return;
                 }
                 
                 ResponseBody body = response.body();
                 if (body == null) {
-                    mainHandler.post(() -> callback.onError("服务器返回空响应"));
+                    mainHandler.post(() -> callback.onError("Сервер вернул пустой ответ"));
                     return;
                 }
                 
                 try {
-                    // 获取文件大小
+                    // ПолучениеФайл大小
                     long contentLength = body.contentLength();
-                    AppLog.d(TAG, "APK 文件大小: " + contentLength + " bytes");
+                    AppLog.d(TAG, "APK Файл大小: " + contentLength + " bytes");
                     
-                    // 创建目标文件
+                    // 创建目标Файл
                     File downloadDir = Environment.getExternalStoragePublicDirectory(
                             Environment.DIRECTORY_DOWNLOADS);
                     if (!downloadDir.exists()) {
                         downloadDir.mkdirs();
                     }
                     
-                    // 文件名：EVCam_版本号.apk
+                    // Файл名：EVCam_版本号.apk
                     String fileName = "EVCam_" + newVersion + ".apk";
                     File apkFile = new File(downloadDir, fileName);
                     
-                    // 如果文件已存在，先删除
+                    // Если Файлсуществует，先删除
                     if (apkFile.exists()) {
                         apkFile.delete();
                     }
                     
-                    // 写入文件
+                    // 写入Файл
                     InputStream inputStream = body.byteStream();
                     FileOutputStream outputStream = new FileOutputStream(apkFile);
                     
@@ -300,12 +300,12 @@ public class VersionUpdateManager {
                     outputStream.close();
                     inputStream.close();
                     
-                    AppLog.d(TAG, "APK 下载完成: " + apkFile.getAbsolutePath());
+                    AppLog.d(TAG, "APK скачиваниезавершение: " + apkFile.getAbsolutePath());
                     mainHandler.post(() -> callback.onComplete(apkFile));
                     
                 } catch (IOException e) {
-                    AppLog.e(TAG, "保存文件失败: " + e.getMessage());
-                    mainHandler.post(() -> callback.onError("保存文件失败: " + e.getMessage()));
+                    AppLog.e(TAG, "СохранитьФайлОшибка: " + e.getMessage());
+                    mainHandler.post(() -> callback.onError("СохранитьФайлОшибка: " + e.getMessage()));
                 } finally {
                     response.close();
                 }
@@ -314,39 +314,39 @@ public class VersionUpdateManager {
     }
     
     /**
-     * 取消当前下载
+     * ОтменаТекущийскачивание
      */
     public void cancelDownload() {
         if (currentDownloadCall != null && !currentDownloadCall.isCanceled()) {
             currentDownloadCall.cancel();
-            AppLog.d(TAG, "取消下载");
+            AppLog.d(TAG, "Отменаскачивание");
         }
     }
     
     /**
      * 验证版本号格式
-     * 支持格式：1.0.0、1.0.0-test-01301530 等
+     * поддержка格式：1.0.0、1.0.0-test-01301530 等
      */
     private boolean isValidVersionFormat(String version) {
         if (version == null || version.isEmpty()) {
             return false;
         }
-        // 简单验证：至少包含一个数字和一个点
+        // 简单验证：至少содержит一 шт.数字 и 一 шт.点
         return version.matches("^\\d+\\.\\d+.*$");
     }
     
     /**
-     * 比较版本号，判断 newVersion 是否比 currentVersion 更新
-     * 支持格式：1.0.3、1.0.3-test-01301530
+     * 比较版本号，判断 newVersion  否比 currentVersion обновление
+     * поддержка格式：1.0.3、1.0.3-test-01301530
      * 
      * 规则：
-     * 1. 主版本号不同时，数字大的更新（1.0.4 > 1.0.3-test-xxx > 1.0.3）
-     * 2. 主版本号相同时，有 -test- 后缀的比没有后缀的更新（1.0.3-test-xxx > 1.0.3）
-     * 3. 都有 -test- 后缀时，比较时间戳（1.0.3-test-02032310 > 1.0.3-test-02031200）
+     * 1. 主版本号不同时，数字大 обновление（1.0.4 > 1.0.3-test-xxx > 1.0.3)
+     * 2. 主版本号相同时，有 -test- 后缀 比没有后缀 обновление（1.0.3-test-xxx > 1.0.3)
+     * 3. все有 -test- 后缀时，比较时间戳（1.0.3-test-02032310 > 1.0.3-test-02031200)
      */
     private boolean isNewerVersion(String newVersion, String currentVersion) {
         try {
-            // 提取主版本号部分（去掉 -test-xxx 后缀）
+            // 提取主版本号部分（去掉 -test-xxx 后缀)
             String newMain = extractMainVersion(newVersion);
             String currentMain = extractMainVersion(currentVersion);
             
@@ -354,7 +354,7 @@ public class VersionUpdateManager {
             String[] newParts = newMain.split("\\.");
             String[] currentParts = currentMain.split("\\.");
             
-            // 比较主版本号每个部分
+            // 比较主版本号每 шт.部分
             int maxLength = Math.max(newParts.length, currentParts.length);
             for (int i = 0; i < maxLength; i++) {
                 int newPart = i < newParts.length ? parseVersionPart(newParts[i]) : 0;
@@ -371,39 +371,39 @@ public class VersionUpdateManager {
             boolean newIsTest = newVersion.contains("-test-");
             boolean currentIsTest = currentVersion.contains("-test-");
             
-            // 测试版 > 正式版（主版本号相同时）
+            // тестирование版 > 正式版（主版本号相同时)
             if (newIsTest && !currentIsTest) {
-                return true;  // 新版本是测试版，当前是正式版，测试版更新
+                return true;  // 新版本 тестирование版，Текущий 正式版，тестирование版обновление
             }
             
             if (!newIsTest && currentIsTest) {
-                return false;  // 新版本是正式版，当前是测试版，不算更新
+                return false;  // 新版本 正式版，Текущий тестирование版，不算обновление
             }
             
-            // 两者都是测试版，比较时间戳
+            // 两者все тестирование版，比较时间戳
             if (newIsTest && currentIsTest) {
                 String newTimestamp = extractTestTimestamp(newVersion);
                 String currentTimestamp = extractTestTimestamp(currentVersion);
                 return newTimestamp.compareTo(currentTimestamp) > 0;
             }
             
-            // 两者都是正式版且版本号相同
+            // 两者все 正式版且版本号相同
             return false;
         } catch (Exception e) {
-            AppLog.e(TAG, "版本比较失败: " + e.getMessage());
+            AppLog.e(TAG, "版本比较Ошибка: " + e.getMessage());
             return false;
         }
     }
     
     /**
-     * 提取主版本号（去掉 -test-xxx 后缀）
+     * 提取主版本号（去掉 -test-xxx 后缀)
      */
     private String extractMainVersion(String version) {
         int testIndex = version.indexOf("-test-");
         if (testIndex > 0) {
             return version.substring(0, testIndex);
         }
-        // 处理其他可能的后缀（如 -alpha、-beta）
+        // 处理Другое可能 后缀（если -alpha、-beta)
         int dashIndex = version.indexOf("-");
         if (dashIndex > 0) {
             return version.substring(0, dashIndex);
@@ -412,7 +412,7 @@ public class VersionUpdateManager {
     }
     
     /**
-     * 提取测试版时间戳
+     * 提取тестирование版时间戳
      */
     private String extractTestTimestamp(String version) {
         int testIndex = version.indexOf("-test-");
@@ -427,7 +427,7 @@ public class VersionUpdateManager {
      */
     private int parseVersionPart(String part) {
         try {
-            // 处理可能的非数字字符（如 "3a" -> 3）
+            // 处理可能 非数字字符（если "3a" -> 3)
             StringBuilder digits = new StringBuilder();
             for (char c : part.toCharArray()) {
                 if (Character.isDigit(c)) {

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * Telegram 机器人配置存储工具类
+ * Telegram 机器人конфигурацияХранилищеинструмент类
  */
 public class TelegramConfig {
     private static final String PREF_NAME = "telegram_config";
@@ -22,8 +22,8 @@ public class TelegramConfig {
     }
 
     /**
-     * 保存配置
-     * @param botToken Bot Token (从 @BotFather 获取)
+     * Сохранитьконфигурация
+     * @param botToken Bot Token ( от  @BotFather Получение)
      */
     public void saveConfig(String botToken) {
         prefs.edit()
@@ -32,9 +32,9 @@ public class TelegramConfig {
     }
 
     /**
-     * 保存配置（包含允许的 Chat ID 列表）
+     * Сохранитьконфигурация（содержитразрешить  Chat ID 列表)
      * @param botToken Bot Token
-     * @param allowedChatIds 允许的 Chat ID 列表（逗号分隔）
+     * @param allowedChatIds разрешить  Chat ID 列表（逗号分隔)
      */
     public void saveConfig(String botToken, String allowedChatIds) {
         prefs.edit()
@@ -48,16 +48,16 @@ public class TelegramConfig {
     }
 
     /**
-     * 获取允许的 Chat ID 列表
-     * @return 逗号分隔的 Chat ID 字符串
+     * Получениеразрешить  Chat ID 列表
+     * @return 逗号分隔  Chat ID 字符串
      */
     public String getAllowedChatIds() {
         return prefs.getString(KEY_ALLOWED_CHAT_IDS, "");
     }
 
     /**
-     * 保存自定义 Bot API 地址（反向代理地址）
-     * @param apiHost 自定义 API 地址，如 https://a.tgpush.com，为空则使用官方地址
+     * Сохранить自定义 Bot API 地址（反 к 代理地址)
+     * @param apiHost 自定义 API 地址，если https://a.tgpush.com，пусто则использование官方地址
      */
     public void saveBotApiHost(String apiHost) {
         prefs.edit()
@@ -66,48 +66,48 @@ public class TelegramConfig {
     }
 
     /**
-     * 获取 Bot API 地址
-     * @return 自定义反向代理地址，若未配置则返回官方地址 https://api.telegram.org
+     * Получение Bot API 地址
+     * @return 自定义反 к 代理地址，若Не конфигурация则返回官方地址 https://api.telegram.org
      */
     public String getBotApiHost() {
         String customHost = prefs.getString(KEY_BOT_API_HOST, "");
         if (customHost == null || customHost.trim().isEmpty()) {
             return DEFAULT_API_HOST;
         }
-        // 去除末尾的斜杠，保持一致性
+        // 去除末尾 斜杠，保持一致性
         return customHost.endsWith("/") ? customHost.substring(0, customHost.length() - 1) : customHost;
     }
 
     /**
-     * 获取原始配置的 API Host（不包含默认值）
-     * @return 用户配置的自定义 API 地址，未配置返回空字符串
+     * Получение原始конфигурация  API Host（不содержитПо умолчанию值)
+     * @return 用户конфигурация 自定义 API 地址，Не конфигурация返回空字符串
      */
     public String getRawBotApiHost() {
         return prefs.getString(KEY_BOT_API_HOST, "");
     }
 
     /**
-     * 验证 API Host 格式是否正确
-     * 必须以 http:// 或 https:// 开头
-     * @param apiHost 待验证的地址
-     * @return 是否有效
+     * 验证 API Host 格式 否正确
+     * 必须以 http:// или https:// Вкл头
+     * @param apiHost 待验证 地址
+     * @return  否действует
      */
     public static boolean isValidApiHost(String apiHost) {
         if (apiHost == null || apiHost.trim().isEmpty()) {
-            return true; // 空值是允许的，会使用默认地址
+            return true; // 空值 разрешить ，会использованиеПо умолчанию地址
         }
         String trimmed = apiHost.trim().toLowerCase();
         return trimmed.startsWith("http://") || trimmed.startsWith("https://");
     }
 
     /**
-     * 检查 Chat ID 是否被允许
-     * 如果未配置任何 Chat ID，则允许所有
+     * проверка Chat ID  否 разрешить
+     * Если Не конфигурация任何 Chat ID，则разрешить所有
      */
     public boolean isChatIdAllowed(long chatId) {
         String allowedIds = getAllowedChatIds();
         if (allowedIds.isEmpty()) {
-            return true; // 未配置时允许所有
+            return true; // Не конфигурация时разрешить所有
         }
 
         String[] ids = allowedIds.split(",");
@@ -137,8 +137,8 @@ public class TelegramConfig {
     }
 
     /**
-     * 保存最后处理的 update_id
-     * 用于 Long Polling 时跳过已处理的消息
+     * Сохранить最后处理  update_id
+     * 用于 Long Polling 时跳过处理 消息
      */
     public void saveLastUpdateId(long updateId) {
         prefs.edit()

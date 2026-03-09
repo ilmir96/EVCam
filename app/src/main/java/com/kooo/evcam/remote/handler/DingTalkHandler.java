@@ -15,8 +15,8 @@ import java.io.File;
 import java.util.List;
 
 /**
- * 钉钉远程命令处理器
- * 实现钉钉平台特定的功能
+ * DingTalkУдалённыйкоманда处理器
+ * 实现DingTalk平台特定 функция
  */
 public class DingTalkHandler extends RemoteCommandHandler {
     private static final String TAG = "DingTalkHandler";
@@ -33,7 +33,7 @@ public class DingTalkHandler extends RemoteCommandHandler {
     
     @Override
     protected String getPlatformName() {
-        return "钉钉";
+        return "DingTalk";
     }
     
     @Override
@@ -49,7 +49,7 @@ public class DingTalkHandler extends RemoteCommandHandler {
     @Override
     public void sendMessage(ChatIdentifier chatId, String message) {
         if (apiClient == null) {
-            AppLog.e(TAG, "钉钉 API 客户端未初始化");
+            AppLog.e(TAG, "DingTalk API 客户端Не инициализация");
             return;
         }
         
@@ -62,7 +62,7 @@ public class DingTalkHandler extends RemoteCommandHandler {
                     message
                 );
             } catch (Exception e) {
-                AppLog.e(TAG, "发送钉钉消息失败", e);
+                AppLog.e(TAG, "ОтправкаDingTalkсообщения — ошибка", e);
             }
         }).start();
     }
@@ -82,10 +82,10 @@ public class DingTalkHandler extends RemoteCommandHandler {
         return new DingTalkPhotoUploadAdapter(context, apiClient);
     }
     
-    // ==================== 上传服务适配器 ====================
+    // ==================== 传Сервис适配器 ====================
     
     /**
-     * 钉钉视频上传适配器
+     * DingTalkВидео传适配器
      */
     private static class DingTalkVideoUploadAdapter implements MediaUploadService {
         private final VideoUploadService uploadService;
@@ -121,12 +121,12 @@ public class DingTalkHandler extends RemoteCommandHandler {
         
         @Override
         public void uploadPhotos(List<File> photoFiles, ChatIdentifier chatId, RemoteUploadCallback callback) {
-            // 视频上传服务不处理照片
+            // Видео传Сервис不处理Фото
         }
     }
     
     /**
-     * 钉钉照片上传适配器
+     * DingTalkФото传适配器
      */
     private static class DingTalkPhotoUploadAdapter implements MediaUploadService {
         private final PhotoUploadService uploadService;
@@ -137,7 +137,7 @@ public class DingTalkHandler extends RemoteCommandHandler {
         
         @Override
         public void uploadVideos(List<File> videoFiles, ChatIdentifier chatId, RemoteUploadCallback callback) {
-            // 照片上传服务不处理视频
+            // Фото传Сервис不处理Видео
         }
         
         @Override

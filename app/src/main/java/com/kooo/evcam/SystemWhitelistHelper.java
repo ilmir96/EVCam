@@ -9,14 +9,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * 银河E5（E245）系统白名单配置助手
+ * GalaxyE5（E245)Система白名单конфигурация助手
  * 
- * 将 EVCam 添加到车机系统的三个白名单配置文件中：
- * 1. geely_lifectl_start_list.xml - 系统启动列表
+ * 将 EVCam 添加 до 车机Система 三 шт.白名单конфигурацияФайл：
+ * 1. geely_lifectl_start_list.xml - СистемаЗапуск列表
  * 2. ecarx_str_policies.xml - Ecarx STR 白名单
- * 3. bgms_config.xml - BGMS 后台管理白名单
+ * 3. bgms_config.xml - BGMS Фоновый режимуправление白名单
  * 
- * 通过 ADB TCP 协议（localhost:5555）执行，与"一键获取权限"使用相同的通道。
+ * 通过 ADB TCP 协议（localhost:5555)выполнение， и "一键ПолучениеРазрешение"использование相同 通道。
  */
 public class SystemWhitelistHelper {
 
@@ -28,12 +28,12 @@ public class SystemWhitelistHelper {
     private AdbPermissionHelper adbHelper;
 
     /**
-     * 回调接口，与 AdbPermissionHelper.Callback 一致
+     * 回调接口， и  AdbPermissionHelper.Callback 一致
      */
     public interface Callback {
-        /** 实时日志输出（在主线程回调） */
+        /** 实时 д.志输出（ 主线程回调) */
         void onLog(String message);
-        /** 执行完成（在主线程回调） */
+        /** выполнениезавершение（ 主线程回调) */
         void onComplete(boolean success);
     }
 
@@ -42,30 +42,30 @@ public class SystemWhitelistHelper {
     }
 
     /**
-     * 执行白名单配置。
-     * 1. 将脚本从 assets 复制到应用缓存目录
-     * 2. 通过 ADB TCP 协议执行脚本（与一键获取权限相同的通道）
-     * 3. 实时输出脚本日志
+     * выполнение白名单конфигурация。
+     * 1. 将脚本 от  assets 复制 до Приложение缓存каталог
+     * 2. 通过 ADB TCP 协议выполнение脚本（ и 一键ПолучениеРазрешение相同 通道)
+     * 3. 实时输出脚本 д.志
      */
     public void executeWhitelistSetup(Callback callback) {
-        // 步骤 1：将脚本从 assets 复制到缓存目录
-        callback.onLog("[INFO] 正在准备脚本文件...");
+        // 步骤 1：将脚本 от  assets 复制 до 缓存каталог
+        callback.onLog("[INFO] Подготовка скрипта...");
 
         File scriptFile = copyScriptFromAssets(SCRIPT_ASSET_NAME);
         if (scriptFile == null) {
-            callback.onLog("[ERROR] 无法准备脚本文件");
+            callback.onLog("[ERROR] Не удалось подготовить скрипт");
             callback.onComplete(false);
             return;
         }
-        callback.onLog("[OK] 脚本已准备: " + scriptFile.getAbsolutePath());
+        callback.onLog("[OK] Скрипт готов: " + scriptFile.getAbsolutePath());
         callback.onLog("");
 
-        // 步骤 2：通过 ADB 执行脚本
+        // 步骤 2：通过 ADB выполнение脚本
         if (adbHelper == null) {
             adbHelper = new AdbPermissionHelper(context);
         }
 
-        // 应用内部路径 /data/data/... 对 ADB shell 可见，直接使用
+        // ПриложениеВнутреннееПуть /data/data/...   ADB shell 可见，直接использование
         adbHelper.executeScriptFile(scriptFile.getAbsolutePath(), new AdbPermissionHelper.Callback() {
             @Override
             public void onLog(String message) {
@@ -74,7 +74,7 @@ public class SystemWhitelistHelper {
 
             @Override
             public void onComplete(boolean allSuccess) {
-                // 清理临时文件
+                // Очистка временноФайл
                 if (scriptFile.exists()) {
                     scriptFile.delete();
                 }
@@ -84,21 +84,21 @@ public class SystemWhitelistHelper {
     }
 
     /**
-     * 执行白名单恢复。
-     * 1. 将恢复脚本从 assets 复制到应用缓存目录
-     * 2. 通过 ADB TCP 协议执行脚本
-     * 3. 实时输出脚本日志
+     * выполнение白名单Восстановление。
+     * 1. 将Восстановление脚本 от  assets 复制 до Приложение缓存каталог
+     * 2. 通过 ADB TCP 协议выполнение脚本
+     * 3. 实时输出脚本 д.志
      */
     public void executeWhitelistRestore(Callback callback) {
-        callback.onLog("[INFO] 正在准备恢复脚本...");
+        callback.onLog("[INFO] Подготовка скрипта восстановления...");
 
         File scriptFile = copyScriptFromAssets(RESTORE_SCRIPT_ASSET_NAME);
         if (scriptFile == null) {
-            callback.onLog("[ERROR] 无法准备恢复脚本");
+            callback.onLog("[ERROR] Не удалось подготовить скрипт восстановления");
             callback.onComplete(false);
             return;
         }
-        callback.onLog("[OK] 脚本已准备: " + scriptFile.getAbsolutePath());
+        callback.onLog("[OK] Скрипт готов: " + scriptFile.getAbsolutePath());
         callback.onLog("");
 
         if (adbHelper == null) {
@@ -122,7 +122,7 @@ public class SystemWhitelistHelper {
     }
 
     /**
-     * 将脚本文件从 assets 复制到应用缓存目录
+     * 将脚本Файл от  assets 复制 до Приложение缓存каталог
      */
     private File copyScriptFromAssets(String assetName) {
         File cacheDir = context.getCacheDir();
@@ -142,7 +142,7 @@ public class SystemWhitelistHelper {
             return scriptFile;
 
         } catch (IOException e) {
-            AppLog.e(TAG, "复制脚本文件失败", e);
+            AppLog.e(TAG, "复制脚本ФайлОшибка", e);
             return null;
         }
     }

@@ -16,14 +16,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.File;
 
 /**
- * 内置图片查看器
- * 支持缩放、拖动等手势操作
+ * 内置ИзображениеПросмотр器
+ * поддержка缩放、拖动等手势операция
  */
 public class PhotoViewerActivity extends AppCompatActivity {
     private ImageView imageView;
     private TextView titleText;
 
-    // 手势相关
+    // 手势相Выкл
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
     private static final int NONE = 0;
@@ -46,31 +46,31 @@ public class PhotoViewerActivity extends AppCompatActivity {
         titleText = findViewById(R.id.photo_title);
         View btnClose = findViewById(R.id.btn_close);
 
-        // 获取图片路径
+        // ПолучениеИзображениеПуть
         String photoPath = getIntent().getStringExtra("photo_path");
         if (photoPath == null || photoPath.isEmpty()) {
-            Toast.makeText(this, "无效的图片路径", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Неверный путь к фото", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         File photoFile = new File(photoPath);
         if (!photoFile.exists()) {
-            Toast.makeText(this, "图片文件不存在", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Файл фото не найден", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        // 设置标题
+        // Настройки标题
         titleText.setText(photoFile.getName());
 
-        // 加载图片
+        // загрузкаИзображение
         loadPhoto(photoFile);
 
-        // 关闭按钮
+        // Закрыто按钮
         btnClose.setOnClickListener(v -> finish());
 
-        // 设置触摸监听器
+        // Настройки触摸监听器
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -131,16 +131,16 @@ public class PhotoViewerActivity extends AppCompatActivity {
     }
 
     /**
-     * 加载图片
+     * загрузкаИзображение
      */
     private void loadPhoto(File photoFile) {
         try {
-            // 先获取图片尺寸
+            // 先ПолучениеИзображение尺寸
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(photoFile.getAbsolutePath(), options);
 
-            // 计算缩放比例（避免加载过大的图片导致OOM）
+            // 计算缩放比例（避免загрузка过大 Изображение导致OOM)
             int maxSize = 2048;
             int scaleFactor = 1;
             if (options.outWidth > maxSize || options.outHeight > maxSize) {
@@ -150,7 +150,7 @@ public class PhotoViewerActivity extends AppCompatActivity {
                 );
             }
 
-            // 加载图片
+            // загрузкаИзображение
             options.inJustDecodeBounds = false;
             options.inSampleSize = scaleFactor;
             Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath(), options);
@@ -159,7 +159,7 @@ public class PhotoViewerActivity extends AppCompatActivity {
                 imageView.setImageBitmap(bitmap);
                 imageView.setScaleType(ImageView.ScaleType.MATRIX);
 
-                // 初始化矩阵，使图片居中显示
+                // инициализация矩阵，使Изображение居显示
                 imageView.post(() -> {
                     int viewWidth = imageView.getWidth();
                     int viewHeight = imageView.getHeight();
@@ -179,11 +179,11 @@ public class PhotoViewerActivity extends AppCompatActivity {
                     imageView.setImageMatrix(matrix);
                 });
             } else {
-                Toast.makeText(this, "无法加载图片", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Не удалось загрузить изображение", Toast.LENGTH_SHORT).show();
                 finish();
             }
         } catch (Exception e) {
-            Toast.makeText(this, "加载图片失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Ошибка загрузки изображения: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
         }
     }
@@ -199,7 +199,7 @@ public class PhotoViewerActivity extends AppCompatActivity {
     }
 
     /**
-     * 计算两点中点
+     * 计算两点点
      */
     private void midPoint(PointF point, MotionEvent event) {
         if (event.getPointerCount() < 2) return;

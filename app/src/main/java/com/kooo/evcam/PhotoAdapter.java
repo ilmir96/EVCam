@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * 照片列表适配器
+ * Фото列表适配器
  */
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private final Context context;
@@ -123,23 +123,23 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
             holder.btnDelete.setOnClickListener(v -> {
                 new MaterialAlertDialogBuilder(context, R.style.Theme_Cam_MaterialAlertDialog)
-                        .setTitle("确认删除")
-                        .setMessage("确定要删除 " + photoFile.getName() + " 吗？")
-                        .setPositiveButton("删除", (dialog, which) -> {
+                        .setTitle("Подтвердите удаление")
+                        .setMessage("Удалить " + photoFile.getName() + "?")
+                        .setPositiveButton("Удалить", (dialog, which) -> {
                             if (photoFile.delete()) {
                                 photoFiles.remove(position);
                                 notifyItemRemoved(position);
                                 notifyItemRangeChanged(position, photoFiles.size());
-                                Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Удалено", Toast.LENGTH_SHORT).show();
 
                                 if (deleteListener != null) {
                                     deleteListener.onPhotoDeleted();
                                 }
                             } else {
-                                Toast.makeText(context, "删除失败", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Ошибка удаления", Toast.LENGTH_SHORT).show();
                             }
                         })
-                        .setNegativeButton("取消", null)
+                        .setNegativeButton("Отмена", null)
                         .show();
             });
         }
@@ -163,21 +163,21 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     }
 
     /**
-     * 使用 Glide 加载照片缩略图（带内存和磁盘缓存）
+     * использование Glide загрузкаФото缩略图（带内存 и 磁 диск缓存)
      */
     private void loadThumbnail(File photoFile, ImageView imageView) {
-        // 检查文件是否存在且大小大于0
+        // проверкаФайл 否существует且大小大于0
         if (!photoFile.exists() || photoFile.length() == 0) {
             imageView.setImageResource(android.R.drawable.ic_menu_gallery);
             return;
         }
 
-        // 使用文件修改时间作为缓存签名，文件变化时自动更新缓存
+        // использованиеФайлизменение时间作为缓存签名，Файл变化时автоматическиобновление缓存
         RequestOptions options = new RequestOptions()
                 .override(300, 300)  // 缩略图尺寸
                 .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)  // 缓存解码后的资源
-                .signature(new ObjectKey(photoFile.lastModified()))  // 文件修改时间作为缓存key
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)  // 缓存解码后 资源
+                .signature(new ObjectKey(photoFile.lastModified()))  // Файлизменение时间作为缓存key
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .error(android.R.drawable.ic_menu_gallery);
 

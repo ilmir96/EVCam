@@ -29,12 +29,12 @@ import com.kooo.evcam.MainActivity;
 import com.kooo.evcam.R;
 
 /**
- * 心跳推图配置界面
+ * Мониторингконфигурация界面
  */
 public class HeartbeatFragment extends Fragment implements HeartbeatManager.HeartbeatListener {
     private static final String TAG = "HeartbeatFragment";
     
-    // UI 组件
+    // UI  групп件
     private Button btnMenu, btnHome;
     private EditText etServerUrl, etSecretKey;
     private ImageButton btnToggleKeyVisibility;
@@ -77,9 +77,9 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
     @Override
     public void onResume() {
         super.onResume();
-        // 立即更新一次
+        // 立т.е.обновление一 раз
         updateStatusDisplay();
-        // 延迟再更新一次，确保相机状态已就绪
+        // 延迟再обновление一 раз，确保相机Статус绪
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             if (isAdded()) {
                 updateStatusDisplay();
@@ -134,7 +134,7 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
     }
     
     private void loadConfig() {
-        // 服务器地址
+        // Адрес сервера
         etServerUrl.setText(config.getServerUrl());
         
         // 通信密钥
@@ -157,7 +157,7 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
                 break;
         }
         
-        // 图片质量
+        // Изображение质量
         int targetSize = config.getTargetSizeKB();
         switch (targetSize) {
             case HeartbeatConfig.TARGET_SIZE_500KB:
@@ -174,17 +174,17 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
                 break;
         }
         
-        // 推图模式
+        // 推图режим
         switchScreenOnPush.setChecked(config.isScreenOnPushEnabled());
         switchScreenOffPush.setChecked(config.isScreenOffPushEnabled());
         
-        // 自动启动
+        // автоматическиЗапуск
         switchAutoStart.setChecked(config.isAutoStartEnabled());
         
         // 车辆ID
         tvVehicleId.setText(config.getVehicleId());
         
-        // 统计信息
+        // 统计Информация
         updateStatisticsDisplay();
     }
     
@@ -231,22 +231,22 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
             if (clipboard != null) {
                 ClipData clip = ClipData.newPlainText("vehicle_id", vehicleId);
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(requireContext(), "已复制: " + vehicleId, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Скопировано: " + vehicleId, Toast.LENGTH_SHORT).show();
             }
         });
         
-        // 保存配置
+        // Сохранитьконфигурация
         btnSaveConfig.setOnClickListener(v -> saveConfig());
         
-        // 自动启动开关
+        // автоматическиЗапускВклВыкл
         switchAutoStart.setOnCheckedChangeListener((buttonView, isChecked) -> {
             config.setAutoStartEnabled(isChecked);
         });
         
-        // 启动服务
+        // ЗапускСервис
         btnStartService.setOnClickListener(v -> {
             if (!config.isConfigured()) {
-                Toast.makeText(requireContext(), "请先保存配置", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Сначала сохраните настройки", Toast.LENGTH_SHORT).show();
                 return;
             }
             
@@ -256,10 +256,10 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
             }
             updateButtonStates();
             updateStatusDisplay();
-            Toast.makeText(requireContext(), "服务已启动", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Сервис запущен", Toast.LENGTH_SHORT).show();
         });
         
-        // 停止服务
+        // ОстановкаСервис
         btnStopService.setOnClickListener(v -> {
             config.setEnabled(false);
             if (getActivity() instanceof MainActivity) {
@@ -271,35 +271,35 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
             }
             updateButtonStates();
             updateStatusDisplay();
-            Toast.makeText(requireContext(), "服务已停止", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Сервис остановлен", Toast.LENGTH_SHORT).show();
         });
         
-        // 立即测试
+        // 立т.е.тестирование
         btnTest.setOnClickListener(v -> {
             if (!config.isConfigured()) {
-                Toast.makeText(requireContext(), "请先保存配置", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Сначала сохраните настройки", Toast.LENGTH_SHORT).show();
                 return;
             }
             
             if (getActivity() instanceof MainActivity) {
                 HeartbeatManager manager = ((MainActivity) getActivity()).getHeartbeatManager();
                 if (manager != null) {
-                    Toast.makeText(requireContext(), "正在测试...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Тестирование...", Toast.LENGTH_SHORT).show();
                     manager.executeOnce();
                 }
             }
         });
         
-        // 重置统计
+        // Сброс统计
         btnResetStats.setOnClickListener(v -> {
             config.resetStatistics();
             updateStatisticsDisplay();
-            Toast.makeText(requireContext(), "统计已重置", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Статистика сброшена", Toast.LENGTH_SHORT).show();
         });
     }
     
     /**
-     * 更新启动/停止按钮状态
+     * обновлениеЗапуск/Остановка按钮Статус
      */
     private void updateButtonStates() {
         boolean isEnabled = config.isEnabled();
@@ -315,19 +315,19 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
         
         // 验证
         if (serverUrl.isEmpty()) {
-            Toast.makeText(requireContext(), "请填写服务器地址", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Укажите адрес сервера", Toast.LENGTH_SHORT).show();
             return;
         }
         if (!serverUrl.startsWith("http://") && !serverUrl.startsWith("https://")) {
-            Toast.makeText(requireContext(), "服务器地址必须以 http:// 或 https:// 开头", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Адрес сервера должен начинаться с http:// или https://", Toast.LENGTH_SHORT).show();
             return;
         }
         if (secretKey.isEmpty()) {
-            Toast.makeText(requireContext(), "请填写通信密钥", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Укажите ключ связи", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        // 保存配置
+        // Сохранитьконфигурация
         config.setServerUrl(serverUrl);
         config.setSecretKey(secretKey);
         config.setIntervalSeconds(getSelectedInterval());
@@ -336,9 +336,9 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
         config.setScreenOffPushEnabled(switchScreenOffPush.isChecked());
         config.setAutoStartEnabled(switchAutoStart.isChecked());
         
-        Toast.makeText(requireContext(), "配置已保存", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "Настройки сохранены", Toast.LENGTH_SHORT).show();
         
-        // 更新按钮状态
+        // обновление按钮Статус
         updateButtonStates();
         updateStatusDisplay();
     }
@@ -368,7 +368,7 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
     }
     
     /**
-     * 更新状态显示
+     * обновлениеСтатус显示
      */
     public void updateStatusDisplay() {
         if (getActivity() instanceof MainActivity) {
@@ -380,36 +380,36 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
             boolean screenOffPush = config.isScreenOffPushEnabled();
             
             if (isRunning) {
-                // 服务正在运行
-                tvStatus.setText("运行中");
+                // СервисВыполняется Работа
+                tvStatus.setText("Работает");
                 tvStatus.setTextColor(0xFF00CC00);  // 深绿色
             } else if (!isConfigured) {
-                // 配置不完整
-                tvStatus.setText("未配置");
+                // конфигурация不完整
+                tvStatus.setText("Не настроен");
                 tvStatus.setTextColor(0xFFFF4444);  // 红色
             } else if (!isEnabled) {
-                // 用户未启用服务
-                tvStatus.setText("未启动");
+                // 用户Не ВключитьСервис
+                tvStatus.setText("Не запущен");
                 tvStatus.setTextColor(0xFF888888);  // 灰色
             } else {
-                // isEnabled=true 但 isRunning=false：配置已启用但服务未运行
-                // 这种情况通常是：用户之前启用了服务，但 app 重启后没有自动启动
+                // isEnabled=true 但 isRunning=false：конфигурацияВключено但СервисНе Работа
+                // 这种情况通常 ：用户доВключитьСервис，但 app перезагрузка后没有автоматическиЗапуск
                 if (!screenOnPush && !screenOffPush) {
-                    tvStatus.setText("服务未运行（推图模式均关闭）");
+                    tvStatus.setText("Сервис не запущен (все режимы отправки выключены)");
                     tvStatus.setTextColor(0xFFFF9900);  // 橙色
                 } else if (screenOffPush && !screenOnPush) {
-                    tvStatus.setText("服务未运行（仅息屏推图）");
+                    tvStatus.setText("Сервис не запущен (только при выкл. экране)");
                     tvStatus.setTextColor(0xFFFF9900);  // 橙色
                 } else {
-                    tvStatus.setText("服务未运行");
+                    tvStatus.setText("Сервис не запущен");
                     tvStatus.setTextColor(0xFFFF9900);  // 橙色
                 }
             }
             
-            // 摄像头数量（从 MainActivity 获取）
+            // Камера数量（ от  MainActivity Получение)
             int cameraCount = ((MainActivity) getActivity()).getConnectedCameraCount();
             int totalCameras = ((MainActivity) getActivity()).getTotalCameraCount();
-            tvCameraCount.setText("相机: " + cameraCount + "/" + totalCameras + " 已连接");
+            tvCameraCount.setText("Камеры: " + cameraCount + "/" + totalCameras + " подключено");
         }
         
         updateButtonStates();
@@ -417,14 +417,14 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
     }
     
     private void updateStatisticsDisplay() {
-        // 上次上传时间
+        //  раз传时间
         long lastUpload = config.getLastUploadTime();
-        tvLastUpload.setText("上次推图: " + HeartbeatManager.formatTimestamp(lastUpload));
+        tvLastUpload.setText("Последняя отправка: " + HeartbeatManager.formatTimestamp(lastUpload));
         
-        // 成功/失败统计
+        // Успешно/Ошибка统计
         int success = config.getSuccessCount();
         int fail = config.getFailCount();
-        tvStatistics.setText("成功: " + success + " | 失败: " + fail);
+        tvStatistics.setText("Успешно: " + success + " | Ошибки: " + fail);
     }
     
     // ==================== HeartbeatListener 回调 ====================
@@ -432,7 +432,7 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
     @Override
     public void onHeartbeatStarted() {
         if (isAdded()) {
-            tvStatus.setText("运行中");
+            tvStatus.setText("Работает");
             tvStatus.setTextColor(0xFF00CC00);  // 深绿色
         }
     }
@@ -456,8 +456,8 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
     public void onHeartbeatFailed(String error) {
         if (isAdded()) {
             updateStatisticsDisplay();
-            // 可选：显示错误提示
-            // Toast.makeText(requireContext(), "心跳失败: " + error, Toast.LENGTH_SHORT).show();
+            // 可选：显示ОшибкаУведомление
+            // Toast.makeText(requireContext(), "心跳Ошибка: " + error, Toast.LENGTH_SHORT).show();
         }
     }
 }

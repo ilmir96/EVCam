@@ -92,7 +92,7 @@ public class SecondaryBlindSpotAdjustFragment extends Fragment {
         rotationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         rotationSpinner.setAdapter(rotationAdapter);
 
-        String[] orientations = {"正常 (0°)", "顺时针90°", "倒置 (180°)", "逆时针90°"};
+        String[] orientations = {"Обычный (0°)", "По часовой 90°", "Перевёрнутый (180°)", "Против часовой 90°"};
         ArrayAdapter<String> orientationAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, orientations);
         orientationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         orientationSpinner.setAdapter(orientationAdapter);
@@ -104,7 +104,7 @@ public class SecondaryBlindSpotAdjustFragment extends Fragment {
         List<String> displayNames = new ArrayList<>();
         for (Display d : displays) {
             availableDisplays.add(d);
-            displayNames.add("Display " + d.getDisplayId() + (d.getDisplayId() == 0 ? " (主屏)" : ""));
+            displayNames.add("Display " + d.getDisplayId() + (d.getDisplayId() == 0 ? " (главный экран)" : ""));
         }
         ArrayAdapter<String> displayAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, displayNames);
         displayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -276,7 +276,7 @@ public class SecondaryBlindSpotAdjustFragment extends Fragment {
 
         saveButton.setOnClickListener(v -> {
             persistAllAndUpdate();
-            Toast.makeText(requireContext(), "配置已保存并应用", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Настройки сохранены и применены", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -306,7 +306,7 @@ public class SecondaryBlindSpotAdjustFragment extends Fragment {
     private void updateDisplayInfo(Display display) {
         android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
         display.getRealMetrics(metrics);
-        displayInfoText.setText(String.format("当前屏幕分辨率: %d x %d", metrics.widthPixels, metrics.heightPixels));
+        displayInfoText.setText(String.format("Текущее разрешение экрана: %d x %d", metrics.widthPixels, metrics.heightPixels));
 
         seekbarX.setMax(metrics.widthPixels);
         seekbarY.setMax(metrics.heightPixels);

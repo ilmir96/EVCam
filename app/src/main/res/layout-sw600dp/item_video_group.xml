@@ -105,7 +105,7 @@
                 android:paddingVertical="1dp"
                 android:textColor="#FFFFFF"
                 android:textSize="10sp"
-                android:text="4路" />
+                android:text="4 кам." />
         </FrameLayout>
 
         <!-- 视频信息 -->
@@ -148,7 +148,7 @@
                 android:text="69.94 MB" />
         </LinearLayout>
 
-        <!-- 选中指示器（多选模式用） -->
+        <!-- 选中指示器（Выбрать模式用） -->
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/check_indicator"
             android:layout_width="wrap_content"

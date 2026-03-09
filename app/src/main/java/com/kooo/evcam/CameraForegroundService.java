@@ -3,7 +3,7 @@ package com.kooo.evcam;
 
 import com.kooo.evcam.AppLog;
 import com.kooo.evcam.camera.MultiCameraManager;
-// import android.app.AlarmManager;  // 已移除，使用 TIME_TICK 替代
+// import android.app.AlarmManager;  // 移除，использование TIME_TICK 替代
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,28 +15,28 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-// import android.os.SystemClock;  // 已移除 AlarmManager
+// import android.os.SystemClock;  // 移除 AlarmManager
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
 /**
- * 前台服务，用于在后台使用摄像头
- * Android 11+ 要求后台使用摄像头时必须有前台服务
+ * Передний планСервис，用于 Фоновый режимиспользованиеКамера
+ * Android 11+ 要求Фоновый режимиспользованиеКамера时必须有Передний планСервис
  * 
- * 增强保活功能：
- * - 当无障碍服务未开启时，此服务会动态注册 TIME_TICK 广播
- * - TIME_TICK 每分钟触发一次，可以保持应用活跃
- * - onTaskRemoved: 用户滑动清除应用时自动重启
- * - onDestroy: 服务被杀时发送延迟重启广播
- * - WakeLock: 防止系统休眠（需用户开启）
+ * 增强保活функция：
+ * - 当无障碍СервисНе Вкл启时，此Сервис会动态注册 TIME_TICK 广播
+ * - TIME_TICK 每 мин.触发一 раз，可以保持Приложение活跃
+ * - onTaskRemoved: 用户滑动очисткаПриложение时автоматическиперезагрузка
+ * - onDestroy: Сервис 杀时Отправка延迟перезагрузка广播
+ * - WakeLock: 防止Система休眠（需用户Вкл启)
  */
 public class CameraForegroundService extends Service {
     private static final String TAG = "CameraForegroundService";
     private static final String CHANNEL_ID = "camera_service_channel";
     private static final int NOTIFICATION_ID = 1001;
     
-    // 服务重启延迟时间
+    // Сервисперезагрузка延迟时间
     private static final long RESTART_DELAY_MS = 1000;
 
     private static final long CAMERA_REPAIR_INTERVAL_MS = 10000;
@@ -47,8 +47,8 @@ public class CameraForegroundService extends Service {
     private static final java.util.List<Runnable> pendingReadyCallbacks = new java.util.ArrayList<>();
 
     /**
-     * 前台服务就绪后执行回调。
-     * 如果服务已经运行，立即在主线程执行；否则排队等待 startForeground 完成后执行。
+     * Передний планСервис绪后выполнение回调。
+     * Если Сервис经Работа，立т.е. 主线程выполнение；否则排队ожидание startForeground завершение后выполнение。
      */
     public static void whenReady(Context context, Runnable callback) {
         if (isForegroundReady) {
@@ -66,105 +66,105 @@ public class CameraForegroundService extends Service {
         AppLog.d(TAG, "Service created");
         createNotificationChannel();
         
-        // 如果无障碍服务未运行，则在此注册 TIME_TICK 广播
+        // Если 无障碍СервисНе Работа，则 此注册 TIME_TICK 广播
         registerTimeTickIfNeeded();
         
-        // 获取 WakeLock 防止系统休眠（车机必须）
+        // Получение WakeLock 防止Система休眠（车机必须)
         acquireWakeLock();
         
-        // 启动远程服务（钉钉/Telegram）
-        // 这样远程服务不依赖 MainActivity，即使 Activity 被杀也能继续运行
+        // ЗапускУдалённыйСервис（DingTalk/Telegram)
+        // 这样УдалённыйСервис不依赖 MainActivity，т.е.使 Activity  杀также能продолжитьРабота
         startRemoteServicesIfNeeded();
 
         startCameraRepairLoop();
     }
     
     /**
-     * 启动远程服务（如果配置了自动启动）
-     * 这是轻量优化的核心：远程服务在 Service 中启动，不依赖 MainActivity
+     * ЗапускУдалённыйСервис（Если конфигурацияавтоматическиЗапуск)
+     * 这 轻量优化 核心：УдалённыйСервис  Service Запуск，不依赖 MainActivity
      */
     private void startRemoteServicesIfNeeded() {
         try {
             AppConfig appConfig = new AppConfig(this);
-            // 只有开启了开机自启动才启动远程服务和悬浮窗
+            // 只有Вкл启Вкл机自Запуск才ЗапускУдалённыйСервис и 悬浮窗
             if (appConfig.isAutoStartOnBoot()) {
-                AppLog.d(TAG, "开机自启动已开启，从 Service 启动远程服务...");
+                AppLog.d(TAG, "Вкл机自ЗапускВкл启， от  Service ЗапускУдалённыйСервис...");
                 RemoteServiceManager.getInstance().startRemoteServicesFromService(this);
                 
-                // 启动悬浮窗（如果已启用）
+                // Запуск悬浮窗（Если Включено)
                 if (appConfig.isFloatingWindowEnabled()) {
-                    AppLog.d(TAG, "悬浮窗已启用，从 Service 启动悬浮窗...");
+                    AppLog.d(TAG, "悬浮窗Включено， от  Service Запуск悬浮窗...");
                     FloatingWindowService.start(this);
                 }
                 
-                // 启动补盲选项服务 (副屏/主屏悬浮窗/转向灯联动/模拟按钮)
+                // Запуск补盲选项Сервис (副屏/主屏悬浮窗/转 к 灯联动/模拟按钮)
                 if (appConfig.isSecondaryDisplayEnabled() || appConfig.isMainFloatingEnabled()
                         || appConfig.isTurnSignalLinkageEnabled() || appConfig.isMockTurnSignalFloatingEnabled()) {
-                    AppLog.d(TAG, "补盲选项已启用，从 Service 启动...");
+                    AppLog.d(TAG, "补盲选项Включено， от  Service Запуск...");
                     BlindSpotService.update(this);
                 }
                 
-                // 如果启用了自动录制，启动 MainActivity
-                // 这确保杀后台重启后也能自动录制（与开机启动行为一致）
+                // Если ВключитьавтоматическиЗапись，Запуск MainActivity
+                // 这确保杀Фоновый режимперезагрузка后также能автоматическиЗапись（ и Вкл机Запуск行为一致)
                 if (appConfig.isAutoStartRecording()) {
                     startMainActivityForAutoRecording();
                 }
             } else {
-                AppLog.d(TAG, "开机自启动未开启，跳过远程服务启动");
+                AppLog.d(TAG, "Вкл机自ЗапускНе Вкл启，跳过УдалённыйСервисЗапуск");
             }
         } catch (Exception e) {
-            AppLog.e(TAG, "启动远程服务失败: " + e.getMessage(), e);
+            AppLog.e(TAG, "ЗапускУдалённыйСервисОшибка: " + e.getMessage(), e);
         }
     }
     
     /**
-     * 启动 MainActivity 进行自动录制
+     * Запуск MainActivity 进行автоматическиЗапись
      * 用于：
-     * 1. 杀后台后服务重启时恢复自动录制
-     * 2. 与开机启动（TransparentBootActivity）行为保持一致
+     * 1. 杀Фоновый режим后Сервисперезагрузка时ВосстановлениеавтоматическиЗапись
+     * 2.  и Вкл机Запуск（TransparentBootActivity)行为保持一致
      */
     private void startMainActivityForAutoRecording() {
         try {
-            // 检查 MainActivity 是否已经在运行
-            // 通过检查静态引用判断（避免重复启动）
+            // проверка MainActivity  否经 Работа
+            // 通过проверка静态引用判断（避免重复Запуск)
             if (MainActivity.getInstance() != null) {
-                AppLog.d(TAG, "MainActivity 已在运行，跳过启动");
+                AppLog.d(TAG, "MainActivity  Работа，跳过Запуск");
                 return;
             }
             
-            AppLog.d(TAG, "自动录制已启用，启动 MainActivity（后台模式）...");
+            AppLog.d(TAG, "автоматическиЗаписьВключено，Запуск MainActivity（Фоновый режимрежим)...");
             
             Intent mainIntent = new Intent(this, MainActivity.class);
             mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            mainIntent.putExtra("auto_start_from_boot", true);  // 复用开机自启动的逻辑
+            mainIntent.putExtra("auto_start_from_boot", true);  // 复用Вкл机自Запуск 逻辑
             mainIntent.putExtra("silent_mode", true);
-            mainIntent.putExtra("from_service_restart", true);  // 标记来自服务重启
+            mainIntent.putExtra("from_service_restart", true);  // 标记来自Сервисперезагрузка
             startActivity(mainIntent);
             
-            AppLog.d(TAG, "MainActivity 已启动（用于自动录制）");
+            AppLog.d(TAG, "MainActivity Запущено（用于автоматическиЗапись)");
         } catch (Exception e) {
-            AppLog.e(TAG, "启动 MainActivity 失败: " + e.getMessage(), e);
+            AppLog.e(TAG, "Запуск MainActivity Ошибка: " + e.getMessage(), e);
         }
     }
     
     /**
-     * 获取 WakeLock 防止系统休眠
-     * 只有开启"开机自启动"时才获取，因为 WakeLock 会阻止 CPU 休眠
+     * Получение WakeLock 防止Система休眠
+     * 只有Вкл启"Вкл机自Запуск"时才Получение，因为 WakeLock 会阻止 CPU 休眠
      * 用途：
-     * 1. 息屏状态下继续录制
-     * 2. 保持 WebSocket 连接接收远程命令
-     * 3. 执行远程拍照/录制任务
+     * 1. 息屏СтатуспродолжитьЗапись
+     * 2. 保持 WebSocket Подключение接收Удалённыйкоманда
+     * 3. выполнениеУдалённыйФото/Записьзадача
      */
     private void acquireWakeLock() {
         try {
             AppConfig appConfig = new AppConfig(this);
             if (appConfig.isAutoStartOnBoot()) {
                 WakeUpHelper.acquirePersistentWakeLock(this);
-                AppLog.d(TAG, "WakeLock acquired (开机自启动已开启)");
+                AppLog.d(TAG, "WakeLock acquired (Вкл机自ЗапускВкл启)");
             } else {
-                // 如果开机自启动关闭，释放可能存在的 WakeLock
+                // Если Вкл机自ЗапускЗакрыто，释放可能существует  WakeLock
                 WakeUpHelper.releasePersistentWakeLock();
-                AppLog.d(TAG, "WakeLock not acquired (开机自启动未开启)");
+                AppLog.d(TAG, "WakeLock not acquired (Вкл机自ЗапускНе Вкл启)");
             }
         } catch (Exception e) {
             AppLog.e(TAG, "Failed to handle WakeLock: " + e.getMessage(), e);
@@ -172,12 +172,12 @@ public class CameraForegroundService extends Service {
     }
     
     /**
-     * 如果无障碍服务未运行，则注册 TIME_TICK 广播
-     * 作为备份保活方案（每分钟触发，比 AlarmManager 更频繁更可靠）
+     * Если 无障碍СервисНе Работа，则注册 TIME_TICK 广播
+     * 作为резервное копирование保活方案（每 мин.触发，比 AlarmManager 更频繁更可靠)
      */
     private void registerTimeTickIfNeeded() {
         if (!KeepAliveAccessibilityService.isRunning() && !KeepAliveReceiver.isTimeTickRegistered()) {
-            AppLog.d(TAG, "无障碍服务未运行，在前台服务中注册 TIME_TICK");
+            AppLog.d(TAG, "无障碍СервисНе Работа， Передний планСервис注册 TIME_TICK");
             KeepAliveReceiver.registerTimeTick(this);
         }
     }
@@ -186,35 +186,35 @@ public class CameraForegroundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         AppLog.d(TAG, "Service started");
         
-        // 每次启动时检查并注册 TIME_TICK
+        // 每 разЗапуск时проверка并注册 TIME_TICK
         registerTimeTickIfNeeded();
         
-        // 确保 WakeLock 已获取
+        // 确保 WakeLock Получение
         acquireWakeLock();
         
-        // 确保远程服务和悬浮窗已启动（处理 START_STICKY 自动重启的情况）
-        // onCreate 可能不会被调用（服务自动恢复时），所以这里也要检查
+        // 确保УдалённыйСервис и 悬浮窗Запущено（处理 START_STICKY автоматическиперезагрузка 情况)
+        // onCreate 可能不会 调用（СервисавтоматическиВосстановление时)，所以这里также要проверка
         ensureRemoteServicesStarted();
         startCameraRepairLoop();
 
-        // 从Intent获取通知内容，如果没有则使用默认内容
+        //  от IntentПолучениеУведомление内容，Если 没有则использованиеПо умолчанию内容
         String title = intent != null ? intent.getStringExtra("title") : null;
         String content = intent != null ? intent.getStringExtra("content") : null;
 
         if (title == null) {
-            title = "摄像头服务运行中";
+            title = "Сервис камер работает";
         }
         if (content == null) {
-            content = "正在处理远程拍照/录制请求";
+            content = "Обработка удалённого запроса фото/записи";
         }
 
-        // 创建通知
+        // 创建Уведомление
         Notification notification = createNotification(title, content);
 
-        // 启动前台服务
+        // ЗапускПередний планСервис
         startForeground(NOTIFICATION_ID, notification);
 
-        // 标记就绪，执行所有等待的回调
+        // 标记绪，выполнение所有ожидание 回调
         isForegroundReady = true;
         synchronized (pendingReadyCallbacks) {
             for (Runnable cb : pendingReadyCallbacks) {
@@ -227,45 +227,45 @@ public class CameraForegroundService extends Service {
     }
     
     /**
-     * 确保远程服务和悬浮窗已启动
-     * 用于处理 START_STICKY 自动重启的情况（此时 onCreate 不会被调用）
+     * 确保УдалённыйСервис и 悬浮窗Запущено
+     * 用于处理 START_STICKY автоматическиперезагрузка 情况（此时 onCreate 不会 调用)
      */
     private void ensureRemoteServicesStarted() {
         try {
             AppConfig appConfig = new AppConfig(this);
             if (!appConfig.isAutoStartOnBoot()) {
-                return;  // 未开启开机自启动，跳过
+                return;  // Не Вкл启Вкл机自Запуск，跳过
             }
             
-            // 检查并启动悬浮窗
+            // проверка并Запуск悬浮窗
             if (appConfig.isFloatingWindowEnabled() && !FloatingWindowService.isRunning()) {
-                AppLog.d(TAG, "悬浮窗未运行，重新启动...");
+                AppLog.d(TAG, "悬浮窗Не Работа，重新Запуск...");
                 FloatingWindowService.start(this);
             }
             
-            // 检查并启动远程服务（如果未运行）
+            // проверка并ЗапускУдалённыйСервис（Если Не Работа)
             RemoteServiceManager serviceManager = RemoteServiceManager.getInstance();
             if (!serviceManager.hasAnyServiceRunning()) {
-                AppLog.d(TAG, "远程服务未运行，重新启动...");
+                AppLog.d(TAG, "УдалённыйСервисНе Работа，重新Запуск...");
                 serviceManager.startRemoteServicesFromService(this);
             }
             
-            // 检查并启动 MainActivity（如果启用了自动录制且 Activity 未运行）
+            // проверка并Запуск MainActivity（Если ВключитьавтоматическиЗапись且 Activity Не Работа)
             if (appConfig.isAutoStartRecording() && MainActivity.getInstance() == null) {
                 startMainActivityForAutoRecording();
             }
         } catch (Exception e) {
-            AppLog.e(TAG, "确保服务启动失败: " + e.getMessage(), e);
+            AppLog.e(TAG, "确保СервисОшибка запуска: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void onDestroy() {
-        AppLog.d(TAG, "Service destroyed - 尝试重启...");
+        AppLog.d(TAG, "Service destroyed - попыткаперезагрузка...");
         isForegroundReady = false;
         stopCameraRepairLoop();
 
-        // 服务被杀时，发送延迟重启广播
+        // Сервис 杀时，Отправка延迟перезагрузка广播
         scheduleServiceRestart();
 
         super.onDestroy();
@@ -301,40 +301,40 @@ public class CameraForegroundService extends Service {
     }
     
     /**
-     * 当用户从最近任务中滑动清除应用时调用
-     * 这是保活的关键：在被清除时重新启动服务
+     * 当用户 от 最近задача滑动очисткаПриложение时调用
+     * 这 保活 Выкл键：  очистка时重新ЗапускСервис
      */
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        AppLog.d(TAG, "onTaskRemoved - 应用被从最近任务清除，尝试重启服务...");
+        AppLog.d(TAG, "onTaskRemoved - Приложение  от 最近задачаочистка，попыткаперезагрузкаСервис...");
         
-        // 立即重启服务
+        // 立т.е.перезагрузкаСервис
         scheduleServiceRestart();
         
         super.onTaskRemoved(rootIntent);
     }
     
     /**
-     * 调度服务重启
-     * 使用 Handler 延迟重启，避免立即重启被系统拦截
+     * 调度Сервисперезагрузка
+     * использование Handler 延迟перезагрузка，避免立т.е.перезагрузка Система拦截
      */
     private void scheduleServiceRestart() {
         try {
-            // 方案1：使用 Handler 延迟重启
+            // 方案1：использование Handler 延迟перезагрузка
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 try {
-                    AppLog.d(TAG, "执行延迟重启...");
-                    start(getApplicationContext(), "EVCam", "服务自动重启");
+                    AppLog.d(TAG, "выполнение延迟перезагрузка...");
+                    start(getApplicationContext(), "EVCam", "Автоматический перезапуск сервиса");
                 } catch (Exception e) {
-                    AppLog.e(TAG, "延迟重启失败: " + e.getMessage(), e);
+                    AppLog.e(TAG, "延迟перезагрузкаОшибка: " + e.getMessage(), e);
                 }
             }, RESTART_DELAY_MS);
             
-            // 方案2：发送保活广播（备份）
+            // 方案2：Отправка保活广播（резервное копирование)
             KeepAliveReceiver.sendKeepAliveCheck(getApplicationContext());
             
         } catch (Exception e) {
-            AppLog.e(TAG, "调度重启失败: " + e.getMessage(), e);
+            AppLog.e(TAG, "调度перезагрузкаОшибка: " + e.getMessage(), e);
         }
     }
 
@@ -344,16 +344,16 @@ public class CameraForegroundService extends Service {
     }
 
     /**
-     * 创建通知渠道（Android 8.0+）
+     * 创建Уведомление渠道（Android 8.0+)
      */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
-                    "摄像头服务",
+                    "Сервис камер",
                     NotificationManager.IMPORTANCE_LOW
             );
-            channel.setDescription("用于后台拍照和录制");
+            channel.setDescription("Фоновая запись видео и фото");
             channel.setShowBadge(false);
 
             NotificationManager manager = getSystemService(NotificationManager.class);
@@ -364,7 +364,7 @@ public class CameraForegroundService extends Service {
     }
 
     /**
-     * 创建通知
+     * 创建Уведомление
      */
     private Notification createNotification(String title, String content) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -386,7 +386,7 @@ public class CameraForegroundService extends Service {
     }
 
     /**
-     * 更新通知内容
+     * обновлениеУведомление内容
      */
     public void updateNotification(String title, String content) {
         Notification notification = createNotification(title, content);
@@ -397,10 +397,10 @@ public class CameraForegroundService extends Service {
     }
 
     /**
-     * 静态方法：启动前台服务
-     * @param context 上下文
-     * @param title 通知标题
-     * @param content 通知内容
+     * 静态方法：ЗапускПередний планСервис
+     * @param context 文
+     * @param title Уведомление标题
+     * @param content Уведомление内容
      */
     public static void start(Context context, String title, String content) {
         Intent intent = new Intent(context, CameraForegroundService.class);
@@ -408,13 +408,13 @@ public class CameraForegroundService extends Service {
         intent.putExtra("content", content);
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Android 13+ 对摄像头前台服务有特殊要求
+            // Android 13+  КамераПередний планСервис有特殊要求
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // 检查应用是否在前台
+                // проверкаПриложение 否 Передний план
                 if (!isAppInForeground(context)) {
-                    // 应用不在前台，无法启动摄像头前台服务
-                    // 记录日志，等待应用进入前台后再启动
-                    AppLog.d(TAG, "应用不在前台，跳过启动摄像头前台服务（等待进入前台）");
+                    // Приложение不 Передний план，无法ЗапускКамераПередний планСервис
+                    // 记录 д.志，ожиданиеПриложение进入Передний план后再Запуск
+                    AppLog.d(TAG, "Приложение不 Передний план，跳过ЗапускКамераПередний планСервис（ожидание进入Передний план)");
                     return;
                 }
                 context.startForegroundService(intent);
@@ -428,7 +428,7 @@ public class CameraForegroundService extends Service {
     }
     
     /**
-     * 检查应用是否在前台
+     * проверкаПриложение 否 Передний план
      */
     private static boolean isAppInForeground(Context context) {
         try {
@@ -438,7 +438,7 @@ public class CameraForegroundService extends Service {
                 if (processes != null) {
                     for (android.app.ActivityManager.RunningAppProcessInfo process : processes) {
                         if (process.processName.equals(context.getPackageName())) {
-                            // 优先检查 IMPORTANCE_FOREGROUND 或 IMPORTANCE_VISIBLE
+                            // 优先проверка IMPORTANCE_FOREGROUND или IMPORTANCE_VISIBLE
                             return process.importance == android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
                                     || process.importance == android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE;
                         }
@@ -446,14 +446,14 @@ public class CameraForegroundService extends Service {
                 }
             }
         } catch (Exception e) {
-            AppLog.e(TAG, "检查应用前台状态失败: " + e.getMessage(), e);
+            AppLog.e(TAG, "проверкаПриложениеПередний планСтатусОшибка: " + e.getMessage(), e);
         }
         return false;
     }
 
     /**
-     * 静态方法：停止前台服务
-     * @param context 上下文
+     * 静态方法：ОстановкаПередний планСервис
+     * @param context 文
      */
     public static void stop(Context context) {
         isForegroundReady = false;

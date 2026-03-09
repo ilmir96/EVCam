@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Protobuf Frame 消息（飞书 WebSocket 协议）
+ * Protobuf Frame 消息（Feishu WebSocket 协议)
  * 
  * message Frame {
  *   required uint64 SeqID = 1;
@@ -146,7 +146,7 @@ public class Pbbp2Frame {
     }
 
     /**
-     * 获取指定 header 的值
+     * Получение指定 header  值
      */
     public String getHeaderValue(String key) {
         for (Pbbp2Header header : headers) {
@@ -158,28 +158,28 @@ public class Pbbp2Frame {
     }
 
     /**
-     * 判断是否是控制帧
+     * 判断 否 控制帧
      */
     public boolean isControlFrame() {
         return method == METHOD_CONTROL;
     }
 
     /**
-     * 判断是否是数据帧
+     * 判断 否 数据帧
      */
     public boolean isDataFrame() {
         return method == METHOD_DATA;
     }
 
     /**
-     * 获取消息类型（从 header 中）
+     * 获Отмена息类型（ от  header )
      */
     public String getMessageType() {
         return getHeaderValue(HEADER_TYPE);
     }
 
     /**
-     * 从二进制数据解析 Frame
+     *  от 二进制数据解析 Frame
      */
     public static Pbbp2Frame parseFrom(byte[] data) throws IOException {
         Pbbp2Frame frame = new Pbbp2Frame();
@@ -237,7 +237,7 @@ public class Pbbp2Frame {
     public byte[] toByteArray() throws IOException {
         ProtobufLite.Writer writer = new ProtobufLite.Writer();
 
-        // 必填字段
+        // 必填字
         writer.writeUInt64(1, seqID);
         writer.writeUInt64(2, logID);
         writer.writeInt32(3, service);
@@ -248,7 +248,7 @@ public class Pbbp2Frame {
             writer.writeMessage(5, header.toByteArray());
         }
 
-        // 可选字段
+        // 可选字
         if (payloadEncoding != null && !payloadEncoding.isEmpty()) {
             writer.writeString(6, payloadEncoding);
         }
@@ -279,7 +279,7 @@ public class Pbbp2Frame {
     }
 
     /**
-     * 复制当前帧并设置新的 payload（用于响应）
+     * 复制Текущий帧并Настройки新  payload（用于响应)
      */
     public Pbbp2Frame copyWithPayload(byte[] newPayload) throws IOException {
         Pbbp2Frame response = new Pbbp2Frame();

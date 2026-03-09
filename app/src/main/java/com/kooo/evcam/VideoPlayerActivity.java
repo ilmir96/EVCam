@@ -22,8 +22,8 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * 内置视频播放器
- * 支持播放、暂停、进度控制等功能
+ * 内置ВидеоВоспр.器
+ * поддержкаВоспр.、Пауза、进度控制等функция
  */
 public class VideoPlayerActivity extends AppCompatActivity {
     private VideoView videoView;
@@ -52,31 +52,31 @@ public class VideoPlayerActivity extends AppCompatActivity {
         controlsLayout = findViewById(R.id.controls_layout);
         View btnClose = findViewById(R.id.btn_close);
 
-        // 获取视频路径
+        // ПолучениеВидеоПуть
         String videoPath = getIntent().getStringExtra("video_path");
         if (videoPath == null || videoPath.isEmpty()) {
-            Toast.makeText(this, "无效的视频路径", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Неверный путь к видео", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         File videoFile = new File(videoPath);
         if (!videoFile.exists()) {
-            Toast.makeText(this, "视频文件不存在", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Файл видео не найден", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        // 设置标题
+        // Настройки标题
         titleText.setText(videoFile.getName());
 
-        // 加载视频
+        // загрузкаВидео
         loadVideo(videoFile);
 
-        // 关闭按钮
+        // Закрыто按钮
         btnClose.setOnClickListener(v -> finish());
 
-        // 播放/暂停按钮
+        // Воспр./Пауза按钮
         btnPlayPause.setOnClickListener(v -> {
             if (isPlaying) {
                 pauseVideo();
@@ -106,13 +106,13 @@ public class VideoPlayerActivity extends AppCompatActivity {
             }
         });
 
-        // 点击视频区域显示/隐藏控制栏
+        // 点击Видео区域显示/隐藏控制栏
         videoView.setOnClickListener(v -> {
             if (controlsLayout.getVisibility() == View.VISIBLE) {
                 controlsLayout.setVisibility(View.GONE);
             } else {
                 controlsLayout.setVisibility(View.VISIBLE);
-                // 3秒后自动隐藏
+                // 3 сек.后автоматически隐藏
                 handler.removeCallbacks(hideControlsRunnable);
                 handler.postDelayed(hideControlsRunnable, 3000);
             }
@@ -120,19 +120,19 @@ public class VideoPlayerActivity extends AppCompatActivity {
     }
 
     /**
-     * 加载视频
+     * загрузкаВидео
      */
     private void loadVideo(File videoFile) {
         try {
             Uri videoUri = Uri.fromFile(videoFile);
             videoView.setVideoURI(videoUri);
 
-            // 视频准备完成监听
+            // Видео准备завершение监听
             videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    // 行车记录仪视频没有声音，设置静音并放弃音频焦点
-                    // 这样不会暂停车机的其他音频播放（如音乐）
+                    // 行车记录仪Видео没有声音，Настройки静音并放弃音频焦点
+                    // 这样不会Пауза车机 Другое音频Воспр.（если音乐)
                     mp.setVolume(0f, 0f);
                     abandonAudioFocus();
 
@@ -141,60 +141,60 @@ public class VideoPlayerActivity extends AppCompatActivity {
                     totalTimeText.setText(formatTime(duration));
                     currentTimeText.setText(formatTime(0));
 
-                    // 自动开始播放
+                    // автоматическиВкл始Воспр.
                     playVideo();
 
-                    // 开始更新进度
+                    // Вкл始обновление进度
                     updateProgress();
                 }
             });
 
-            // 播放完成监听
+            // Воспр.завершение监听
             videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     isPlaying = false;
-                    btnPlayPause.setText("播放");
+                    btnPlayPause.setText("Воспроизведение");
                     seekBar.setProgress(0);
                     currentTimeText.setText(formatTime(0));
                 }
             });
 
-            // 错误监听
+            // Ошибка监听
             videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    Toast.makeText(VideoPlayerActivity.this, "播放出错", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VideoPlayerActivity.this, "Ошибка воспроизведения", Toast.LENGTH_SHORT).show();
                     return true;
                 }
             });
 
         } catch (Exception e) {
-            Toast.makeText(this, "加载视频失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Не удалось загрузить видео: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
         }
     }
 
     /**
-     * 播放视频
+     * Воспр.Видео
      */
     private void playVideo() {
         videoView.start();
         isPlaying = true;
-        btnPlayPause.setText("暂停");
+        btnPlayPause.setText("Пауза");
     }
 
     /**
-     * 暂停视频
+     * ПаузаВидео
      */
     private void pauseVideo() {
         videoView.pause();
         isPlaying = false;
-        btnPlayPause.setText("播放");
+        btnPlayPause.setText("Воспроизведение");
     }
 
     /**
-     * 更新播放进度
+     * обновлениеВоспр.进度
      */
     private void updateProgress() {
         handler.postDelayed(new Runnable() {
@@ -213,7 +213,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
     }
 
     /**
-     * 格式化时间（毫秒转为 mm:ss）
+     * 格式化时间（毫 сек.转为 mm:ss)
      */
     private String formatTime(int milliseconds) {
         int seconds = milliseconds / 1000;
@@ -223,7 +223,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
     }
 
     /**
-     * 自动隐藏控制栏
+     * автоматически隐藏控制栏
      */
     private Runnable hideControlsRunnable = new Runnable() {
         @Override
@@ -235,14 +235,14 @@ public class VideoPlayerActivity extends AppCompatActivity {
     };
 
     /**
-     * 放弃音频焦点，让其他应用（如音乐播放器）继续播放
-     * 行车记录仪视频没有声音，不需要抢占音频焦点
+     * 放弃音频焦点，让ДругоеПриложение（если音乐Воспр.器)продолжитьВоспр.
+     * 行车记录仪Видео没有声音，不необходимо抢占音频焦点
      */
     private void abandonAudioFocus() {
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         if (audioManager != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // API 26+ 使用新的 AudioFocusRequest API
+                // API 26+ использование新  AudioFocusRequest API
                 AudioFocusRequest focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                         .setAudioAttributes(new AudioAttributes.Builder()
                                 .setUsage(AudioAttributes.USAGE_MEDIA)

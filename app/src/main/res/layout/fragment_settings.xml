@@ -34,7 +34,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="软件设置"
+            android:text="Настройки"
             android:textColor="@color/text_primary"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -82,7 +82,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="检查更新"
+                        android:text="Проверка обновлений"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -91,7 +91,7 @@
                         android:id="@+id/tv_current_version"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="当前版本：v1.0.0"
+                        android:text="Текущая версия: v1.0.0"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -101,7 +101,7 @@
                     android:id="@+id/btn_check_update"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="检查 →"
+                    android:text="Проверить →"
                     android:textSize="16sp"
                     android:minHeight="48dp"
                     android:backgroundTint="@color/button_background"
@@ -128,7 +128,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="使用提示"
+                        android:text="Советы по использованию"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -136,7 +136,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="首次使用必读，配置车型与权限"
+                        android:text="Обязательно к прочтению: настройка модели и разрешений"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -146,7 +146,7 @@
                     android:id="@+id/btn_usage_guide"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="查看 →"
+                    android:text="Открыть →"
                     android:textSize="16sp"
                     android:minHeight="48dp"
                     android:backgroundTint="@color/button_background"
@@ -173,7 +173,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="权限设置"
+                        android:text="Настройки разрешений"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -181,7 +181,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="首次安装使用请务必授予所有所需权限"
+                        android:text="При первом запуске обязательно предоставьте все разрешения"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -191,7 +191,7 @@
                     android:id="@+id/btn_permission_settings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="进入 →"
+                    android:text="Перейти →"
                     android:textSize="16sp"
                     android:minHeight="48dp"
                     android:backgroundTint="@color/button_background"
@@ -218,7 +218,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="车型配置"
+                        android:text="Модель автомобиля"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -226,7 +226,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="选择车型以适配摄像头布局"
+                        android:text="Выберите модель для настройки расположения камер"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -245,7 +245,7 @@
                 android:id="@+id/btn_custom_camera_config"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="自定义界面配置"
+                android:text="Пользовательская настройка интерфейса"
                 android:textSize="20sp"
                 android:minHeight="56dp"
                 android:backgroundTint="@color/button_background"
@@ -273,7 +273,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="录制模式"
+                        android:text="Режим записи"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -282,7 +282,7 @@
                         android:id="@+id/tv_recording_mode_desc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="选择视频录制的编码方式"
+                        android:text="Выберите способ кодирования видео"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -316,7 +316,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="分段时长"
+                        android:text="Длительность сегмента"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -324,7 +324,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="每段视频的最大录制时长"
+                        android:text="Максимальная длительность одного сегмента видео"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -358,7 +358,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="画质设置"
+                        android:text="Настройки качества"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -366,7 +366,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="设置视频分辨率和录制码率"
+                        android:text="Разрешение видео и битрейт записи"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -376,7 +376,7 @@
                     android:id="@+id/btn_resolution_settings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="进入 →"
+                    android:text="Перейти →"
                     android:textSize="16sp"
                     android:minHeight="48dp"
                     android:backgroundTint="@color/button_background"
@@ -407,7 +407,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="预览画面矫正"
+                            android:text="Коррекция превью"
                             android:textColor="@color/text_primary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -415,7 +415,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="对主界面预览画面进行缩放/平移矫正"
+                            android:text="Масштабирование/смещение превью на главном экране"
                             android:textColor="@color/text_secondary"
                             android:textSize="16sp"
                             android:layout_marginTop="4dp" />
@@ -441,7 +441,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="打开矫正悬浮窗"
+                        android:text="Открыть окно коррекции"
                         android:backgroundTint="@color/button_accent"
                         android:textColor="@color/white"
                         android:layout_marginEnd="8dp" />
@@ -451,7 +451,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="恢复默认参数"
+                        android:text="Сбросить настройки"
                         android:backgroundTint="@color/button_background"
                         android:textColor="@color/button_text" />
                 </LinearLayout>
@@ -481,7 +481,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="鱼眼矫正"
+                            android:text="Коррекция «рыбий глаз»"
                             android:textColor="@color/text_primary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -489,7 +489,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="对预览画面进行鱼眼畸变矫正，不影响录制"
+                            android:text="Коррекция искажения рыбий глаз, не влияет на запись"
                             android:textColor="@color/text_secondary"
                             android:textSize="16sp"
                             android:layout_marginTop="4dp" />
@@ -515,7 +515,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="打开矫正悬浮窗"
+                        android:text="Открыть окно коррекции"
                         android:backgroundTint="@color/button_accent"
                         android:textColor="@color/white"
                         android:layout_marginEnd="8dp" />
@@ -525,7 +525,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="恢复默认参数"
+                        android:text="Сбросить настройки"
                         android:backgroundTint="@color/button_background"
                         android:textColor="@color/button_text" />
                 </LinearLayout>
@@ -552,7 +552,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="录制摄像头"
+                        android:text="Камеры для записи"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -560,7 +560,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="不影响拍照和钉钉指令"
+                        android:text="Не влияет на фото и удалённые команды"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -577,7 +577,7 @@
                         android:id="@+id/cb_record_camera_front"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="前"
+                        android:text="П"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:checked="true" />
@@ -586,7 +586,7 @@
                         android:id="@+id/cb_record_camera_back"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="后"
+                        android:text="З"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:checked="true"
@@ -596,7 +596,7 @@
                         android:id="@+id/cb_record_camera_left"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="左"
+                        android:text="Л"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:checked="true"
@@ -606,7 +606,7 @@
                         android:id="@+id/cb_record_camera_right"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="右"
+                        android:text="Пр"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
                         android:checked="true"
@@ -634,7 +634,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="存储位置"
+                        android:text="Место хранения"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -643,7 +643,7 @@
                         android:id="@+id/tv_storage_location_desc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="选择视频和图片的存储位置"
+                        android:text="Выберите место для сохранения видео и фото"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -663,7 +663,7 @@
                 android:id="@+id/btn_storage_debug"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="检测存储设备"
+                android:text="Обнаружение накопителей"
                 android:textSize="16sp"
                 android:minHeight="48dp"
                 android:backgroundTint="@color/button_background"
@@ -683,7 +683,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="存储自动清理"
+                    android:text="Автоочистка хранилища"
                     android:textColor="@color/text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -691,7 +691,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="超过限制时自动删除最早的文件（留空或0表示不限制）"
+                    android:text="При превышении лимита старые файлы удаляются автоматически (0 = без лимита)"
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp"
@@ -709,7 +709,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="视频存储限制"
+                        android:text="Лимит видео"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp" />
 
@@ -755,7 +755,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="图片存储限制"
+                        android:text="Лимит фото"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp" />
 
@@ -794,7 +794,7 @@
                     android:id="@+id/tv_storage_cleanup_desc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="删除时会额外删除20%，例如限制10GB则删到剩余8GB"
+                    android:text="При очистке удаляется +20%%, например при лимите 10 ГБ останется 8 ГБ"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp"
                     android:layout_marginTop="12dp" />
@@ -819,7 +819,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="录制状态显示"
+                        android:text="Индикатор записи"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -827,7 +827,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="在右上角显示录制时间和分段数（双击可切换）"
+                        android:text="Показывать время записи и номер сегмента в правом верхнем углу"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -859,7 +859,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="时间角标"
+                        android:text="Временная метка"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -867,7 +867,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="在保存的视频/图片左上角添加时间水印，视频角标仅在MediaCodec模式下有效（略微影响性能）"
+                        android:text="Водяной знак с временем на видео/фото. Для видео работает только в режиме MediaCodec (немного влияет на производительность)"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -900,7 +900,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="开机自启动"
+                        android:text="Автозапуск при включении"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -908,7 +908,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="系统启动后自动运行应用"
+                        android:text="Автоматический запуск приложения после загрузки системы"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -940,7 +940,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="启动自动录制"
+                        android:text="Автозапись при старте"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -948,7 +948,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="应用启动后自动开始录制，运行期间保持录制（长时间录制会占用大量性能，请谨慎使用）"
+                        android:text="Автоматическая запись при запуске приложения (длительная запись потребляет много ресурсов)"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -982,7 +982,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="息屏录制（锁车录制）"
+                        android:text="Запись при выключенном экране"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -990,7 +990,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="开启后息屏时继续录制；关闭后息屏10秒自动停止录制，亮屏10秒后恢复"
+                        android:text="При включении — запись продолжается при выключенном экране; при выключении — запись останавливается через 10 сек"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -1022,7 +1022,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="定时保活"
+                        android:text="Периодическое пробуждение"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -1030,7 +1030,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="每15分钟唤醒一次，保持进程活跃"
+                        android:text="Пробуждение каждые 15 минут для поддержания процесса"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -1062,7 +1062,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="阻止休眠（Beta）"
+                        android:text="Защита от сна (Beta)"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -1070,7 +1070,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="阻止系统进入深度休眠，熄火后能接收消息（增加功耗）"
+                        android:text="Предотвращает глубокий сон системы, позволяет получать сообщения после выключения двигателя (повышает энергопотребление)"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -1102,7 +1102,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="悬浮窗"
+                        android:text="Плавающее окно"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -1110,7 +1110,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="显示悬浮录制按钮，点击可打开应用"
+                        android:text="Показать плавающую кнопку записи, нажатие открывает приложение"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -1137,7 +1137,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="悬浮窗样式"
+                    android:text="Стиль плавающего окна"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -1155,7 +1155,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="按钮大小"
+                        android:text="Размер кнопки"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp" />
 
@@ -1184,7 +1184,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="按钮透明度"
+                            android:text="Прозрачность кнопки"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 
@@ -1230,7 +1230,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="定制键唤醒"
+                            android:text="Пробуждение кнопкой"
                             android:textColor="@color/text_primary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -1238,7 +1238,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="车速超过阈值时按下定制键唤醒/退出EVCam预览（仅限龙鹰一号车型）"
+                            android:text="При скорости выше порога нажатие кнопки пробуждает/закрывает превью EVCam (только Longying №1)"
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp"
                             android:layout_marginTop="4dp" />
@@ -1270,7 +1270,7 @@
                         <TextView
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
-                            android:text="速度阈值"
+                            android:text="Порог скорости"
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp" />
 
@@ -1308,7 +1308,7 @@
                         <TextView
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
-                            android:text="速度属性ID"
+                            android:text="ID свойства скорости"
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp" />
 
@@ -1338,7 +1338,7 @@
                         <TextView
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
-                            android:text="按钮属性ID"
+                            android:text="ID свойства кнопки"
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp" />
 
@@ -1379,7 +1379,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Debug 模式"
+                        android:text="Режим отладки"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -1387,7 +1387,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="将 Log.d 转换为 Log.i"
+                        android:text="Преобразование Log.d в Log.i"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -1414,7 +1414,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="保存日志"
+                    android:text="Сохранить логи"
                     android:textSize="18sp"
                     android:minHeight="56dp"
                     android:backgroundTint="@color/button_background"
@@ -1426,7 +1426,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="一键上传"
+                    android:text="Отправить логи"
                     android:textSize="18sp"
                     android:minHeight="56dp"
                     android:backgroundTint="#4CAF50"
@@ -1439,7 +1439,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="使用说明"
+                android:text="Справка"
                 android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -1448,7 +1448,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="• 权限设置：管理应用所需的各项权限\n\n• 车型配置：选择对应车型以适配摄像头布局\n\n• 录制模式：\n  - 自动：根据车型自动选择最佳方案\n  - MediaRecorder：使用系统硬件编码\n  - MediaCodec：软编码方案\n\n• 分段时长：设置每段视频的最大时长\n  - 1分钟：文件小巧，便于分享\n  - 3分钟：平衡文件大小和连续性\n  - 5分钟：减少文件数量\n\n• 存储位置：\n  - 内部存储：/DCIM/EVCam_Video/\n  - U盘：U盘/DCIM/（需权限）\n  - 选择U盘时自动启用中转写入\n    （先写入内部存储，分段后异步传输到U盘）\n\n• 存储自动清理：\n  - 分别设置视频和图片的存储限制\n  - 冷启动30秒后和每小时自动检测\n  - 超限时删除最早的文件（留空或0不限制）\n\n• 录制状态显示：\n  - 录制时在右上角显示时间和分段数\n  - 双击可快速切换显示/隐藏\n\n• 时间角标：\n  - 在保存的视频/图片左上角添加时间水印\n  - 仅影响存储文件，预览界面不显示\n  - 视频角标仅支持MediaCodec模式\n\n• 开机自启动：系统启动后自动运行\n\n• 启动自动录制：\n  - 应用启动后自动开始录制\n  - 从后台返回前台时自动恢复录制\n  - 配合前台服务保持录制不被中断\n\n• 息屏录制（锁车录制）：\n  - 仅在启动自动录制开启时可用\n  - 开启：息屏（锁车黑屏）时继续录制\n  - 关闭：息屏10秒后自动停止录制\n  - 亮屏10秒后自动恢复录制\n\n• 定时保活：每15分钟唤醒保持活跃\n\n• 防止休眠：阻止系统深度休眠\n  - 开启后熄火也能接收远程消息\n  - 会增加电瓶功耗，按需开启\n\n• 悬浮窗：显示悬浮录制按钮"
+                android:text="• Разрешения: управление разрешениями приложения\n\n• Модель авто: выбор модели для настройки камер\n\n• Режим записи:\n  - Авто: оптимальный выбор по модели\n  - MediaRecorder: аппаратное кодирование\n  - MediaCodec: программное кодирование\n\n• Длительность сегмента:\n  - 1 мин: маленькие файлы\n  - 3 мин: баланс размера и непрерывности\n  - 5 мин: меньше файлов\n\n• Место хранения:\n  - Внутреннее: /DCIM/EVCam_Video/\n  - USB: USB/DCIM/ (нужны разрешения)\n  - При выборе USB включается промежуточная запись\n\n• Автоочистка хранилища:\n  - Отдельные лимиты для видео и фото\n  - Проверка через 30 сек после старта и каждый час\n  - При превышении удаляются старые файлы (0 = без лимита)\n\n• Индикатор записи:\n  - Время и номер сегмента в правом верхнем углу\n  - Двойное нажатие переключает отображение\n\n• Временная метка:\n  - Водяной знак с временем на видео/фото\n  - Только на сохранённых файлах\n  - Видео — только в режиме MediaCodec\n\n• Автозапуск: запуск при включении системы\n\n• Автозапись:\n  - Запись начинается автоматически\n  - Возобновляется при возврате из фона\n  - Работает с фоновым сервисом\n\n• Запись при выкл. экране:\n  - Только при включённой автозаписи\n  - Вкл: запись продолжается при выключенном экране\n  - Выкл: остановка через 10 сек\n\n• Периодическое пробуждение: каждые 15 мин\n\n• Защита от сна: предотвращает глубокий сон\n  - Позволяет получать удалённые команды\n  - Повышает энергопотребление\n\n• Плавающее окно: кнопка записи поверх всех окон"
                 android:textColor="@color/text_secondary"
                 android:textSize="16sp"
                 android:lineSpacingExtra="4dp" />

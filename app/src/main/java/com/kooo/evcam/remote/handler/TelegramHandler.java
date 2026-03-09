@@ -15,13 +15,13 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Telegram 远程命令处理器
- * 实现 Telegram 平台特定的功能
+ * Telegram Удалённыйкоманда处理器
+ * 实现 Telegram 平台特定 функция
  */
 public class TelegramHandler extends RemoteCommandHandler {
     private static final String TAG = "TelegramHandler";
     
-    // Telegram 文件大小限制
+    // Telegram Файл大小限制
     private static final long MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024; // 50MB
     
     private TelegramApiClient apiClient;
@@ -52,7 +52,7 @@ public class TelegramHandler extends RemoteCommandHandler {
     @Override
     public void sendMessage(ChatIdentifier chatId, String message) {
         if (apiClient == null) {
-            AppLog.e(TAG, "Telegram API 客户端未初始化");
+            AppLog.e(TAG, "Telegram API 客户端Не инициализация");
             return;
         }
         
@@ -61,7 +61,7 @@ public class TelegramHandler extends RemoteCommandHandler {
             try {
                 apiClient.sendMessage(telegramChatId, message);
             } catch (Exception e) {
-                AppLog.e(TAG, "发送 Telegram 消息失败", e);
+                AppLog.e(TAG, "Отправка Telegram сообщения — ошибка", e);
             }
         }).start();
     }
@@ -82,21 +82,21 @@ public class TelegramHandler extends RemoteCommandHandler {
     }
     
     /**
-     * 处理上传错误 - Telegram 特有的文件大小限制提示
+     * 处理传Ошибка - Telegram 特有 Файл大小限制Уведомление
      */
     @Override
     protected void handleUploadError(ChatIdentifier chatId, String error) {
         if (error.contains("413") || 
             error.toLowerCase().contains("too large") || 
             error.toLowerCase().contains("file is too big")) {
-            sendMessage(chatId, "提示：Telegram Bot API 限制上传文件不能超过50MB，该文件大小已超出。");
+            sendMessage(chatId, "Telegram Bot API ограничивает размер файла до 50 МБ, этот файл превышает лимит.");
         }
     }
     
-    // ==================== 上传服务适配器 ====================
+    // ==================== 传Сервис适配器 ====================
     
     /**
-     * Telegram 视频上传适配器
+     * Telegram Видео传适配器
      */
     private static class TelegramVideoUploadAdapter implements MediaUploadService {
         private final TelegramVideoUploadService uploadService;
@@ -129,12 +129,12 @@ public class TelegramHandler extends RemoteCommandHandler {
         
         @Override
         public void uploadPhotos(List<File> photoFiles, ChatIdentifier chatId, RemoteUploadCallback callback) {
-            // 视频上传服务不处理照片
+            // Видео传Сервис不处理Фото
         }
     }
     
     /**
-     * Telegram 照片上传适配器
+     * Telegram Фото传适配器
      */
     private static class TelegramPhotoUploadAdapter implements MediaUploadService {
         private final TelegramPhotoUploadService uploadService;
@@ -145,7 +145,7 @@ public class TelegramHandler extends RemoteCommandHandler {
         
         @Override
         public void uploadVideos(List<File> videoFiles, ChatIdentifier chatId, RemoteUploadCallback callback) {
-            // 照片上传服务不处理视频
+            // Фото传Сервис不处理Видео
         }
         
         @Override

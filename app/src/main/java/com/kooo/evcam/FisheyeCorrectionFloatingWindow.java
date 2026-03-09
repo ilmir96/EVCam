@@ -23,7 +23,7 @@ import java.util.Locale;
 
 /**
  * 鱼眼矫正参数调节悬浮窗
- * 悬浮在主界面预览之上，用户可实时调节鱼眼矫正参数
+ * 悬浮 主界面预览之，用户可实时调节鱼眼矫正参数
  */
 public class FisheyeCorrectionFloatingWindow {
     private static final String TAG = "FisheyeCorrectionFloat";
@@ -192,10 +192,10 @@ public class FisheyeCorrectionFloatingWindow {
             }
         });
 
-        // 关闭
+        // Закрыто
         floatingView.findViewById(R.id.btn_close).setOnClickListener(v -> dismiss());
 
-        // 摄像头选择
+        // КамераВыбрать
         View.OnClickListener camClickListener = v -> {
             if (v == btnCamFront) selectCamera("front");
             else if (v == btnCamBack) selectCamera("back");
@@ -250,14 +250,14 @@ public class FisheyeCorrectionFloatingWindow {
         seekCenterX.setOnSeekBarChangeListener(seekListener);
         seekCenterY.setOnSeekBarChangeListener(seekListener);
 
-        // 恢复当前摄像头默认
+        // ВосстановлениеТекущийКамераПо умолчанию
         floatingView.findViewById(R.id.btn_reset).setOnClickListener(v -> {
             appConfig.resetFisheyeCorrection(currentCameraPos);
             loadFromConfig(currentCameraPos);
             notifyCameraUpdateParams();
         });
 
-        // 全部重置
+        // ВсеСброс
         floatingView.findViewById(R.id.btn_reset_all).setOnClickListener(v -> {
             appConfig.resetAllFisheyeCorrection();
             loadFromConfig(currentCameraPos);
@@ -309,7 +309,7 @@ public class FisheyeCorrectionFloatingWindow {
     }
 
     /**
-     * 通知当前摄像头实时更新鱼眼参数（无需重建 session）
+     * УведомлениеТекущийКамера实时обновление鱼眼参数（无需重建 session)
      */
     private void notifyCameraUpdateParams() {
         MultiCameraManager cm = CameraManagerHolder.getInstance().getCameraManager();
@@ -321,7 +321,7 @@ public class FisheyeCorrectionFloatingWindow {
     }
 
     /**
-     * 通知所有摄像头更新参数（全部重置时调用）
+     * Уведомление所有Камераобновление参数（ВсеСброс时调用)
      */
     private void notifyAllCamerasUpdateParams() {
         MultiCameraManager cm = CameraManagerHolder.getInstance().getCameraManager();

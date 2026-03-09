@@ -5,14 +5,14 @@ import android.util.AttributeSet;
 import android.view.TextureView;
 
 /**
- * 自动适配宽高比的 TextureView
- * 根据设置的宽高比自动调整视图尺寸，避免画面拉伸
+ * автоматически适配宽Высокий比  TextureView
+ * 根据Настройки 宽Высокий比автоматически调整视图尺寸，避免画面拉伸
  */
 public class AutoFitTextureView extends TextureView {
 
     private int ratioWidth = 0;
     private int ratioHeight = 0;
-    private boolean fillContainer = false;  // 是否填满容器（而不是适应容器）
+    private boolean fillContainer = false;  //  否填满容器（而不 适应容器)
 
     public AutoFitTextureView(Context context) {
         this(context, null);
@@ -27,10 +27,10 @@ public class AutoFitTextureView extends TextureView {
     }
 
     /**
-     * 设置此视图的宽高比
+     * Настройки此视图 宽Высокий比
      *
-     * @param width  相对宽度
-     * @param height 相对高度
+     * @param width  相 宽度
+     * @param height 相 Высокий度
      */
     public void setAspectRatio(int width, int height) {
         if (width < 0 || height < 0) {
@@ -42,9 +42,9 @@ public class AutoFitTextureView extends TextureView {
     }
 
     /**
-     * 设置是否填满容器
+     * Настройки 否填满容器
      *
-     * @param fill true=填满容器（可能裁切），false=适应容器（可能有黑边）
+     * @param fill true=填满容器（可能裁切)，false=适应容器（可能有黑边)
      */
     public void setFillContainer(boolean fill) {
         this.fillContainer = fill;
@@ -53,16 +53,16 @@ public class AutoFitTextureView extends TextureView {
 
 
     /**
-     * 根据旋转角度设置宽高比
-     * 当旋转角度为90°或270°时，会自动交换宽高
+     * 根据Поворот 角度Настройки宽Высокий比
+     * 当Поворот 角度为90°или270°时，会автоматически交换宽Высокий
      *
      * @param width    原始宽度
-     * @param height   原始高度
-     * @param rotation 旋转角度（0, 90, 180, 270）
+     * @param height   原始Высокий度
+     * @param rotation Поворот 角度（0, 90, 180, 270)
      */
     public void setAspectRatioWithRotation(int width, int height, int rotation) {
         if (rotation == 90 || rotation == 270) {
-            // 旋转90°或270°时，宽高互换
+            // Поворот 90°или270°时，宽Высокий互换
             setAspectRatio(height, width);
         } else {
             setAspectRatio(width, height);
@@ -70,8 +70,8 @@ public class AutoFitTextureView extends TextureView {
     }
 
     /**
-     * 获取当前设置的宽高比
-     * @return 宽高比（宽/高），如果未设置返回0
+     * ПолучениеТекущийНастройки 宽Высокий比
+     * @return 宽Высокий比（宽/Высокий)，Если Не Настройки返回0
      */
     public float getAspectRatio() {
         if (ratioWidth == 0 || ratioHeight == 0) {
@@ -81,14 +81,14 @@ public class AutoFitTextureView extends TextureView {
     }
 
     /**
-     * 获取当前设置的比例宽度
+     * ПолучениеТекущийНастройки 比例宽度
      */
     public int getRatioWidth() {
         return ratioWidth;
     }
 
     /**
-     * 获取当前设置的比例高度
+     * ПолучениеТекущийНастройки 比例Высокий度
      */
     public int getRatioHeight() {
         return ratioHeight;
@@ -103,21 +103,21 @@ public class AutoFitTextureView extends TextureView {
         if (ratioWidth == 0 || ratioHeight == 0) {
             setMeasuredDimension(width, height);
         } else {
-            // 根据宽高比调整尺寸
+            // 根据宽Высокий比调整尺寸
             int newWidth, newHeight;
 
-            // 方案1：基于容器宽度计算高度
+            // 方案1：基于容器宽度计算Высокий度
             newWidth = width;
             newHeight = width * ratioHeight / ratioWidth;
 
             if (fillContainer) {
-                // 填满模式：如果高度不足，放大以填满容器
+                // 填满режим：Если Высокий度不足，放大以填满容器
                 if (newHeight < height) {
                     newHeight = height;
                     newWidth = height * ratioWidth / ratioHeight;
                 }
             } else {
-                // 适应模式：如果高度超出，缩小以适应容器
+                // 适应режим：Если Высокий度超出，缩小以适应容器
                 if (newHeight > height) {
                     newHeight = height;
                     newWidth = height * ratioWidth / ratioHeight;

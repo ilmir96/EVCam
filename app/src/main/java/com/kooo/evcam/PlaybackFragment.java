@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 视频回看Fragment
+ * Видео回看Fragment
  */
 public class PlaybackFragment extends Fragment {
     private RecyclerView videoList;
@@ -121,19 +121,19 @@ public class PlaybackFragment extends Fragment {
     }
 
     /**
-     * 更新视频列表
+     * обновлениеВидео列表
      */
     private void updateVideoList() {
         videoFiles.clear();
 
-        // 获取保存目录
+        // ПолучениеСохранитькаталог
         File saveDir = StorageHelper.getVideoDir(getContext());
         if (saveDir.exists() && saveDir.isDirectory()) {
             File[] files = saveDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp4"));
             if (files != null && files.length > 0) {
                 videoFiles.addAll(Arrays.asList(files));
 
-                // 按修改时间倒序排序（最新的在前）
+                // 按изменение时间倒序排序（последний  前)
                 Collections.sort(videoFiles, new Comparator<File>() {
                     @Override
                     public int compare(File f1, File f2) {
@@ -143,7 +143,7 @@ public class PlaybackFragment extends Fragment {
             }
         }
 
-        // 更新UI
+        // обновлениеUI
         if (videoFiles.isEmpty()) {
             videoList.setVisibility(View.GONE);
             emptyText.setVisibility(View.VISIBLE);
@@ -200,7 +200,7 @@ public class PlaybackFragment extends Fragment {
     }
 
     private void updateSelectedCount() {
-        selectedCount.setText("已选择 " + selectedPositions.size() + " 项");
+        selectedCount.setText("Выбрано: " + selectedPositions.size() + "");
     }
 
     private void deleteSelected() {
@@ -209,9 +209,9 @@ public class PlaybackFragment extends Fragment {
         }
 
         new MaterialAlertDialogBuilder(getContext(), R.style.Theme_Cam_MaterialAlertDialog)
-                .setTitle("确认删除")
-                .setMessage("确定要删除选中的 " + selectedPositions.size() + " 个视频吗？")
-                .setPositiveButton("删除", (dialog, which) -> {
+                .setTitle("Подтвердите удаление")
+                .setMessage("Удалить выбранные " + selectedPositions.size() + " видео?")
+                .setPositiveButton("Удалить", (dialog, which) -> {
                     int deletedCount = 0;
                     List<Integer> positionsToDelete = new ArrayList<>(selectedPositions);
                     Collections.sort(positionsToDelete, Collections.reverseOrder());
@@ -236,7 +236,7 @@ public class PlaybackFragment extends Fragment {
 
                     if (getContext() != null) {
                         android.widget.Toast.makeText(getContext(), 
-                                "已删除 " + deletedCount + " 个视频", 
+                                "Удалено " + deletedCount + "  шт.Видео", 
                                 android.widget.Toast.LENGTH_SHORT).show();
                     }
 
@@ -244,7 +244,7 @@ public class PlaybackFragment extends Fragment {
                         exitMultiSelectMode();
                     }
                 })
-                .setNegativeButton("取消", null)
+                .setNegativeButton("Отмена", null)
                 .show();
     }
 }

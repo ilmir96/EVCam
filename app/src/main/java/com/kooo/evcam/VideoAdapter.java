@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * 视频列表适配器
+ * Видео列表适配器
  */
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
     private final Context context;
@@ -125,23 +125,23 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
             holder.btnDelete.setOnClickListener(v -> {
                 new MaterialAlertDialogBuilder(context, R.style.Theme_Cam_MaterialAlertDialog)
-                        .setTitle("确认删除")
-                        .setMessage("确定要删除 " + videoFile.getName() + " 吗？")
-                        .setPositiveButton("删除", (dialog, which) -> {
+                        .setTitle("Подтвердите удаление")
+                        .setMessage("Удалить " + videoFile.getName() + "?")
+                        .setPositiveButton("Удалить", (dialog, which) -> {
                             if (videoFile.delete()) {
                                 videoFiles.remove(position);
                                 notifyItemRemoved(position);
                                 notifyItemRangeChanged(position, videoFiles.size());
-                                Toast.makeText(context, "已删除", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Удалено", Toast.LENGTH_SHORT).show();
 
                                 if (deleteListener != null) {
                                     deleteListener.onVideoDeleted();
                                 }
                             } else {
-                                Toast.makeText(context, "删除失败", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Ошибка удаления", Toast.LENGTH_SHORT).show();
                             }
                         })
-                        .setNegativeButton("取消", null)
+                        .setNegativeButton("Отмена", null)
                         .show();
             });
         }
@@ -165,21 +165,21 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     }
 
     /**
-     * 使用 Glide 加载视频缩略图（带内存和磁盘缓存）
+     * использование Glide загрузкаВидео缩略图（带内存 и 磁 диск缓存)
      */
     private void loadThumbnail(File videoFile, ImageView imageView) {
-        // 检查文件是否存在且大小大于0（避免加载正在录制的文件）
+        // проверкаФайл 否существует且大小大于0（避免загрузкаВыполняется Запись Файл)
         if (!videoFile.exists() || videoFile.length() == 0) {
             imageView.setImageResource(android.R.drawable.ic_media_play);
             return;
         }
 
-        // 使用文件修改时间作为缓存签名，文件变化时自动更新缓存
+        // использованиеФайлизменение时间作为缓存签名，Файл变化时автоматическиобновление缓存
         RequestOptions options = new RequestOptions()
-                .frame(0)  // 获取视频第一帧
+                .frame(0)  // ПолучениеВидеоПервый帧
                 .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)  // 缓存解码后的资源
-                .signature(new ObjectKey(videoFile.lastModified()))  // 文件修改时间作为缓存key
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)  // 缓存解码后 资源
+                .signature(new ObjectKey(videoFile.lastModified()))  // Файлизменение时间作为缓存key
                 .placeholder(android.R.drawable.ic_media_play)
                 .error(android.R.drawable.ic_media_play);
 

@@ -24,19 +24,19 @@ import java.util.Map;
 
 /**
  * 鱼眼矫正器
- * 使用 OpenGL ES 2.0 对摄像头预览画面进行鱼眼（桶形畸变）矫正。
- * 仅作用于预览流，不影响录制流。
+ * использование OpenGL ES 2.0  Камера预览画面进行鱼眼（桶形畸变)矫正。
+ * только作用于预览流，不影响Запись流。
  *
  * 工作流程：
- * 1. 创建中间 SurfaceTexture，摄像头输出到此 SurfaceTexture（Camera2 唯一的预览输出）
- * 2. 使用 OES 纹理读取摄像头帧
- * 3. 通过鱼眼矫正片段着色器渲染到主 TextureView 的 Surface
- * 4. 同一帧同时渲染到所有附加输出（补盲悬浮窗、副屏等），共享同一个 GL 管线
+ * 1. 创建间 SurfaceTexture，Камера输出 до 此 SurfaceTexture（Camera2 唯一 预览输出)
+ * 2. использование OES 纹理读取Камера帧
+ * 3. 通过鱼眼矫正片着色器渲染 до 主 TextureView   Surface
+ * 4. 同一帧同时渲染 до 所有附加输出（补盲悬浮窗、副屏等)，Всего 享同一 шт. GL 管线
  *
- * 矫正模型：Brown-Conrady 径向畸变
+ * 矫正模型：Brown-Conrady 径 к 畸变
  *   r_corrected = r * (1.0 + k1 * r² + k2 * r⁴)
- * 其中 k1/k2 为畸变系数，r 为到画面中心的归一化距离。
- * k1 > 0 进行桶形畸变矫正（将鱼眼画面向内收缩）
+ * 其 k1/k2 为畸变系数，r 为 до 画面心 归一化距离。
+ * k1 > 0 进行桶形畸变矫正（将鱼眼画面 к 内收缩)
  * k1 < 0 增加桶形畸变
  */
 public class FisheyeCorrector {
@@ -55,8 +55,8 @@ public class FisheyeCorrector {
             "}\n";
 
     /**
-     * 鱼眼矫正片段着色器
-     * 在屏幕空间计算畸变偏移，再变换到 OES 纹理空间采样
+     * 鱼眼矫正片着色器
+     *  屏幕空间计算畸变偏移，再变换 до  OES 纹理空间采样
      */
     private static final String FRAGMENT_SHADER_FISHEYE =
             "#extension GL_OES_EGL_image_external : require\n" +
@@ -65,9 +65,9 @@ public class FisheyeCorrector {
             "uniform samplerExternalOES sTexture;\n" +
             "uniform mat4 uTexMatrix;\n" +
             "uniform float uK1;\n" +           // 主畸变系数
-            "uniform float uK2;\n" +           // 二次畸变系数
-            "uniform float uZoom;\n" +         // 矫正后缩放（用于裁切黑边）
-            "uniform vec2 uCenter;\n" +        // 畸变中心偏移 (0.5, 0.5) 为画面正中
+            "uniform float uK2;\n" +           // 二 раз畸变系数
+            "uniform float uZoom;\n" +         // 矫正后缩放（用于裁切黑边)
+            "uniform vec2 uCenter;\n" +        // 畸变心偏移 (0.5, 0.5) 为画面正
             "void main() {\n" +
             "    vec2 center = uCenter;\n" +
             "    vec2 coord = (vTextureCoord - center) / uZoom;\n" +
@@ -134,23 +134,23 @@ public class FisheyeCorrector {
     private final float[] mvpMatrix = new float[16];
     private final float[] texMatrix = new float[16];
 
-    // 中间 SurfaceTexture（摄像头输出到此处）
+    // 间 SurfaceTexture（Камера输出 до 此处)
     private SurfaceTexture intermediateSurfaceTexture;
     private Surface intermediateSurface;
 
-    // 附加输出 Surface（补盲悬浮窗、副屏等）
+    // 附加输出 Surface（补盲悬浮窗、副屏等)
     // key: "mainFloating" / "secondaryDisplay" 等标识
     private final LinkedHashMap<String, EGLSurface> extraEglSurfaces = new LinkedHashMap<>();
     private final LinkedHashMap<String, Surface> extraRawSurfaces = new LinkedHashMap<>();
 
-    // 矫正参数（可实时更新）
+    // 矫正参数（可实时обновление)
     private volatile float k1 = 0.0f;
     private volatile float k2 = 0.0f;
     private volatile float zoom = 1.0f;
     private volatile float centerX = 0.5f;
     private volatile float centerY = 0.5f;
 
-    // 状态
+    // Статус
     private boolean isInitialized = false;
     private boolean isReleased = false;
     private Handler renderHandler;
@@ -164,11 +164,11 @@ public class FisheyeCorrector {
     }
 
     /**
-     * 初始化 EGL/GL，绑定到 TextureView 的输出 Surface
+     * инициализация EGL/GL，绑定 до  TextureView  输出 Surface
      *
-     * @param outputSurface TextureView 的 Surface（通过 new Surface(textureView.getSurfaceTexture()) 获取）
-     * @param handler       用于帧回调的 Handler（应为摄像头后台线程）
-     * @return 中间 Surface，应添加到 Camera2 的 OutputConfiguration 作为预览输出
+     * @param outputSurface TextureView   Surface（通过 new Surface(textureView.getSurfaceTexture()) Получение)
+     * @param handler       用于帧回调  Handler（应为КамераФоновый режим线程)
+     * @return 间 Surface，应添加 до  Camera2   OutputConfiguration 作为预览输出
      */
     public Surface initialize(Surface outputSurface, Handler handler) {
         if (isInitialized) {
@@ -183,12 +183,12 @@ public class FisheyeCorrector {
             initEgl(outputSurface);
             initGl();
 
-            // 创建中间 SurfaceTexture
+            // 创建间 SurfaceTexture
             intermediateSurfaceTexture = new SurfaceTexture(oesTextureId);
             intermediateSurfaceTexture.setDefaultBufferSize(width, height);
             intermediateSurface = new Surface(intermediateSurfaceTexture);
 
-            // 帧到达时进行矫正渲染
+            // 帧 до 达时进行矫正渲染
             intermediateSurfaceTexture.setOnFrameAvailableListener(st -> drawFrame(), handler);
 
             isInitialized = true;
@@ -203,7 +203,7 @@ public class FisheyeCorrector {
     }
 
     /**
-     * 从 AppConfig 加载当前摄像头的矫正参数
+     *  от  AppConfig загрузкаТекущийКамера 矫正参数
      */
     public void loadParams(AppConfig appConfig) {
         if (appConfig == null || cameraPosition == null) return;
@@ -217,7 +217,7 @@ public class FisheyeCorrector {
     }
 
     /**
-     * 实时更新矫正参数（从悬浮窗调节时调用）
+     * 实时обновление矫正参数（ от 悬浮窗调节时调用)
      */
     public void updateParams(float k1, float k2, float zoom, float centerX, float centerY) {
         this.k1 = k1;
@@ -228,14 +228,14 @@ public class FisheyeCorrector {
     }
 
     /**
-     * 获取中间 Surface（供 Camera2 作为预览输出目标）
+     * Получение间 Surface（供 Camera2 作为预览输出目标)
      */
     public Surface getIntermediateSurface() {
         return intermediateSurface;
     }
 
     /**
-     * 获取中间 SurfaceTexture
+     * Получение间 SurfaceTexture
      */
     public SurfaceTexture getIntermediateSurfaceTexture() {
         return intermediateSurfaceTexture;
@@ -245,21 +245,21 @@ public class FisheyeCorrector {
         return isInitialized && !isReleased;
     }
 
-    // ===== 附加输出管理 =====
+    // ===== 附加输出управление =====
 
     /**
-     * 添加一个附加输出 Surface（如补盲悬浮窗、副屏）。
-     * 每帧会同时渲染到主输出和所有附加输出，共享同一个 GL 矫正管线。
-     * 必须在 GL 线程（Handler）上调用，或确保 EGL context 可用。
+     * 添加一 шт.附加输出 Surface（если补盲悬浮窗、副屏)。
+     * 每帧会同时渲染 до 主输出 и 所有附加输出，Всего 享同一 шт. GL 矫正管线。
+     * 必须  GL 线程（Handler)调用，или确保 EGL context Доступно。
      *
-     * @param tag     唯一标识，如 "mainFloating"、"secondaryDisplay"
-     * @param surface 附加输出的 Surface
+     * @param tag     唯一标识，если "mainFloating"、"secondaryDisplay"
+     * @param surface 附加输出  Surface
      */
     public void addOutputSurface(String tag, Surface surface) {
         if (!isInitialized || isReleased) return;
         if (surface == null || !surface.isValid()) return;
 
-        // 先移除旧的同名 Surface
+        // 先移除旧 同名 Surface
         removeOutputSurface(tag);
 
         try {
@@ -279,14 +279,14 @@ public class FisheyeCorrector {
     }
 
     /**
-     * 移除一个附加输出 Surface。
+     * 移除一 шт.附加输出 Surface。
      */
     public void removeOutputSurface(String tag) {
         EGLSurface eglSurf = extraEglSurfaces.remove(tag);
         extraRawSurfaces.remove(tag);
         if (eglSurf != null && eglSurf != EGL14.EGL_NO_SURFACE) {
             try {
-                // 确保当前 context 不在被移除的 surface 上
+                // 确保Текущий context 不  移除  surface 
                 if (eglSurface != EGL14.EGL_NO_SURFACE) {
                     EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
                 }
@@ -299,7 +299,7 @@ public class FisheyeCorrector {
     }
 
     /**
-     * 检查是否存在指定标识的附加输出
+     * проверка 否существует指定标识 附加输出
      */
     public boolean hasOutputSurface(String tag) {
         return extraEglSurfaces.containsKey(tag);
@@ -314,11 +314,11 @@ public class FisheyeCorrector {
         try {
             makeCurrent();
 
-            // 更新 OES 纹理（每帧只调用一次，纹理在所有 EGL Surface 间共享）
+            // обновление OES 纹理（每帧只调用一 раз，纹理 所有 EGL Surface 间Всего 享)
             intermediateSurfaceTexture.updateTexImage();
             intermediateSurfaceTexture.getTransformMatrix(texMatrix);
 
-            // 设置 shader 共享状态（Uniform / 纹理绑定 / 顶点属性）
+            // Настройки shader Всего 享Статус（Uniform / 纹理绑定 / 顶点属性)
             GLES20.glUseProgram(program);
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
             GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, oesTextureId);
@@ -334,17 +334,17 @@ public class FisheyeCorrector {
             GLES20.glEnableVertexAttribArray(texCoordHandle);
             GLES20.glVertexAttribPointer(texCoordHandle, 2, GLES20.GL_FLOAT, false, 0, texCoordBuffer);
 
-            // ── 1. 渲染到主输出（TextureView）──
+            // ── 1. 渲染 до 主输出（TextureView)──
             renderToSurface(eglSurface);
 
-            // ── 2. 渲染到所有附加输出（补盲悬浮窗、副屏等）──
+            // ── 2. 渲染 до 所有附加输出（补盲悬浮窗、副屏等)──
             if (!extraEglSurfaces.isEmpty()) {
                 Iterator<Map.Entry<String, EGLSurface>> it = extraEglSurfaces.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry<String, EGLSurface> entry = it.next();
                     Surface raw = extraRawSurfaces.get(entry.getKey());
                     if (raw == null || !raw.isValid()) {
-                        // Surface 已失效，自动清理
+                        // Surface 失效，автоматическиОчистка 
                         try { EGL14.eglDestroySurface(eglDisplay, entry.getValue()); } catch (Exception ignored) {}
                         extraRawSurfaces.remove(entry.getKey());
                         it.remove();
@@ -353,7 +353,7 @@ public class FisheyeCorrector {
                     }
                     renderToSurface(entry.getValue());
                 }
-                // 恢复主 EGL Surface 为 current
+                // Восстановление主 EGL Surface 为 current
                 EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
             }
 
@@ -366,7 +366,7 @@ public class FisheyeCorrector {
     }
 
     /**
-     * 渲染矫正帧到指定 EGL Surface（主输出或附加输出共用）
+     * 渲染矫正帧 до 指定 EGL Surface（主输出или附加输出Всего 用)
      */
     private void renderToSurface(EGLSurface targetSurface) {
         EGL14.eglMakeCurrent(eglDisplay, targetSurface, targetSurface, eglContext);
@@ -383,7 +383,7 @@ public class FisheyeCorrector {
         EGL14.eglSwapBuffers(eglDisplay, targetSurface);
     }
 
-    // ===== EGL / GL 初始化 =====
+    // ===== EGL / GL инициализация =====
 
     private void initEgl(Surface outputSurface) {
         eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
@@ -520,7 +520,7 @@ public class FisheyeCorrector {
         AppLog.d(TAG, "Camera " + cameraId + " FisheyeCorrector released");
     }
 
-    // ===== 工具方法 =====
+    // ===== инструмент方法 =====
 
     private void makeCurrent() {
         if (!EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {

@@ -9,28 +9,28 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * 图片分组模型
- * 将同一时间戳拍摄的多路图片组合在一起（前/后/左/右）
- * 文件命名格式：yyyyMMdd_HHmmss_{position}.jpg
+ * Изображение分 групп模型
+ * 将同一时间戳拍 多 кам.Изображение групп合 一起（前/后/左/右)
+ * Файл命名格式：yyyyMMdd_HHmmss_{position}.jpg
  */
 public class PhotoGroup {
 
-    /** 摄像头位置常量 */
+    /** КамераПозиция常量 */
     public static final String POSITION_FRONT = "front";
     public static final String POSITION_BACK = "back";
     public static final String POSITION_LEFT = "left";
     public static final String POSITION_RIGHT = "right";
 
-    /** 时间戳前缀，如 "20260131_1254" */
+    /** 时间戳前缀，если "20260131_1254" */
     private final String timestampPrefix;
 
-    /** 拍摄时间（解析自文件名） */
+    /** 拍时间（解析自Файл名) */
     private final Date captureTime;
 
-    /** 各位置的图片文件 */
+    /** 各Позиция ИзображениеФайл */
     private final Map<String, File> photoFiles;
 
-    /** 总文件大小（所有位置之和） */
+    /** 总Файл大小（所有Позиция之 и ) */
     private long totalSize;
 
     public PhotoGroup(String timestampPrefix) {
@@ -41,7 +41,7 @@ public class PhotoGroup {
     }
 
     /**
-     * 添加图片文件到分组
+     * 添加ИзображениеФайл до 分 групп
      */
     public void addFile(File file) {
         String position = extractPosition(file.getName());
@@ -52,7 +52,7 @@ public class PhotoGroup {
     }
 
     /**
-     * 从文件名提取时间戳前缀
+     *  от Файл名提取时间戳前缀
      */
     public static String extractTimestampPrefix(String fileName) {
         String nameWithoutExt = fileName;
@@ -69,7 +69,7 @@ public class PhotoGroup {
     }
 
     /**
-     * 从文件名提取摄像头位置
+     *  от Файл名提取КамераПозиция
      */
     public static String extractPosition(String fileName) {
         String nameWithoutExt = fileName;

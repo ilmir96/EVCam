@@ -13,29 +13,29 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 文件传输管理器
- * 负责将临时目录中的视频文件异步传输到目标存储（如U盘）
+ * Файл传输управление器
+ * 负责将временнокаталог ВидеоФайл异步传输 до 目标Хранилище（еслиUSB-накопитель)
  * 
  * 工作原理：
- * 1. 录制时先写入内部存储的临时目录（高速）
- * 2. 分段完成后，将文件加入传输队列
- * 3. 后台线程负责将文件移动/复制到目标目录
- * 4. 传输完成后删除临时文件
+ * 1. Запись时先写入Внутренняя память временнокаталог（Высокий速)
+ * 2. 分завершение后，将Файл加入传输队列
+ * 3. Фоновый режим线程负责将Файл移动/复制 до 目标каталог
+ * 4. 传输завершение后删除временноФайл
  * 
- * 这样可以避免U盘慢速写入影响录制性能
+ * 这样可以避免USB-накопитель慢速写入影响Запись性能
  */
 public class FileTransferManager {
     private static final String TAG = "FileTransferManager";
     
-    // 临时目录名称（在内部存储的应用缓存目录下）
+    // временнокаталог名称（ Внутренняя память Приложение缓存каталог)
     public static final String TEMP_VIDEO_DIR = "temp_video";
     
-    // 传输任务
+    // 传输задача
     private static class TransferTask {
-        final File sourceFile;      // 源文件（临时目录中）
-        final File targetFile;      // 目标文件（最终存储位置）
+        final File sourceFile;      // 源Файл（временнокаталог)
+        final File targetFile;      // 目标Файл（最终ХранилищеПозиция)
         final TransferCallback callback;
-        int retryCount;             // 重试次数
+        int retryCount;             // 重试 раз数
         
         TransferTask(File source, File target, TransferCallback callback) {
             this.sourceFile = source;
@@ -61,17 +61,17 @@ public class FileTransferManager {
     private final AtomicBoolean isRunning;
     private final AtomicBoolean isProcessing;
     
-    // 配置
-    private static final int MAX_RETRY_COUNT = 3;           // 最大重试次数
-    private static final long RETRY_DELAY_MS = 5000;        // 重试延迟（毫秒）
-    private static final long TRANSFER_CHECK_INTERVAL_MS = 1000;  // 检查队列间隔
-    private static final long STARTUP_CLEANUP_DELAY_MS = 60 * 1000;  // 启动后清理延迟：1分钟
-    private static final long TEMP_FILE_EXPIRE_MS = 60 * 60 * 1000;  // 临时文件过期时间：1小时
+    // конфигурация
+    private static final int MAX_RETRY_COUNT = 3;           // максимум重试 раз数
+    private static final long RETRY_DELAY_MS = 5000;        // 重试延迟（毫 сек.)
+    private static final long TRANSFER_CHECK_INTERVAL_MS = 1000;  // проверка队列间隔
+    private static final long STARTUP_CLEANUP_DELAY_MS = 60 * 1000;  // Запуск后Очистка 延迟：1 мин.
+    private static final long TEMP_FILE_EXPIRE_MS = 60 * 60 * 1000;  // временноФайлистекло时间：1小时
     
     // 统计
-    private long totalTransferred = 0;      // 已传输文件数
-    private long totalFailed = 0;           // 失败文件数
-    private long totalBytesTransferred = 0; // 已传输字节数
+    private long totalTransferred = 0;      // 传输Файл数
+    private long totalFailed = 0;           // ОшибкаФайл数
+    private long totalBytesTransferred = 0; // 传输字节数
     
     private FileTransferManager(Context context) {
         this.context = context.getApplicationContext();
@@ -81,7 +81,7 @@ public class FileTransferManager {
     }
     
     /**
-     * 获取单例实例
+     * Получение单例实例
      */
     public static synchronized FileTransferManager getInstance(Context context) {
         if (instance == null) {
@@ -91,7 +91,7 @@ public class FileTransferManager {
     }
     
     /**
-     * 启动传输服务
+     * Запуск传输Сервис
      */
     public void start() {
         if (isRunning.getAndSet(true)) {
@@ -103,17 +103,17 @@ public class FileTransferManager {
         transferThread.start();
         transferHandler = new Handler(transferThread.getLooper());
         
-        // 启动定期检查队列
+        // Запуск定期проверка队列
         scheduleNextCheck();
         
-        // 启动后1分钟检查并清理过期的临时文件
+        // Запуск后1 мин.проверка并Очистка истекло временноФайл
         transferHandler.postDelayed(this::cleanupExpiredTempFiles, STARTUP_CLEANUP_DELAY_MS);
         
         AppLog.d(TAG, "File transfer service started");
     }
     
     /**
-     * 停止传输服务
+     * Остановка传输Сервис
      */
     public void stop() {
         if (!isRunning.getAndSet(false)) {
@@ -140,10 +140,10 @@ public class FileTransferManager {
     }
     
     /**
-     * 添加传输任务
-     * @param sourceFile 源文件（临时目录中）
-     * @param targetFile 目标文件（最终位置）
-     * @param callback 回调（可为null）
+     * 添加传输задача
+     * @param sourceFile 源Файл（временнокаталог)
+     * @param targetFile 目标Файл（最终Позиция)
+     * @param callback 回调（可为null)
      */
     public void addTransferTask(File sourceFile, File targetFile, TransferCallback callback) {
         if (sourceFile == null || !sourceFile.exists()) {
@@ -159,15 +159,15 @@ public class FileTransferManager {
         
         AppLog.d(TAG, "Added transfer task: " + sourceFile.getName() + " -> " + targetFile.getAbsolutePath());
         
-        // 如果服务在运行，立即触发处理
+        // Если Сервис Работа，立т.е.触发处理
         if (isRunning.get() && transferHandler != null) {
             transferHandler.post(this::processQueue);
         }
     }
     
     /**
-     * 获取临时视频目录
-     * @return 临时目录，如果创建失败返回null
+     * ПолучениевременноВидеокаталог
+     * @return временнокаталог，Если 创建Ошибка返回null
      */
     public File getTempVideoDir() {
         File tempDir = new File(context.getCacheDir(), TEMP_VIDEO_DIR);
@@ -181,7 +181,7 @@ public class FileTransferManager {
     }
     
     /**
-     * 获取临时目录中的文件数量
+     * Получениевременнокаталог Файл数量
      */
     public int getPendingFileCount() {
         File tempDir = getTempVideoDir();
@@ -193,7 +193,7 @@ public class FileTransferManager {
     }
     
     /**
-     * 获取临时目录占用的空间（字节）
+     * Получениевременнокаталог占用 空间（字节)
      */
     public long getTempDirSize() {
         File tempDir = getTempVideoDir();
@@ -212,8 +212,8 @@ public class FileTransferManager {
     }
     
     /**
-     * 清理临时目录（删除所有文件）
-     * 注意：仅在确认不需要这些文件时调用
+     * Очистка временнокаталог（删除所有Файл)
+     * 注意：только Подтвердить不необходимо这些Файл时调用
      */
     public void clearTempDir() {
         File tempDir = getTempVideoDir();
@@ -234,17 +234,17 @@ public class FileTransferManager {
     }
     
     /**
-     * 获取队列中等待传输的任务数
+     * Получение队列ожидание传输 задача数
      */
     public int getQueueSize() {
         return transferQueue.size();
     }
     
     /**
-     * 获取传输统计信息
+     * Получение传输统计Информация
      */
     public String getStats() {
-        return String.format("已传输: %d 个文件 (%s), 失败: %d, 队列: %d, 临时文件: %d",
+        return String.format("Передано: %d файлов (%s), ошибок: %d, в очереди: %d, временных: %d",
                 totalTransferred, formatSize(totalBytesTransferred), 
                 totalFailed, getQueueSize(), getPendingFileCount());
     }
@@ -252,7 +252,7 @@ public class FileTransferManager {
     // ===== 私有方法 =====
     
     /**
-     * 调度下一次队列检查
+     * 调度一 раз队列проверка
      */
     private void scheduleNextCheck() {
         if (!isRunning.get() || transferHandler == null) {
@@ -268,8 +268,8 @@ public class FileTransferManager {
     }
     
     /**
-     * 清理过期的临时文件
-     * 在服务运行期间定期调用
+     * Очистка истекло временноФайл
+     *  СервисРабота期间定期调用
      */
     private void cleanupExpiredTempFiles() {
         File tempDir = getTempVideoDir();
@@ -315,7 +315,7 @@ public class FileTransferManager {
             TransferTask task;
             while ((task = transferQueue.poll()) != null) {
                 if (!isRunning.get()) {
-                    // 服务停止，将任务放回队列
+                    // СервисОстановка，将задача放回队列
                     transferQueue.offer(task);
                     break;
                 }
@@ -328,7 +328,7 @@ public class FileTransferManager {
     }
     
     /**
-     * 处理单个传输任务
+     * 处理单 шт.传输задача
      */
     private void processTask(TransferTask task) {
         if (!task.sourceFile.exists()) {
@@ -340,7 +340,7 @@ public class FileTransferManager {
             return;
         }
         
-        // 确保目标目录存在
+        // 确保目标каталогсуществует
         File targetDir = task.targetFile.getParentFile();
         if (targetDir != null && !targetDir.exists()) {
             if (!targetDir.mkdirs()) {
@@ -350,11 +350,11 @@ public class FileTransferManager {
             }
         }
         
-        // 尝试移动文件（如果在同一文件系统，这是最快的）
+        // попытка移动Файл（Если  同一ФайлСистема，这 最快 )
         boolean moved = task.sourceFile.renameTo(task.targetFile);
         
         if (moved) {
-            // 移动成功
+            // 移动Успешно
             long fileSize = task.targetFile.length();
             AppLog.d(TAG, "File moved successfully: " + task.sourceFile.getName() + 
                     " -> " + task.targetFile.getAbsolutePath() + " (" + formatSize(fileSize) + ")");
@@ -366,13 +366,13 @@ public class FileTransferManager {
                 task.callback.onTransferComplete(task.sourceFile, task.targetFile);
             }
         } else {
-            // 移动失败（可能跨文件系统），尝试复制
+            // 移动Ошибка（可能跨ФайлСистема)，попытка复制
             AppLog.d(TAG, "Move failed, trying copy: " + task.sourceFile.getName());
             
             boolean copied = copyFile(task.sourceFile, task.targetFile);
             
             if (copied) {
-                // 复制成功，删除源文件
+                // 复制Успешно，删除源Файл
                 long fileSize = task.targetFile.length();
                 
                 if (task.sourceFile.delete()) {
@@ -389,14 +389,14 @@ public class FileTransferManager {
                     task.callback.onTransferComplete(task.sourceFile, task.targetFile);
                 }
             } else {
-                // 复制也失败
+                // 复制такжеОшибка
                 handleTransferFailure(task, "Copy failed");
             }
         }
     }
     
     /**
-     * 处理传输失败
+     * 处理传输Ошибка
      */
     private void handleTransferFailure(TransferTask task, String error) {
         task.retryCount++;
@@ -413,7 +413,7 @@ public class FileTransferManager {
                 }, RETRY_DELAY_MS);
             }
         } else {
-            // 超过重试次数，放弃
+            // 超过重试 раз数，放弃
             AppLog.e(TAG, "Transfer failed after " + MAX_RETRY_COUNT + " retries: " + 
                     task.sourceFile.getName() + " - " + error);
             
@@ -426,7 +426,7 @@ public class FileTransferManager {
     }
     
     /**
-     * 复制文件（使用 NIO Channel，效率较高）
+     * 复制Файл（использование NIO Channel，效率较Высокий)
      */
     private boolean copyFile(File source, File target) {
         FileChannel sourceChannel = null;
@@ -461,7 +461,7 @@ public class FileTransferManager {
         } catch (IOException e) {
             AppLog.e(TAG, "Error copying file: " + source.getName(), e);
             
-            // 删除可能不完整的目标文件
+            // 删除可能不完整 目标Файл
             if (target.exists()) {
                 target.delete();
             }
@@ -478,7 +478,7 @@ public class FileTransferManager {
     }
     
     /**
-     * 格式化文件大小
+     * 格式化Файл大小
      */
     private String formatSize(long bytes) {
         if (bytes < 1024) {

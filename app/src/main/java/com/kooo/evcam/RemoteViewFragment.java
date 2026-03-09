@@ -70,7 +70,7 @@ public class RemoteViewFragment extends Fragment {
             }
         });
 
-        // 沉浸式状态栏兼容
+        // 沉浸式Статус栏совместимость
         View toolbar = view.findViewById(R.id.toolbar);
         if (toolbar != null) {
             final int originalPaddingTop = toolbar.getPaddingTop();
@@ -88,7 +88,7 @@ public class RemoteViewFragment extends Fragment {
             etClientId.setText(config.getClientId());
             etClientSecret.setText(config.getClientSecret());
         }
-        // 加载自动启动设置
+        // загрузкаавтоматическиЗапускНастройки
         switchAutoStart.setChecked(config.isAutoStart());
     }
 
@@ -114,11 +114,11 @@ public class RemoteViewFragment extends Fragment {
         // 密码可见性切换
         btnToggleSecretVisibility.setOnClickListener(v -> toggleSecretVisibility());
 
-        // 自动启动开关监听
+        // автоматическиЗапускВклВыкл监听
         switchAutoStart.setOnCheckedChangeListener((buttonView, isChecked) -> {
             config.setAutoStart(isChecked);
             Toast.makeText(requireContext(),
-                isChecked ? "已启用自动启动" : "已禁用自动启动",
+                isChecked ? "Автозапуск включён" : "Автозапуск выключен",
                 Toast.LENGTH_SHORT).show();
         });
     }
@@ -137,72 +137,72 @@ public class RemoteViewFragment extends Fragment {
             etClientSecret.setTransformationMethod(PasswordTransformationMethod.getInstance());
             btnToggleSecretVisibility.setImageResource(R.drawable.ic_visibility);
         }
-        // 将光标移到末尾
+        // 将光标移 до 末尾
         etClientSecret.setSelection(etClientSecret.getText().length());
     }
 
     /**
-     * 测试连接 - 通过获取 AccessToken 验证凭证是否正确
+     * тестированиеПодключение - 通过Получение AccessToken 验证凭证 否正确
      */
     private void testConnection() {
         String clientId = etClientId.getText().toString().trim();
         String clientSecret = etClientSecret.getText().toString().trim();
 
         if (clientId.isEmpty() || clientSecret.isEmpty()) {
-            Toast.makeText(requireContext(), "请先填写 ClientId 和 ClientSecret", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Укажите ClientId и ClientSecret", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 禁用按钮，防止重复点击
+        // Отключить按钮，防止重复点击
         btnTestConnection.setEnabled(false);
-        btnTestConnection.setText("测试中...");
+        btnTestConnection.setText("Тестирование...");
 
-        // 在后台线程执行测试
+        //  Фоновый режим线程выполнениетестирование
         new Thread(() -> {
             try {
-                // 创建临时配置
+                // 创建временноконфигурация
                 DingTalkConfig tempConfig = new DingTalkConfig(requireContext());
                 tempConfig.saveConfig(clientId, clientSecret);
                 
-                // 清除缓存的 token，强制重新获取
+                // очистка缓存  token，强制重新Получение
                 tempConfig.clearAccessToken();
                 
-                // 尝试获取 AccessToken
+                // попыткаПолучение AccessToken
                 DingTalkApiClient apiClient = new DingTalkApiClient(tempConfig);
                 apiClient.getAccessToken();
                 
-                // 成功
+                // Успешно
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         btnTestConnection.setEnabled(true);
-                        btnTestConnection.setText("测试连接");
-                        Toast.makeText(requireContext(), "✅ 连接测试成功！凭证有效", Toast.LENGTH_LONG).show();
-                        tvConnectionStatus.setText("凭证有效");
+                        btnTestConnection.setText("тестированиеПодключение");
+                        Toast.makeText(requireContext(), "✅ Подключение успешно! Данные верны", Toast.LENGTH_LONG).show();
+                        tvConnectionStatus.setText("Данные верны");
                         tvConnectionStatus.setTextColor(0xFF66FF66);
                     });
                 }
             } catch (Exception e) {
-                // 失败
+                // Ошибка
                 String errorMsg = e.getMessage();
                 if (errorMsg != null && errorMsg.contains("errcode")) {
-                    // 解析钉钉错误信息
+                    // 解析DingTalkОшибкаИнформация
                     if (errorMsg.contains("40089") || errorMsg.contains("invalid appkey")) {
-                        errorMsg = "ClientId/AppKey 无效";
+                        errorMsg = "ClientId/AppKey недействителен";
                     } else if (errorMsg.contains("43003") || errorMsg.contains("secret")) {
-                        errorMsg = "ClientSecret/AppSecret 无效";
+                        errorMsg = "ClientSecret/AppSecret недействителен";
                     }
                 }
                 final String finalErrorMsg = errorMsg;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         btnTestConnection.setEnabled(true);
-                        btnTestConnection.setText("测试连接");
-                        Toast.makeText(requireContext(), "❌ 连接测试失败：" + finalErrorMsg, Toast.LENGTH_LONG).show();
-                        tvConnectionStatus.setText("凭证无效");
+                        btnTestConnection.setText("тестированиеПодключение");
+                        Toast.makeText(requireContext(), "Ошибка подключения: " + finalErrorMsg, Toast.LENGTH_LONG).show();
+                        tvConnectionStatus.setText("Данные недействительны");
                         tvConnectionStatus.setTextColor(0xFFFF6666);
                     });
                 }
-                AppLog.e(TAG, "测试连接失败", e);
+                AppLog.e(TAG, "тестированиеОшибка подключения", e);
             }
         }).start();
     }
@@ -212,17 +212,17 @@ public class RemoteViewFragment extends Fragment {
         String clientSecret = etClientSecret.getText().toString().trim();
 
         if (clientId.isEmpty() || clientSecret.isEmpty()) {
-            Toast.makeText(requireContext(), "请填写完整的配置信息", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Заполните все поля настроек", Toast.LENGTH_SHORT).show();
             return;
         }
 
         config.saveConfig(clientId, clientSecret);
-        Toast.makeText(requireContext(), "配置已保存", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "Настройки сохранены", Toast.LENGTH_SHORT).show();
     }
 
     private void startService() {
         if (!config.isConfigured()) {
-            Toast.makeText(requireContext(), "请先保存配置", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Сначала сохраните настройки", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -238,7 +238,7 @@ public class RemoteViewFragment extends Fragment {
     }
 
     /**
-     * 更新服务状态显示（由 MainActivity 调用）
+     * обновлениеСервисСтатус显示（由 MainActivity 调用)
      */
     public void updateServiceStatus() {
         if (getActivity() instanceof MainActivity) {
@@ -246,12 +246,12 @@ public class RemoteViewFragment extends Fragment {
             boolean isRunning = activity.isDingTalkServiceRunning();
 
             if (isRunning) {
-                tvConnectionStatus.setText("已连接");
+                tvConnectionStatus.setText("Подключён");
                 tvConnectionStatus.setTextColor(0xFF66FF66);
                 btnStartService.setEnabled(false);
                 btnStopService.setEnabled(true);
             } else {
-                tvConnectionStatus.setText("未连接");
+                tvConnectionStatus.setText("Не подключён");
                 tvConnectionStatus.setTextColor(0xFFFF6666);
                 btnStartService.setEnabled(true);
                 btnStopService.setEnabled(false);
@@ -262,19 +262,19 @@ public class RemoteViewFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // 每次显示时更新状态
+        // 每 раз显示时обновлениеСтатус
         updateServiceStatus();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // 不再在这里停止服务，服务由 MainActivity 管理
+        // 不再 这里ОстановкаСервис，Сервис由 MainActivity управление
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // 不再在这里停止服务，服务由 MainActivity 管理
+        // 不再 这里ОстановкаСервис，Сервис由 MainActivity управление
     }
 }

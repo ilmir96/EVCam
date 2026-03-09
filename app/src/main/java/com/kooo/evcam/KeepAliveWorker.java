@@ -6,8 +6,8 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 /**
- * 定时保活任务
- * 每15分钟执行一次，确保应用进程保持活跃
+ * 定时保活задача
+ * 每15 мин.выполнение一 раз，确保Приложение进程保持活跃
  */
 public class KeepAliveWorker extends Worker {
     private static final String TAG = "KeepAliveWorker";
@@ -19,22 +19,22 @@ public class KeepAliveWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        AppLog.d(TAG, "定时保活任务执行 - 确保应用进程活跃");
+        AppLog.d(TAG, "定时保活задачавыполнение - 确保Приложение进程活跃");
 
         try {
-            // 检查远程查看服务状态
+            // проверкаУдалённыйПросмотрСервисСтатус
             Context context = getApplicationContext();
             
-            // 记录当前运行状态
-            AppLog.d(TAG, "应用进程保持活跃");
-            AppLog.d(TAG, "无障碍服务状态: " + (KeepAliveAccessibilityService.isRunning() ? "运行中" : "未运行"));
+            // 记录ТекущийРаботаСтатус
+            AppLog.d(TAG, "Приложение进程保持活跃");
+            AppLog.d(TAG, "无障碍СервисСтатус: " + (KeepAliveAccessibilityService.isRunning() ? "Работа" : "Не Работа"));
             
-            // 可以在这里做一些轻量级的检查，确保核心服务正常
-            // 例如检查钉钉连接状态等
+            // 可以 这里做一些轻量级 проверка，确保核心Сервиснормально
+            // 例еслипроверкаDingTalkПодключениеСтатус等
             
             return Result.success();
         } catch (Exception e) {
-            AppLog.e(TAG, "保活任务执行失败", e);
+            AppLog.e(TAG, "保活задачавыполнениеОшибка", e);
             return Result.retry();
         }
     }

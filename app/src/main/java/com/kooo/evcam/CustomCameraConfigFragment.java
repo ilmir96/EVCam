@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 自定义摄像头配置界面 Fragment
+ * 自定义Камераконфигурация界面 Fragment
  */
 public class CustomCameraConfigFragment extends Fragment {
 
@@ -35,24 +35,24 @@ public class CustomCameraConfigFragment extends Fragment {
     
     private AppConfig appConfig;
     
-    // 摄像头数量选择
+    // Камера数量Выбрать
     private Spinner cameraCountSpinner;
-    private static final String[] CAMERA_COUNT_OPTIONS = {"4 个摄像头", "2 个摄像头", "1 个摄像头"};
+    private static final String[] CAMERA_COUNT_OPTIONS = {"4 камер(ы)", "2 камер(ы)", "1 камер(ы)"};
 
     // 按钮样式选项
-    private static final String[] BUTTON_STYLE_OPTIONS = {"标准按钮", "多按钮"};
+    private static final String[] BUTTON_STYLE_OPTIONS = {"Стандартные кнопки", "Мульти-кнопки"};
     private static final String[] BUTTON_STYLE_VALUES = {AppConfig.BUTTON_STYLE_STANDARD, AppConfig.BUTTON_STYLE_MULTI};
 
-    // 摄像头配置区域
+    // Камераконфигурация区域
     private LinearLayout configFront, configBack, configLeft, configRight;
     
-    // 摄像头编号选择器
+    // Камера编号Выбрать器
     private Spinner spinnerFrontId, spinnerBackId, spinnerLeftId, spinnerRightId;
 
-    // 摄像头名称输入框
+    // Камера名称Ввести框
     private EditText editFrontName, editBackName, editLeftName, editRightName;
 
-    // 自由操控配置
+    // 自由操控конфигурация
     private SwitchMaterial switchFreeControl;
     private Spinner spinnerButtonStyle;
     
@@ -61,10 +61,10 @@ public class CustomCameraConfigFragment extends Fragment {
     private Button btnCopyLayout;
     private Button btnSaveLayout;
     
-    // 可用的摄像头ID列表
+    // Доступно КамераID列表
     private List<String> availableCameraIds = new ArrayList<>();
     
-    // 是否已完成初始加载（避免加载时触发保存）
+    //  否завершение初始загрузка（避免загрузка时触发Сохранить)
     private boolean configInitialized = false;
     
     @Nullable
@@ -72,27 +72,27 @@ public class CustomCameraConfigFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_custom_camera_config, container, false);
         
-        // 重置初始化标记
+        // Сбросинициализация标记
         configInitialized = false;
         
-        // 初始化应用配置
+        // инициализацияПриложениеконфигурация
         if (getContext() != null) {
             appConfig = new AppConfig(getContext());
         }
         
-        // 初始化控件
+        // инициализация控件
         initViews(view);
         
-        // 检测可用的摄像头
+        // 检测Доступно Камера
         detectAvailableCameras();
         
-        // 初始化下拉选择器
+        // инициализация拉Выбрать器
         initSpinners();
         
-        // 加载已保存的配置
+        // загрузкаСохранить конфигурация
         loadSavedConfig();
         
-        // 设置返回按钮
+        // Настройки返回按钮
         Button btnBack = view.findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> {
             if (getActivity() != null) {
@@ -100,34 +100,34 @@ public class CustomCameraConfigFragment extends Fragment {
             }
         });
         
-        // 设置重置所有配置按钮
+        // НастройкиСброс所有конфигурация按钮
         Button btnResetAllConfig = view.findViewById(R.id.btn_reset_all_config);
         if (btnResetAllConfig != null) {
             btnResetAllConfig.setOnClickListener(v -> resetAllCustomConfig());
         }
         
-        // 设置重启按钮
+        // Настройкиперезагрузка按钮
         Button btnRestartApp = view.findViewById(R.id.btn_restart_app);
         if (btnRestartApp != null) {
             btnRestartApp.setOnClickListener(v -> restartApp());
         }
         
-        // 设置自动保存监听器
+        // НастройкиавтоматическиСохранить监听器
         setupAutoSaveListeners();
         
-        // 加载布局数据到编辑框
+        // загрузка布局数据 до 编辑框
         loadLayoutData();
         
-        // 设置布局数据按钮事件
+        // Настройки布局数据按钮事件
         setupLayoutDataButtons();
         
-        // 延迟设置初始化完成标记，确保 loadSavedConfig 触发的 Spinner 选择不会触发保存
+        // 延迟Настройкиинициализациязавершение标记，确保 loadSavedConfig 触发  Spinner Выбрать不会触发Сохранить
         view.postDelayed(() -> {
             configInitialized = true;
-            AppLog.d(TAG, "配置界面初始化完成，自动保存已启用");
+            AppLog.d(TAG, "конфигурация界面инициализациязавершение，автоматическиСохранитьВключено");
         }, 300);
         
-        // 沉浸式状态栏兼容
+        // 沉浸式Статус栏совместимость
         View toolbar = view.findViewById(R.id.toolbar);
         if (toolbar != null) {
             final int originalPaddingTop = toolbar.getPaddingTop();
@@ -160,7 +160,7 @@ public class CustomCameraConfigFragment extends Fragment {
         editLeftName = view.findViewById(R.id.edit_left_name);
         editRightName = view.findViewById(R.id.edit_right_name);
 
-        // 自由操控配置
+        // 自由操控конфигурация
         switchFreeControl = view.findViewById(R.id.switch_free_control);
         spinnerButtonStyle = view.findViewById(R.id.spinner_button_style);
         
@@ -171,8 +171,8 @@ public class CustomCameraConfigFragment extends Fragment {
     }
     
     /**
-     * 检测可用的摄像头
-     * 会验证每个摄像头是否真正可用（有有效的输出格式）
+     * 检测Доступно Камера
+     * 会验证每 шт.Камера 否真正Доступно（有действует 输出格式)
      */
     private void detectAvailableCameras() {
         if (getContext() == null) {
@@ -187,27 +187,27 @@ public class CustomCameraConfigFragment extends Fragment {
             int invalidCount = 0;
             
             for (String id : cameraIds) {
-                // 验证摄像头是否真正可用
+                // 验证Камера 否真正Доступно
                 if (isCameraValid(cameraManager, id)) {
                     availableCameraIds.add(id);
                 } else {
                     invalidCount++;
-                    if (invalidCount <= 3) {  // 只记录前几个无效的，避免日志过多
-                        AppLog.d(TAG, "摄像头 " + id + " 无效（虚拟摄像头？），已跳过");
+                    if (invalidCount <= 3) {  // 只记录前几 шт.недействительно ，避免 д.志过多
+                        AppLog.d(TAG, "Камера " + id + " недействительно（虚拟Камера？)，跳过");
                     }
                 }
             }
             
             if (invalidCount > 3) {
-                AppLog.d(TAG, "还有 " + (invalidCount - 3) + " 个无效摄像头已跳过");
+                AppLog.d(TAG, "还有 " + (invalidCount - 3) + "  шт.недействительноКамера跳过");
             }
             
-            AppLog.d(TAG, "检测到 " + cameraIds.length + " 个摄像头ID，其中 " + 
-                    availableCameraIds.size() + " 个有效: " + availableCameraIds);
+            AppLog.d(TAG, "Обнаружено " + cameraIds.length + " камер(ы)ID，其 " + 
+                    availableCameraIds.size() + "  шт.действует: " + availableCameraIds);
             
         } catch (CameraAccessException e) {
-            AppLog.e(TAG, "检测摄像头失败", e);
-            // 如果检测失败，提供默认选项
+            AppLog.e(TAG, "检测КамераОшибка", e);
+            // Если 检测Ошибка，提供По умолчанию选项
             availableCameraIds.clear();
             for (int i = 0; i < 4; i++) {
                 availableCameraIds.add(String.valueOf(i));
@@ -216,18 +216,18 @@ public class CustomCameraConfigFragment extends Fragment {
     }
     
     /**
-     * 验证摄像头是否真正可用
-     * 检查摄像头是否有有效的输出格式和分辨率
+     * 验证Камера 否真正Доступно
+     * проверкаКамера 否有действует 输出格式 и Разрешение
      * @param cameraManager CameraManager实例
-     * @param cameraId 要验证的摄像头ID
-     * @return true如果摄像头可用，false如果是虚拟/无效摄像头
+     * @param cameraId 要验证 КамераID
+     * @return trueЕсли КамераДоступно，falseЕсли  虚拟/недействительноКамера
      */
     private boolean isCameraValid(CameraManager cameraManager, String cameraId) {
         try {
             android.hardware.camera2.CameraCharacteristics characteristics = 
                     cameraManager.getCameraCharacteristics(cameraId);
             
-            // 检查是否有有效的输出配置
+            // проверка 否有действует 输出конфигурация
             android.hardware.camera2.params.StreamConfigurationMap map = 
                     characteristics.get(android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             
@@ -235,7 +235,7 @@ public class CustomCameraConfigFragment extends Fragment {
                 return false;
             }
             
-            // 检查是否有 PRIVATE 或 SurfaceTexture 的输出尺寸
+            // проверка 否有 PRIVATE или SurfaceTexture  输出尺寸
             android.util.Size[] privateSizes = map.getOutputSizes(android.graphics.ImageFormat.PRIVATE);
             android.util.Size[] textureSizes = map.getOutputSizes(android.graphics.SurfaceTexture.class);
             
@@ -245,26 +245,26 @@ public class CustomCameraConfigFragment extends Fragment {
             return hasValidOutput;
             
         } catch (CameraAccessException e) {
-            AppLog.d(TAG, "摄像头 " + cameraId + " 访问失败: " + e.getMessage());
+            AppLog.d(TAG, "Камера " + cameraId + " доступОшибка: " + e.getMessage());
             return false;
         } catch (IllegalArgumentException e) {
-            AppLog.d(TAG, "摄像头 " + cameraId + " 参数无效: " + e.getMessage());
+            AppLog.d(TAG, "Камера " + cameraId + " 参数недействительно: " + e.getMessage());
             return false;
         } catch (Exception e) {
-            AppLog.d(TAG, "摄像头 " + cameraId + " 验证异常: " + e.getMessage());
+            AppLog.d(TAG, "Камера " + cameraId + " 验证аномалия: " + e.getMessage());
             return false;
         }
     }
     
     /**
-     * 初始化下拉选择器
+     * инициализация拉Выбрать器
      */
     private void initSpinners() {
         if (getContext() == null) {
             return;
         }
         
-        // 摄像头数量选择器
+        // Камера数量Выбрать器
         ArrayAdapter<String> countAdapter = new ArrayAdapter<>(
                 getContext(),
                 R.layout.spinner_item,
@@ -273,7 +273,7 @@ public class CustomCameraConfigFragment extends Fragment {
         countAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         cameraCountSpinner.setAdapter(countAdapter);
         
-        // 摄像头ID选择器
+        // КамераIDВыбрать器
         ArrayAdapter<String> idAdapter = new ArrayAdapter<>(
                 getContext(),
                 R.layout.spinner_item,
@@ -286,7 +286,7 @@ public class CustomCameraConfigFragment extends Fragment {
         spinnerLeftId.setAdapter(idAdapter);
         spinnerRightId.setAdapter(idAdapter);
 
-        // 按钮样式选择器
+        // 按钮样式Выбрать器
         ArrayAdapter<String> buttonStyleAdapter = new ArrayAdapter<>(
                 getContext(),
                 R.layout.spinner_item,
@@ -297,11 +297,11 @@ public class CustomCameraConfigFragment extends Fragment {
     }
     
     /**
-     * 设置自动保存监听器
-     * 当任何配置项变更时自动保存
+     * НастройкиавтоматическиСохранить监听器
+     * 当任何конфигурация项变更时автоматическиСохранить
      */
     /**
-     * 加载布局数据到编辑框
+     * загрузка布局数据 до 编辑框
      */
     private void loadLayoutData() {
         if (editLayoutData != null && appConfig != null) {
@@ -310,13 +310,13 @@ public class CustomCameraConfigFragment extends Fragment {
                 editLayoutData.setText(layoutData);
             } else {
                 editLayoutData.setText("");
-                editLayoutData.setHint("无布局数据");
+                editLayoutData.setHint("Нет данных макета");
             }
         }
     }
     
     /**
-     * 设置布局数据按钮事件
+     * Настройки布局数据按钮事件
      */
     private void setupLayoutDataButtons() {
         // 复制按钮
@@ -328,15 +328,15 @@ public class CustomCameraConfigFragment extends Fragment {
                         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("layout_data", text);
                         clipboard.setPrimaryClip(clip);
-                        Toast.makeText(getContext(), "布局数据已复制", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Данные макета скопированы", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getContext(), "无数据可复制", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Нет данных для копирования", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }
         
-        // 保存按钮
+        // Сохранить按钮
         if (btnSaveLayout != null) {
             btnSaveLayout.setOnClickListener(v -> {
                 if (editLayoutData != null && appConfig != null && getContext() != null) {
@@ -345,14 +345,14 @@ public class CustomCameraConfigFragment extends Fragment {
                         // 简单验证 JSON 格式
                         if (text.startsWith("{") && text.endsWith("}")) {
                             appConfig.setCustomLayoutData(text);
-                            Toast.makeText(getContext(), "布局数据已保存，重载后生效", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Данные макета сохранены, вступят в силу после перезагрузки", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(getContext(), "无效的 JSON 格式", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Некорректный формат JSON", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         // 清空布局数据
                         appConfig.clearCustomLayoutData();
-                        Toast.makeText(getContext(), "布局数据已清空", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Данные макета очищены", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -360,7 +360,7 @@ public class CustomCameraConfigFragment extends Fragment {
     }
     
     private void setupAutoSaveListeners() {
-        // 通用的 Spinner 变更监听器
+        // 通用  Spinner 变更监听器
         AdapterView.OnItemSelectedListener autoSaveSpinnerListener = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -373,7 +373,7 @@ public class CustomCameraConfigFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {}
         };
         
-        // 为摄像头数量 Spinner 添加监听
+        // 为Камера数量 Spinner 添加监听
         cameraCountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -408,7 +408,7 @@ public class CustomCameraConfigFragment extends Fragment {
             }
         });
         
-        // EditText 变更监听（失去焦点时保存）
+        // EditText 变更监听（失去焦点时Сохранить)
         View.OnFocusChangeListener autoSaveFocusListener = (v, hasFocus) -> {
             if (!hasFocus && configInitialized) {
                 saveConfig();
@@ -422,62 +422,62 @@ public class CustomCameraConfigFragment extends Fragment {
     }
     
     /**
-     * 根据摄像头数量更新配置区域的可见性
+     * 根据Камера数量обновлениеконфигурация区域 可见性
      */
     private void updateConfigVisibility(int count) {
-        // 位置1（前）始终显示
+        // Позиция1（前)始终显示
         configFront.setVisibility(View.VISIBLE);
         
-        // 位置2（后）在2个或4个摄像头时显示
+        // Позиция2（后) 2 шт.или4 шт.Камера时显示
         configBack.setVisibility(count >= 2 ? View.VISIBLE : View.GONE);
         
-        // 位置3和4（左右）仅在4个摄像头时显示
+        // Позиция3 и 4（左右)только 4 шт.Камера时显示
         configLeft.setVisibility(count >= 4 ? View.VISIBLE : View.GONE);
         configRight.setVisibility(count >= 4 ? View.VISIBLE : View.GONE);
     }
     
     /**
-     * 加载已保存的配置
+     * загрузкаСохранить конфигурация
      */
     private void loadSavedConfig() {
         if (appConfig == null) {
             return;
         }
         
-        // 加载摄像头数量
+        // загрузкаКамера数量
         int count = appConfig.getCameraCount();
         int countIndex;
         
         if (count == 4) {
-            countIndex = 0;  // 4个摄像头
+            countIndex = 0;  // 4 шт.Камера
         } else if (count == 2) {
-            countIndex = 1;  // 2个摄像头
+            countIndex = 1;  // 2 шт.Камера
         } else {
-            countIndex = 2;  // 1个摄像头
+            countIndex = 2;  // 1 шт.Камера
         }
         
         cameraCountSpinner.setSelection(countIndex);
         updateConfigVisibility(count);
         
-        // 加载摄像头ID
+        // загрузкаКамераID
         setSpinnerSelection(spinnerFrontId, appConfig.getCameraId("front"));
         setSpinnerSelection(spinnerBackId, appConfig.getCameraId("back"));
         setSpinnerSelection(spinnerLeftId, appConfig.getCameraId("left"));
         setSpinnerSelection(spinnerRightId, appConfig.getCameraId("right"));
 
-        // 加载摄像头名称
+        // загрузкаКамера名称
         editFrontName.setText(appConfig.getCameraName("front"));
         editBackName.setText(appConfig.getCameraName("back"));
         editLeftName.setText(appConfig.getCameraName("left"));
         editRightName.setText(appConfig.getCameraName("right"));
 
-        // 加载自由操控配置
+        // загрузка自由操控конфигурация
         switchFreeControl.setChecked(appConfig.isCustomFreeControlEnabled());
         setButtonStyleSpinnerSelection(spinnerButtonStyle, appConfig.getCustomButtonStyle());
     }
 
     /**
-     * 设置按钮样式 Spinner 的选中项
+     * Настройки按钮样式 Spinner  选项
      */
     private void setButtonStyleSpinnerSelection(Spinner spinner, String style) {
         int index = 0;
@@ -491,7 +491,7 @@ public class CustomCameraConfigFragment extends Fragment {
     }
 
     /**
-     * 设置 Spinner 的选中项
+     * Настройки Spinner  选项
      */
     private void setSpinnerSelection(Spinner spinner, String value) {
         int index = availableCameraIds.indexOf(value);
@@ -503,29 +503,29 @@ public class CustomCameraConfigFragment extends Fragment {
     }
 
     /**
-     * 保存配置
+     * Сохранитьконфигурация
      */
     private void saveConfig() {
         if (appConfig == null || getContext() == null) {
             return;
         }
         
-        // 保存摄像头数量
+        // СохранитьКамера数量
         int countIndex = cameraCountSpinner.getSelectedItemPosition();
         int count;
         
         if (countIndex == 0) {
-            count = 4;  // 4个摄像头
+            count = 4;  // 4 шт.Камера
         } else if (countIndex == 1) {
-            count = 2;  // 2个摄像头
+            count = 2;  // 2 шт.Камера
         } else {
-            count = 1;  // 1个摄像头
+            count = 1;  // 1 шт.Камера
         }
         
         appConfig.setCameraCount(count);
-        appConfig.setScreenOrientation("landscape");  // 统一使用横屏模式
+        appConfig.setScreenOrientation("landscape");  // 统一использование横屏режим
         
-        // 保存摄像头ID
+        // СохранитьКамераID
         appConfig.setCameraId("front", getSpinnerValue(spinnerFrontId));
         if (count >= 2) {
             appConfig.setCameraId("back", getSpinnerValue(spinnerBackId));
@@ -535,7 +535,7 @@ public class CustomCameraConfigFragment extends Fragment {
             appConfig.setCameraId("right", getSpinnerValue(spinnerRightId));
         }
 
-        // 保存摄像头名称
+        // СохранитьКамера名称
         appConfig.setCameraName("front", editFrontName.getText().toString().trim());
         if (count >= 2) {
             appConfig.setCameraName("back", editBackName.getText().toString().trim());
@@ -545,18 +545,18 @@ public class CustomCameraConfigFragment extends Fragment {
             appConfig.setCameraName("right", editRightName.getText().toString().trim());
         }
 
-        // 保存自由操控配置
+        // Сохранить自由操控конфигурация
         appConfig.setCustomFreeControlEnabled(switchFreeControl.isChecked());
         
-        // 保存按钮样式
+        // Сохранить按钮样式
         String buttonStyleValue = getButtonStyleSpinnerValue();
         appConfig.setCustomButtonStyle(buttonStyleValue);
         
-        AppLog.d(TAG, "配置已自动保存: 摄像头数量=" + count + ", 自由操控=" + switchFreeControl.isChecked() + ", 按钮样式=" + buttonStyleValue);
+        AppLog.d(TAG, "конфигурацияавтоматическиСохранить: Камера数量=" + count + ", 自由操控=" + switchFreeControl.isChecked() + ", 按钮样式=" + buttonStyleValue);
     }
     
     /**
-     * 获取按钮样式 Spinner 的值
+     * Получение按钮样式 Spinner  值
      */
     private String getButtonStyleSpinnerValue() {
         int position = spinnerButtonStyle.getSelectedItemPosition();
@@ -567,7 +567,7 @@ public class CustomCameraConfigFragment extends Fragment {
     }
     
     /**
-     * 获取 Spinner 当前选中的值
+     * Получение Spinner Текущий选 值
      */
     private String getSpinnerValue(Spinner spinner) {
         Object selectedItem = spinner.getSelectedItem();
@@ -575,26 +575,26 @@ public class CustomCameraConfigFragment extends Fragment {
     }
     
     /**
-     * 重置所有自定义配置
+     * Сброс所有自定义конфигурация
      */
     private void resetAllCustomConfig() {
         if (appConfig == null) return;
         
-        // 禁用自动保存，防止重置过程中触发保存
+        // ОтключитьавтоматическиСохранить，防止Сброс过程触发Сохранить
         configInitialized = false;
         
-        // 重置摄像头映射
+        // СбросКамера映射
         appConfig.setCameraCount(4);
         appConfig.setCameraId("front", "0");
         appConfig.setCameraId("back", "1");
         appConfig.setCameraId("left", "2");
         appConfig.setCameraId("right", "3");
-        appConfig.setCameraName("front", "前");
-        appConfig.setCameraName("back", "后");
-        appConfig.setCameraName("left", "左");
-        appConfig.setCameraName("right", "右");
+        appConfig.setCameraName("front", "П");
+        appConfig.setCameraName("back", "З");
+        appConfig.setCameraName("left", "Л");
+        appConfig.setCameraName("right", "Пр");
         
-        // 重置摄像头旋转和镜像
+        // СбросКамераПоворот  и 镜像
         appConfig.setCameraRotation("front", 0);
         appConfig.setCameraRotation("back", 0);
         appConfig.setCameraRotation("left", 0);
@@ -604,47 +604,47 @@ public class CustomCameraConfigFragment extends Fragment {
         appConfig.setCameraMirror("left", false);
         appConfig.setCameraMirror("right", false);
         
-        // 重置裁剪配置
+        // Сброс裁剪конфигурация
         appConfig.resetCameraCrop("front");
         appConfig.resetCameraCrop("back");
         appConfig.resetCameraCrop("left");
         appConfig.resetCameraCrop("right");
         
-        // 重置布局数据
+        // Сброс布局数据
         appConfig.clearCustomLayoutData();
         
-        // 重置自由操控开关
+        // Сброс自由操控ВклВыкл
         appConfig.setCustomFreeControlEnabled(false);
         
-        // 重置按钮样式和方向
+        // Сброс按钮样式 и 方 к 
         appConfig.setCustomButtonStyle(AppConfig.BUTTON_STYLE_STANDARD);
         appConfig.setCustomButtonOrientation(AppConfig.BUTTON_ORIENTATION_HORIZONTAL);
         
-        AppLog.d(TAG, "所有自定义配置已重置");
+        AppLog.d(TAG, "所有自定义конфигурацияСброс");
         
-        // 重新加载配置到界面
+        // 重新загрузкаконфигурация до 界面
         loadSavedConfig();
         
-        // 重新启用自动保存
+        // 重新ВключитьавтоматическиСохранить
         if (getView() != null) {
             getView().postDelayed(() -> {
                 configInitialized = true;
             }, 300);
         }
         
-        // 提示用户
+        // Уведомление用户
         if (getContext() != null) {
-            android.widget.Toast.makeText(getContext(), "配置已重置，请重启应用生效", android.widget.Toast.LENGTH_LONG).show();
+            android.widget.Toast.makeText(getContext(), "Настройки сброшены, перезапустите приложение", android.widget.Toast.LENGTH_LONG).show();
         }
     }
     
     /**
-     * 重载界面（重新创建 Activity）
+     * 重载界面（重新创建 Activity)
      */
     private void restartApp() {
         if (getActivity() == null) return;
 
-        android.widget.Toast.makeText(getContext(), "正在重载界面...", android.widget.Toast.LENGTH_SHORT).show();
+        android.widget.Toast.makeText(getContext(), "Перезагрузка интерфейса...", android.widget.Toast.LENGTH_SHORT).show();
         com.kooo.evcam.camera.CameraManagerHolder.getInstance().setCameraManager(null);
         getActivity().recreate();
     }

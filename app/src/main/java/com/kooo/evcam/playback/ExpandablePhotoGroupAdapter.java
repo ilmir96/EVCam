@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 可展开的图片分组适配器
- * 支持按日期分组显示，点击日期头部可展开/收起
+ * 可展Вкл Изображение分 групп适配器
+ * поддержка按 д.期分 групп显示，点击 д.期头部可展Вкл/收起
  */
 public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -34,10 +34,10 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     private final Context context;
     private final List<DateSection<PhotoGroup>> dateSections;
     
-    /** 扁平化后的列表项（用于 RecyclerView 显示） */
+    /** 扁平化后 列表项（用于 RecyclerView 显示) */
     private final List<Object> flattenedItems = new ArrayList<>();
     
-    /** 多选模式下选中的 PhotoGroup */
+    /** 多选режим选  PhotoGroup */
     private Set<PhotoGroup> selectedGroups = new HashSet<>();
     
     private int selectedPosition = -1;
@@ -67,7 +67,7 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
 
     /**
      * 构建扁平化列表
-     * 根据展开状态将日期头部和图片项转换为扁平列表
+     * 根据展ВклСтатус将 д.期头部 и Изображение项转换为扁平列表
      */
     public void buildFlattenedList() {
         flattenedItems.clear();
@@ -119,7 +119,7 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     /**
-     * 全选所有图片组
+     * 全选所有Изображение групп
      */
     public void selectAll() {
         selectedGroups.clear();
@@ -129,7 +129,7 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     /**
-     * 获取所有 PhotoGroup 的总数
+     * Получение所有 PhotoGroup  总数
      */
     public int getTotalGroupCount() {
         int count = 0;
@@ -176,17 +176,17 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     private void bindDateHeader(DateHeaderViewHolder holder, DateSection<PhotoGroup> section, int position) {
-        // 设置日期文字
+        // Настройки д.期文字
         holder.dateText.setText(section.getFullDateDisplay());
         
-        // 设置组数量
-        holder.itemCount.setText(section.getItemCount() + "组");
+        // Настройки групп数量
+        holder.itemCount.setText(section.getItemCount() + " групп");
         
-        // 设置展开/收起图标
+        // Настройки展Вкл/收起图标
         int iconRes = section.isExpanded() ? R.drawable.ic_expand_less : R.drawable.ic_expand_more;
         holder.expandIcon.setImageResource(iconRes);
         
-        // 点击切换展开状态
+        // 点击切换展ВклСтатус
         holder.itemView.setOnClickListener(v -> {
             section.toggleExpanded();
             buildFlattenedList();
@@ -199,26 +199,26 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     private void bindPhotoGroup(PhotoGroupViewHolder holder, PhotoGroup group, int position) {
-        // 设置日期时间（只显示时间，因为日期已在头部显示）
+        // Настройки д.期时间（只显示时间，因为 д.期 头部显示)
         holder.videoDate.setVisibility(View.GONE);
         holder.videoTime.setText(group.getFormattedTime());
         holder.videoSize.setText(group.getFormattedSize());
 
-        // 图片数量标签
+        // Изображение数量标签
         int count = group.getPhotoCount();
-        holder.videoCountBadge.setText(count + "张");
+        holder.videoCountBadge.setText(count + " шт.");
 
-        // 加载四个位置的缩略图
+        // загрузка四 шт.Позиция 缩略图
         loadThumbnail(group.getFrontPhoto(), holder.thumbFront);
         loadThumbnail(group.getBackPhoto(), holder.thumbBack);
         loadThumbnail(group.getLeftPhoto(), holder.thumbLeft);
         loadThumbnail(group.getRightPhoto(), holder.thumbRight);
 
-        // 选中状态样式
+        // 选Статус样式
         boolean isSelected = selectedGroups.contains(group);
         updateSelectionStyle(holder, isSelected);
 
-        // 多选模式的选中指示器
+        // 多选режим 选指示器
         if (isMultiSelectMode) {
             holder.checkIndicator.setVisibility(View.VISIBLE);
             holder.checkIndicator.setChecked(isSelected);
@@ -229,7 +229,7 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
         // 点击事件
         holder.itemView.setOnClickListener(v -> {
             if (isMultiSelectMode) {
-                // 多选模式：切换选中状态
+                // 多选режим：切换选Статус
                 if (selectedGroups.contains(group)) {
                     selectedGroups.remove(group);
                 } else {
@@ -240,7 +240,7 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
                     itemSelectedListener.onItemSelected(group);
                 }
             } else {
-                // 单选模式：选中并显示
+                // 单选режим：选并显示
                 if (itemClickListener != null) {
                     itemClickListener.onItemClick(group, position);
                 }
@@ -282,7 +282,7 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     /**
-     * 日期头部 ViewHolder
+     *  д.期头部 ViewHolder
      */
     static class DateHeaderViewHolder extends RecyclerView.ViewHolder {
         ImageView expandIcon;
@@ -298,7 +298,7 @@ public class ExpandablePhotoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     /**
-     * 图片组 ViewHolder
+     * Изображение групп ViewHolder
      */
     static class PhotoGroupViewHolder extends RecyclerView.ViewHolder {
         ImageView thumbFront, thumbBack, thumbLeft, thumbRight;

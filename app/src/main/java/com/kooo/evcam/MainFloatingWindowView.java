@@ -21,11 +21,11 @@ import com.kooo.evcam.camera.SingleCamera;
 
 /**
  * 主屏悬浮窗视图
- * 支持平滑拖动和边缘缩放
+ * поддержка平滑拖动 и 边缘缩放
  */
 public class MainFloatingWindowView extends FrameLayout {
     private static final String TAG = "MainFloatingWindowView";
-    private static final int RESIZE_THRESHOLD = 50; // 边缘触发缩放的阈值（像素）
+    private static final int RESIZE_THRESHOLD = 50; // 边缘触发缩放 阈值（像素)
 
     private WindowManager windowManager;
     private WindowManager.LayoutParams params;
@@ -34,7 +34,7 @@ public class MainFloatingWindowView extends FrameLayout {
     private Surface cachedSurface;
     private SingleCamera currentCamera;
     private String desiredCameraPos;
-    private boolean urgentPending = false; // 下次 startCameraPreview 使用紧急模式
+    private boolean urgentPending = false; //  раз startCameraPreview использование紧急режим
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private Runnable retryBindRunnable;
@@ -47,14 +47,14 @@ public class MainFloatingWindowView extends FrameLayout {
     private float initialX, initialY;
     private int initialWidth, initialHeight;
     private boolean isResizing = false;
-    private int resizeMode = 0; // 0: 拖动, 1: 左, 2: 右, 4: 上, 8: 下 (位运算组合)
+    private int resizeMode = 0; // 0: 拖动, 1: 左, 2: 右, 4: , 8:  (位运算 групп合)
     private boolean isCurrentlySwapped = false;
-    private boolean isDragEnabled = false; // 长按后才允许拖动
-    private static final long LONG_PRESS_DURATION = 1000; // 长按1秒后才能拖动
-    private static final int TOUCH_SLOP = 20; // 移动超过此距离取消长按检测
+    private boolean isDragEnabled = false; // 长按后才разрешить拖动
+    private static final long LONG_PRESS_DURATION = 1000; // 长按1 сек.后才能拖动
+    private static final int TOUCH_SLOP = 20; // 移动超过此距离Отмена长按检测
     private final Runnable longPressRunnable = () -> {
         isDragEnabled = true;
-        // 触发轻微震动反馈，提示用户可以拖动了
+        // 触发轻微震动反馈，Уведомление用户可以拖动
         try {
             android.os.Vibrator vibrator = (android.os.Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator != null && vibrator.hasVibrator()) {
@@ -183,14 +183,14 @@ public class MainFloatingWindowView extends FrameLayout {
                 initialWidth = params.width;
                 initialHeight = params.height;
 
-                // 判断是否在边缘，进入缩放模式
+                // 判断 否 边缘，进入缩放режим
                 float localX = event.getX();
                 float localY = event.getY();
                 resizeMode = 0;
                 if (localX < RESIZE_THRESHOLD) resizeMode |= 1; // 左
                 if (localX > getWidth() - RESIZE_THRESHOLD) resizeMode |= 2; // 右
-                if (localY < RESIZE_THRESHOLD) resizeMode |= 4; // 上
-                if (localY > getHeight() - RESIZE_THRESHOLD) resizeMode |= 8; // 下
+                if (localY < RESIZE_THRESHOLD) resizeMode |= 4; // 
+                if (localY > getHeight() - RESIZE_THRESHOLD) resizeMode |= 8; // 
                 
                 isResizing = resizeMode != 0;
                 if (appConfig.isMainFloatingLongPressDragEnabled()) {
@@ -206,7 +206,7 @@ public class MainFloatingWindowView extends FrameLayout {
                 float dy = y - lastY;
 
                 if (!isDragEnabled) {
-                    // 长按未达标，检查手指是否移动过远（取消长按检测）
+                    // 长按Не 达标，проверка手指 否移动过远（Отмена长按检测)
                     if (Math.abs(dx) > TOUCH_SLOP || Math.abs(dy) > TOUCH_SLOP) {
                         mainHandler.removeCallbacks(longPressRunnable);
                     }
@@ -216,7 +216,7 @@ public class MainFloatingWindowView extends FrameLayout {
                 if (isResizing) {
                     boolean aspectLocked = appConfig.isMainFloatingAspectRatioLocked();
                     if (aspectLocked) {
-                        // 等比例缩放：使用摄像头原始分辨率比例，而非当前窗口比例
+                        // 等比例缩放：использованиеКамера原始Разрешение比例，而非Текущий窗口比例
                         float aspectRatio = (float) initialWidth / initialHeight; // fallback
                         String cameraPos = desiredCameraPos != null ? desiredCameraPos : appConfig.getMainFloatingCamera();
                         MultiCameraManager cm = CameraManagerHolder.getInstance().getCameraManager();
@@ -226,7 +226,7 @@ public class MainFloatingWindowView extends FrameLayout {
                                 Size previewSize = camera.getPreviewSize();
                                 if (previewSize != null) {
                                     if (isCurrentlySwapped) {
-                                        // 矫正旋转导致宽高互换时，比例也互换
+                                        // 矫正Поворот 导致宽Высокий互换时，比例также互换
                                         aspectRatio = (float) previewSize.getHeight() / previewSize.getWidth();
                                     } else {
                                         aspectRatio = (float) previewSize.getWidth() / previewSize.getHeight();
@@ -234,24 +234,24 @@ public class MainFloatingWindowView extends FrameLayout {
                                 }
                             }
                         }
-                        boolean horizontal = (resizeMode & 3) != 0; // 左或右
-                        boolean vertical = (resizeMode & 12) != 0;  // 上或下
+                        boolean horizontal = (resizeMode & 3) != 0; // 左или右
+                        boolean vertical = (resizeMode & 12) != 0;  // или
 
                         int newWidth = initialWidth;
                         int newHeight = initialHeight;
 
                         if (horizontal && !vertical) {
-                            // 仅水平边：宽度变化驱动高度
+                            // только水平边：宽度变化驱动Высокий度
                             int dw = (resizeMode & 1) != 0 ? (int) -dx : (int) dx;
                             newWidth = initialWidth + dw;
                             newHeight = Math.round(newWidth / aspectRatio);
                         } else if (vertical && !horizontal) {
-                            // 仅垂直边：高度变化驱动宽度
+                            // только垂直边：Высокий度变化驱动宽度
                             int dh = (resizeMode & 4) != 0 ? (int) -dy : (int) dy;
                             newHeight = initialHeight + dh;
                             newWidth = Math.round(newHeight * aspectRatio);
                         } else {
-                            // 对角：取水平/垂直变化量中绝对值较大的作为主轴
+                            //  角：取水平/垂直变化量绝 值较大 作为主轴
                             int dw = (resizeMode & 1) != 0 ? (int) -dx : (int) dx;
                             int dh = (resizeMode & 4) != 0 ? (int) -dy : (int) dy;
                             if (Math.abs(dw) >= Math.abs(dh)) {
@@ -282,14 +282,14 @@ public class MainFloatingWindowView extends FrameLayout {
                             int newWidth = (int) (initialWidth + dx);
                             if (newWidth > 200) params.width = newWidth;
                         }
-                        if ((resizeMode & 4) != 0) { // 上
+                        if ((resizeMode & 4) != 0) { // 
                             int newHeight = (int) (initialHeight - dy);
                             if (newHeight > 200) {
                                 params.height = newHeight;
                                 params.y = (int) (initialY + dy);
                             }
                         }
-                        if ((resizeMode & 8) != 0) { // 下
+                        if ((resizeMode & 8) != 0) { // 
                             int newHeight = (int) (initialHeight + dy);
                             if (newHeight > 200) params.height = newHeight;
                         }
@@ -308,7 +308,7 @@ public class MainFloatingWindowView extends FrameLayout {
                 mainHandler.removeCallbacks(longPressRunnable);
                 isDragEnabled = false;
                 isResizing = false;
-                // 保存配置：若宽高因矫正旋转而交换过，保存前还原为基础值
+                // Сохранитьконфигурация：若宽Высокий因矫正Поворот 而交换过，Сохранить前还原为基础值
                 int saveW = params.width;
                 int saveH = params.height;
                 if (isCurrentlySwapped) {
@@ -333,7 +333,7 @@ public class MainFloatingWindowView extends FrameLayout {
         String cameraPos = desiredCameraPos != null ? desiredCameraPos : appConfig.getMainFloatingCamera();
         MultiCameraManager cameraManager = CameraManagerHolder.getInstance().getCameraManager();
         if (cameraManager == null) {
-            // Holder 只初始化了对象但可能还没被调用过 getOrInit
+            // Holder 只инициализация 象但可能还没 调用过 getOrInit
             cameraManager = CameraManagerHolder.getInstance().getOrInit(getContext());
             if (cameraManager == null) {
                 scheduleRetryBind();
@@ -349,14 +349,14 @@ public class MainFloatingWindowView extends FrameLayout {
 
         cancelRetryBind();
 
-        // 传递 SurfaceTexture 引用，便于 createCameraPreviewSession 统一设置 buffer 尺寸
+        // 传递 SurfaceTexture 引用，便于 createCameraPreviewSession 统一Настройки buffer 尺寸
         android.graphics.SurfaceTexture st = (textureView != null && textureView.isAvailable()) ? textureView.getSurfaceTexture() : null;
 
-        // 如果摄像头硬件还未打开（后台初始化时不打开），先打开
+        // Если Камера硬件还Не открыть（Фоновый режиминициализация时不открыть)，先открыть
         if (!currentCamera.isCameraOpened()) {
             currentCamera.setMainFloatingSurface(surface, st);
             AppLog.d(TAG, "Camera not opened yet, opening now for " + cameraPos);
-            // 确保前台服务就绪后再打开相机（避免冷启动时 CAMERA_DISABLED）
+            // 确保Передний планСервис绪后再открыть相机（避免冷Запуск时 CAMERA_DISABLED)
             final SingleCamera cam = currentCamera;
             CameraForegroundService.whenReady(getContext(), cam::openCamera);
         } else {
@@ -383,7 +383,7 @@ public class MainFloatingWindowView extends FrameLayout {
             if (this.getParent() == null) {
                 boolean animEnabled = appConfig.isFloatingWindowAnimationEnabled();
 
-                // 等待首帧画面到达后再显示，避免黑屏闪烁
+                // ожидание首帧画面 до 达后再显示，避免黑屏闪烁
                 if (animEnabled) {
                     setScaleX(0.85f);
                     setScaleY(0.85f);
@@ -399,7 +399,7 @@ public class MainFloatingWindowView extends FrameLayout {
                 }
                 applyTransformNow();
 
-                // 安全超时：如果摄像头迟迟没有推帧，最多等 800ms 后也直接显示
+                // 安全таймаут：Если Камера迟迟没有推帧，最多等 800ms 后также直接显示
                 showAnimFallback = () -> {
                     if (pendingShowAnimation) {
                         pendingShowAnimation = false;
@@ -451,7 +451,7 @@ public class MainFloatingWindowView extends FrameLayout {
     }
 
     /**
-     * 更新主屏悬浮窗布局
+     * обновление主屏悬浮窗布局
      */
     public void updateLayout() {
         params.x = appConfig.getMainFloatingX();
@@ -488,7 +488,7 @@ public class MainFloatingWindowView extends FrameLayout {
             return;
         }
 
-        // 关闭动效：缩放 + 淡出
+        // Закрыто动效：缩放 + 淡出
         if (windowAnimator != null) {
             windowAnimator.cancel();
             windowAnimator = null;
@@ -523,9 +523,9 @@ public class MainFloatingWindowView extends FrameLayout {
     }
 
     /**
-     * 仅设置目标摄像头位置（不执行摄像头操作）。
-     * 用于 show() 之前设置，避免在 TextureView 未就绪时白跑 updateCamera。
-     * TextureView 就绪后会自动通过 onSurfaceTextureAvailable 触发 startCameraPreview。
+     * толькоНастройки目标КамераПозиция（不выполнениеКамераоперация)。
+     * 用于 show() доНастройки，避免  TextureView Не 绪时白跑 updateCamera。
+     * TextureView 绪后会автоматически通过 onSurfaceTextureAvailable 触发 startCameraPreview。
      */
     public void setDesiredCamera(String cameraPos, boolean urgent) {
         desiredCameraPos = cameraPos;
@@ -533,21 +533,21 @@ public class MainFloatingWindowView extends FrameLayout {
     }
 
     /**
-     * 更新当前显示的摄像头
-     * @param cameraPos 摄像头位置
+     * обновлениеТекущий显示 Камера
+     * @param cameraPos КамераПозиция
      */
     public void updateCamera(String cameraPos) {
         updateCamera(cameraPos, false);
     }
 
     /**
-     * 更新当前显示的摄像头
-     * @param cameraPos 摄像头位置
-     * @param urgent 紧急模式（补盲转向灯触发时使用，最小化延迟）
+     * обновлениеТекущий显示 Камера
+     * @param cameraPos КамераПозиция
+     * @param urgent 紧急режим（补盲转 к 灯触发时использование，минимум化延迟)
      */
     public void updateCamera(String cameraPos, boolean urgent) {
         desiredCameraPos = cameraPos;
-        if (urgent) urgentPending = true; // 保留紧急标记，供 SurfaceTexture 就绪回调使用
+        if (urgent) urgentPending = true; // 保留紧急标记，供 SurfaceTexture 绪回调использование
         MultiCameraManager cameraManager = CameraManagerHolder.getInstance().getCameraManager();
         if (cameraManager == null) {
             scheduleRetryBind();
@@ -586,7 +586,7 @@ public class MainFloatingWindowView extends FrameLayout {
     public void applyTransformNow() {
         String cameraPos = desiredCameraPos != null ? desiredCameraPos : appConfig.getMainFloatingCamera();
 
-        // 矫正旋转更接近竖屏时，悬浮窗宽高互换，让画面自然填满不裁切
+        // 矫正Поворот 更接近竖屏时，悬浮窗宽Высокий互换，让画面自然填满不裁切
         int correctionRotation = 0;
         if (appConfig.isBlindSpotCorrectionEnabled() && cameraPos != null) {
             correctionRotation = appConfig.getBlindSpotCorrectionRotation(cameraPos);
@@ -598,7 +598,7 @@ public class MainFloatingWindowView extends FrameLayout {
         int targetW = shouldSwap ? baseH : baseW;
         int targetH = shouldSwap ? baseW : baseH;
 
-        // 用户正在拖动缩放时，不覆盖 params，以免打断手势
+        // 用户Выполняется 拖动缩放时，不覆盖 params，以免打断手势
         if (!isResizing) {
             if (params.width != targetW || params.height != targetH) {
                 params.width = targetW;
@@ -621,7 +621,7 @@ public class MainFloatingWindowView extends FrameLayout {
         retryBindCount++;
         long delayMs;
         if (urgentPending && retryBindCount <= 5) {
-            // 紧急模式下前几次快速重试
+            // 紧急режим前几 раз快速重试
             delayMs = 50;
         } else if (retryBindCount <= 10) {
             delayMs = 500;

@@ -1,13 +1,13 @@
 package com.kooo.evcam.remote.core;
 
 /**
- * 远程平台枚举
- * 定义支持的远程控制平台类型
+ * Удалённый平台枚举
+ * 定义Поддерживаемые Удалённое управление平台类型
  */
 public enum RemotePlatform {
-    DINGTALK("钉钉", "dingtalk"),
+    DINGTALK("DingTalk", "dingtalk"),
     TELEGRAM("Telegram", "telegram"),
-    FEISHU("飞书", "feishu");
+    FEISHU("Feishu", "feishu");
 
     private final String displayName;
     private final String code;
@@ -26,7 +26,7 @@ public enum RemotePlatform {
     }
 
     /**
-     * 根据代码获取平台枚举
+     * 根据代码Получение平台枚举
      */
     public static RemotePlatform fromCode(String code) {
         for (RemotePlatform platform : values()) {

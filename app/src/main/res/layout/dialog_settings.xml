@@ -9,12 +9,12 @@
         android:id="@+id/switch_debug_to_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Debug mode (Log.d -> Log.i)" />
+        android:text="Режим отладки (Log.d -> Log.i)" />
 
     <Button
         android:id="@+id/btn_save_logs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Save logs" />
+        android:text="Сохранить логи" />
 </LinearLayout>

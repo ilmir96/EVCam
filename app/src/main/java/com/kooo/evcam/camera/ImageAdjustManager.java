@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 亮度/降噪调节管理器
- * 管理所有摄像头的亮度/降噪参数，协调多个摄像头的参数同步更新
+ * 亮度/Шумоподавление调节управление器
+ * управление所有Камера 亮度/Шумоподавление参数，协调多 шт.Камера 参数同步обновление
  */
 public class ImageAdjustManager {
     private static final String TAG = "ImageAdjustManager";
@@ -20,7 +20,7 @@ public class ImageAdjustManager {
     private final AppConfig appConfig;
     private final List<SingleCamera> cameras = new ArrayList<>();
     
-    // 当前参数值（内存缓存，用于实时调节时同步到所有摄像头）
+    // Текущий参数值（内存缓存，用于实时调节时同步 до 所有Камера)
     private int exposureCompensation = 0;
     private int awbMode = AppConfig.AWB_MODE_DEFAULT;
     private int tonemapMode = AppConfig.TONEMAP_MODE_DEFAULT;
@@ -28,7 +28,7 @@ public class ImageAdjustManager {
     private int noiseReductionMode = AppConfig.NOISE_REDUCTION_DEFAULT;
     private int effectMode = AppConfig.EFFECT_MODE_DEFAULT;
     
-    // 参数范围（从第一个摄像头获取，假设所有摄像头范围相同）
+    // 参数范围（ от Первый шт.КамераПолучение，假设所有Камера范围相同)
     private Range<Integer> exposureRange = null;
     private int[] supportedAwbModes = null;
     private int[] supportedTonemapModes = null;
@@ -47,19 +47,19 @@ public class ImageAdjustManager {
         this.context = context;
         this.appConfig = new AppConfig(context);
         
-        // 从配置中加载保存的参数
+        //  от конфигурациязагрузкаСохранить 参数
         loadParamsFromConfig();
     }
     
     /**
-     * 设置参数变化监听器
+     * Настройки参数变化监听器
      */
     public void setOnParamsChangedListener(OnParamsChangedListener listener) {
         this.listener = listener;
     }
     
     /**
-     * 从配置中加载参数
+     *  от конфигурациязагрузка参数
      */
     private void loadParamsFromConfig() {
         exposureCompensation = appConfig.getExposureCompensation();
@@ -74,7 +74,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 保存参数到配置
+     * Сохранить参数 до конфигурация
      */
     public void saveParamsToConfig() {
         appConfig.setExposureCompensation(exposureCompensation);
@@ -88,19 +88,19 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 注册摄像头
-     * @param camera 要注册的摄像头
+     * 注册Камера
+     * @param camera 要注册 Камера
      */
     public void registerCamera(SingleCamera camera) {
         if (camera != null && !cameras.contains(camera)) {
             cameras.add(camera);
             
-            // 如果启用了亮度/降噪调节，设置摄像头的启用状态
+            // Если Включить亮度/Шумоподавление调节，НастройкиКамера ВключитьСтатус
             if (appConfig.isImageAdjustEnabled()) {
                 camera.setImageAdjustEnabled(true);
             }
             
-            // 从第一个摄像头获取参数范围
+            //  от Первый шт.КамераПолучение参数范围
             if (cameras.size() == 1) {
                 detectSupportedParams(camera);
             }
@@ -110,8 +110,8 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 注销摄像头
-     * @param camera 要注销的摄像头
+     * 注销Камера
+     * @param camera 要注销 Камера
      */
     public void unregisterCamera(SingleCamera camera) {
         if (camera != null) {
@@ -121,7 +121,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 清空所有已注册的摄像头
+     * 清空所有注册 Камера
      */
     public void clearCameras() {
         cameras.clear();
@@ -129,7 +129,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 检测设备支持的参数范围
+     * 检测设备Поддерживаемые 参数范围
      */
     private void detectSupportedParams(SingleCamera camera) {
         exposureRange = camera.getExposureCompensationRange();
@@ -149,8 +149,8 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 更新所有摄像头的参数（实时生效）
-     * @return 成功更新的摄像头数量
+     * обновление所有Камера 参数（实时生效)
+     * @return Успешнообновление Камера数量
      */
     public int updateAllCameras() {
         if (!appConfig.isImageAdjustEnabled()) {
@@ -175,7 +175,7 @@ public class ImageAdjustManager {
         
         AppLog.d(TAG, "Updated " + successCount + "/" + cameras.size() + " cameras");
         
-        // 通知监听器
+        // Уведомление监听器
         if (listener != null) {
             listener.onParamsChanged();
         }
@@ -184,7 +184,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 重置所有参数为默认值
+     * Сброс所有参数为По умолчанию值
      */
     public void resetToDefault() {
         exposureCompensation = 0;
@@ -194,10 +194,10 @@ public class ImageAdjustManager {
         noiseReductionMode = AppConfig.NOISE_REDUCTION_DEFAULT;
         effectMode = AppConfig.EFFECT_MODE_DEFAULT;
         
-        // 保存到配置
+        // Сохранить до конфигурация
         appConfig.resetImageAdjustParams();
         
-        // 更新所有摄像头
+        // обновление所有Камера
         updateAllCameras();
         
         AppLog.d(TAG, "Reset all params to default");
@@ -285,93 +285,93 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 检查是否支持曝光补偿调节
+     * проверка 否поддержкаЭкспозиция调节
      */
     public boolean isExposureCompensationSupported() {
         return exposureRange != null && !exposureRange.getLower().equals(exposureRange.getUpper());
     }
     
     /**
-     * 检查是否支持白平衡模式调节
+     * проверка 否поддержкаБаланс белогорежим调节
      */
     public boolean isAwbModeSupported() {
         return supportedAwbModes != null && supportedAwbModes.length > 1;
     }
     
     /**
-     * 检查是否支持色调映射模式调节
+     * проверка 否поддержкаТональная компрессиярежим调节
      */
     public boolean isTonemapModeSupported() {
         return supportedTonemapModes != null && supportedTonemapModes.length > 1;
     }
     
     /**
-     * 检查是否支持边缘增强模式调节
+     * проверка 否поддержкаРезкостьрежим调节
      */
     public boolean isEdgeModeSupported() {
         return supportedEdgeModes != null && supportedEdgeModes.length > 1;
     }
     
     /**
-     * 检查是否支持降噪模式调节
+     * проверка 否поддержкаШумоподавлениережим调节
      */
     public boolean isNoiseReductionModeSupported() {
         return supportedNoiseReductionModes != null && supportedNoiseReductionModes.length > 1;
     }
     
     /**
-     * 检查是否支持特效模式调节
+     * проверка 否поддержкаЭффектырежим调节
      */
     public boolean isEffectModeSupported() {
         return supportedEffectModes != null && supportedEffectModes.length > 1;
     }
     
     /**
-     * 获取当前参数的摘要字符串（用于显示）
+     * ПолучениеТекущий参数 摘要字符串（用于显示)
      */
     public String getParamsSummary() {
         StringBuilder sb = new StringBuilder();
         
         if (exposureCompensation != 0) {
-            sb.append("曝光: ").append(exposureCompensation > 0 ? "+" : "").append(exposureCompensation);
+            sb.append("Экспозиция: ").append(exposureCompensation > 0 ? "+" : "").append(exposureCompensation);
         }
         
         if (awbMode != AppConfig.AWB_MODE_DEFAULT) {
             if (sb.length() > 0) sb.append(" | ");
-            sb.append("白平衡: ").append(AppConfig.getAwbModeDisplayName(awbMode));
+            sb.append("Баланс белого: ").append(AppConfig.getAwbModeDisplayName(awbMode));
         }
         
         if (tonemapMode != AppConfig.TONEMAP_MODE_DEFAULT) {
             if (sb.length() > 0) sb.append(" | ");
-            sb.append("色调: ").append(AppConfig.getTonemapModeDisplayName(tonemapMode));
+            sb.append("Тон: ").append(AppConfig.getTonemapModeDisplayName(tonemapMode));
         }
         
         if (edgeMode != AppConfig.EDGE_MODE_DEFAULT) {
             if (sb.length() > 0) sb.append(" | ");
-            sb.append("锐化: ").append(AppConfig.getEdgeModeDisplayName(edgeMode));
+            sb.append("Резкость: ").append(AppConfig.getEdgeModeDisplayName(edgeMode));
         }
         
         if (noiseReductionMode != AppConfig.NOISE_REDUCTION_DEFAULT) {
             if (sb.length() > 0) sb.append(" | ");
-            sb.append("降噪: ").append(AppConfig.getNoiseReductionModeDisplayName(noiseReductionMode));
+            sb.append("Шумоподавление: ").append(AppConfig.getNoiseReductionModeDisplayName(noiseReductionMode));
         }
         
         if (effectMode != AppConfig.EFFECT_MODE_DEFAULT && effectMode != AppConfig.EFFECT_MODE_OFF) {
             if (sb.length() > 0) sb.append(" | ");
-            sb.append("特效: ").append(AppConfig.getEffectModeDisplayName(effectMode));
+            sb.append("Эффекты: ").append(AppConfig.getEffectModeDisplayName(effectMode));
         }
         
         if (sb.length() == 0) {
-            return "默认参数";
+            return "Параметры по умолчанию";
         }
         
         return sb.toString();
     }
     
-    // ==================== 获取相机实际使用的参数 ====================
+    // ==================== Получение相机实际использование 参数 ====================
     
     /**
-     * 获取相机实际使用的曝光补偿值（从第一个已注册的相机获取）
+     * Получение相机实际использование Экспозиция值（ от Первый шт.注册 相机Получение)
      */
     public int getActualExposureCompensation() {
         if (!cameras.isEmpty()) {
@@ -381,7 +381,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 获取相机实际使用的白平衡模式
+     * Получение相机实际использование Баланс белогорежим
      */
     public int getActualAwbMode() {
         if (!cameras.isEmpty()) {
@@ -391,7 +391,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 获取相机实际使用的色调映射模式
+     * Получение相机实际использование Тональная компрессиярежим
      */
     public int getActualTonemapMode() {
         if (!cameras.isEmpty()) {
@@ -401,7 +401,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 获取相机实际使用的边缘增强模式
+     * Получение相机实际использование Резкостьрежим
      */
     public int getActualEdgeMode() {
         if (!cameras.isEmpty()) {
@@ -411,7 +411,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 获取相机实际使用的降噪模式
+     * Получение相机实际использование Шумоподавлениережим
      */
     public int getActualNoiseReductionMode() {
         if (!cameras.isEmpty()) {
@@ -421,7 +421,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 获取相机实际使用的特效模式
+     * Получение相机实际использование Эффектырежим
      */
     public int getActualEffectMode() {
         if (!cameras.isEmpty()) {
@@ -431,7 +431,7 @@ public class ImageAdjustManager {
     }
     
     /**
-     * 是否已获取到相机实际参数
+     *  否Получение до 相机实际参数
      */
     public boolean hasActualParams() {
         if (!cameras.isEmpty()) {

@@ -4,29 +4,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 录制上下文
- * 封装一次远程录制任务的所有状态信息
+ * Запись文
+ * 封装一 разУдалённая записьзадача 所有СтатусИнформация
  */
 public class RecordingContext {
     
     private final ChatIdentifier chatId;
     private final int durationSeconds;
-    private String timestamp;  // 当前时间戳（可能因 Watchdog 重建而更新）
-    private final List<String> allTimestamps = new ArrayList<>();  // 所有使用过的时间戳（用于上传时查找所有文件）
+    private String timestamp;  // Текущий时间戳（可能因 Watchdog 重建而обновление)
+    private final List<String> allTimestamps = new ArrayList<>();  // 所有использование过 时间戳（用于传时查找所有Файл)
     
-    // 状态标志
+    // Статус标志
     private boolean wasManualRecordingBefore = false;
     private boolean isCompleted = false;
     private boolean isCancelled = false;
     
-    // 错误信息
+    // ОшибкаИнформация
     private String errorMessage = null;
     
     public RecordingContext(ChatIdentifier chatId, int durationSeconds, String timestamp) {
         this.chatId = chatId;
         this.durationSeconds = durationSeconds;
         this.timestamp = timestamp;
-        this.allTimestamps.add(timestamp);  // 初始时间戳也加入列表
+        this.allTimestamps.add(timestamp);  // 初始时间戳также加入列表
     }
     
     // ==================== Getters ====================
@@ -82,8 +82,8 @@ public class RecordingContext {
     }
     
     /**
-     * 更新时间戳（Watchdog 重建录制后调用）
-     * 同时将新时间戳加入历史列表，以便上传时能找到所有录制文件
+     * обновление时间戳（Watchdog 重建Запись后调用)
+     * 同时将新时间戳加入历史列表，以便传时能找 до 所有ЗаписьФайл
      */
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
@@ -93,8 +93,8 @@ public class RecordingContext {
     }
     
     /**
-     * 获取所有使用过的时间戳（包括 Watchdog 重建后的新时间戳）
-     * 用于上传时查找所有录制的文件
+     * Получение所有использование过 时间戳（包括 Watchdog 重建后 新时间戳)
+     * 用于传时查找所有Запись Файл
      */
     public List<String> getAllTimestamps() {
         return new ArrayList<>(allTimestamps);

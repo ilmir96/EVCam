@@ -36,7 +36,7 @@
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="视频回看"
+            android:text="Просмотр видео"
             android:textColor="@color/text_primary"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -57,7 +57,7 @@
             android:id="@+id/btn_refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="刷新"
+            android:text="Обновить"
             android:textSize="20sp"
             android:minHeight="48dp"
             android:backgroundTint="@color/button_background"
@@ -67,7 +67,7 @@
             android:id="@+id/btn_multi_select"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="多选"
+            android:text="Выбрать"
             android:textSize="20sp"
             android:minHeight="48dp"
             android:layout_marginStart="8dp"
@@ -87,7 +87,7 @@
             android:textColor="@color/button_text" />
     </LinearLayout>
 
-    <!-- 多选工具栏（隐藏） -->
+    <!-- Выбрать工具栏（隐藏） -->
     <LinearLayout
         android:id="@+id/multi_select_toolbar"
         android:layout_width="match_parent"
@@ -105,7 +105,7 @@
             android:id="@+id/btn_select_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="全选"
+            android:text="Выбр. все"
             android:textSize="20sp"
             android:minHeight="48dp"
             android:backgroundTint="@color/button_background"
@@ -116,7 +116,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="已选择 0 项"
+            android:text="Выбрано: 0"
             android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:gravity="center" />
@@ -125,7 +125,7 @@
             android:id="@+id/btn_delete_selected"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="删除"
+            android:text="Удалить"
             android:textSize="20sp"
             android:minHeight="48dp"
             android:backgroundTint="@android:color/holo_red_dark"
@@ -135,7 +135,7 @@
             android:id="@+id/btn_cancel_select"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="取消"
+            android:text="Отмена"
             android:textSize="20sp"
             android:minHeight="48dp"
             android:layout_marginStart="8dp"
@@ -172,7 +172,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="暂无录制文件"
+                android:text="Нет записей"
                 android:textColor="@color/text_secondary"
                 android:textSize="16sp"
                 android:visibility="gone" />
@@ -197,7 +197,7 @@
                 android:layout_marginBottom="4dp"
                 android:gravity="center">
 
-                <!-- 多路模式：2x2四宫格 -->
+                <!-- Все камеры模式：2x2四宫格 -->
                 <LinearLayout
                     android:id="@+id/multi_view_layout"
                     android:layout_width="match_parent"
@@ -240,7 +240,7 @@
                                 android:background="#80000000"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="4dp"
-                                android:text="前"
+                                android:text="Перед"
                                 android:textColor="#FFFFFF"
                                 android:textSize="14sp" />
 
@@ -250,7 +250,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
-                                android:text="无视频"
+                                android:text="Нет видео"
                                 android:textColor="@color/preview_placeholder_text"
                                 android:textSize="14sp"
                                 android:visibility="gone" />
@@ -280,7 +280,7 @@
                                 android:background="#80000000"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="4dp"
-                                android:text="后"
+                                android:text="Зад"
                                 android:textColor="#FFFFFF"
                                 android:textSize="14sp" />
 
@@ -289,7 +289,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
-                                android:text="无视频"
+                                android:text="Нет видео"
                                 android:textColor="@color/preview_placeholder_text"
                                 android:textSize="14sp"
                                 android:visibility="gone" />
@@ -329,7 +329,7 @@
                                 android:background="#80000000"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="4dp"
-                                android:text="左"
+                                android:text="Лево"
                                 android:textColor="#FFFFFF"
                                 android:textSize="14sp" />
 
@@ -338,7 +338,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
-                                android:text="无视频"
+                                android:text="Нет видео"
                                 android:textColor="@color/preview_placeholder_text"
                                 android:textSize="14sp"
                                 android:visibility="gone" />
@@ -368,7 +368,7 @@
                                 android:background="#80000000"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="4dp"
-                                android:text="右"
+                                android:text="Право"
                                 android:textColor="#FFFFFF"
                                 android:textSize="14sp" />
 
@@ -377,7 +377,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
-                                android:text="无视频"
+                                android:text="Нет видео"
                                 android:textColor="@color/preview_placeholder_text"
                                 android:textSize="14sp"
                                 android:visibility="gone" />
@@ -408,7 +408,7 @@
                         android:background="#80000000"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="6dp"
-                        android:text="前"
+                        android:text="Перед"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp" />
                 </FrameLayout>
@@ -424,7 +424,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="请从左侧列表选择视频"
+                        android:text="Выберите видео из списка слева"
                         android:textColor="@color/text_secondary"
                         android:textSize="24sp" />
 
@@ -432,13 +432,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="双击画面可放大切换"
+                        android:text="Двойное нажатие для увеличения"
                         android:textColor="@color/text_hint"
                         android:textSize="18sp" />
                 </LinearLayout>
             </FrameLayout>
 
-            <!-- 播放控制栏（按钮放大） -->
+            <!-- Воспр.控制栏（按钮放大） -->
             <LinearLayout
                 android:id="@+id/controls_layout"
                 android:layout_width="match_parent"
@@ -448,13 +448,13 @@
                 android:gravity="center_vertical"
                 android:background="@color/preview_controls_background">
 
-                <!-- 播放/暂停按钮 -->
+                <!-- Воспр./Пауза按钮 -->
                 <Button
                     android:id="@+id/btn_play_pause"
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
                     android:minWidth="80dp"
-                    android:text="暂停"
+                    android:text="Пауза"
                     android:textSize="16sp"
                     android:backgroundTint="@color/button_background"
                     android:textColor="@color/button_text" />
@@ -498,7 +498,7 @@
                     android:layout_height="48dp"
                     android:minWidth="72dp"
                     android:layout_marginStart="12dp"
-                    android:text="多路"
+                    android:text="Все камеры"
                     android:textSize="16sp"
                     android:backgroundTint="@color/button_background"
                     android:textColor="@color/button_text" />

@@ -5,10 +5,10 @@ import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatImageView;
 
 /**
- * 自定义ImageView，保持16:10的宽高比
+ * 自定义ImageView，保持16:10 宽Высокий比
  */
 public class AspectRatioImageView extends AppCompatImageView {
-    private static final float ASPECT_RATIO = 10.0f / 16.0f; // 高度/宽度 = 10/16
+    private static final float ASPECT_RATIO = 10.0f / 16.0f; // Высокий度/宽度 = 10/16
 
     public AspectRatioImageView(Context context) {
         super(context);

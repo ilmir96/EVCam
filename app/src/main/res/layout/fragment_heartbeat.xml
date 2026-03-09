@@ -34,7 +34,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="心跳推图"
+            android:text="Мониторинг"
+
             android:textColor="@color/text_primary"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -73,7 +74,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="💡 功能说明"
+                    android:text="💡 Описание"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -82,7 +83,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="心跳推图的本质是按指定间隔向服务器发送 POST 请求，包含实时摄像头画面和设备状态信息。\n\n服务端暂未完成制作，大家可自行搭建服务器探索玩法。可使用 webhook.site 等在线工具测试接收数据。"
+                    android:text="Функция отправляет POST-запросы на сервер с заданным интервалом, включая кадры с камер и информацию о состоянии устройства.\n\nСерверная часть пока не готова. Вы можете развернуть свой сервер. Для тестирования можно использовать webhook.site."
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:lineSpacingMultiplier="1.3" />
@@ -92,7 +93,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="服务器地址"
+                android:text="Адрес сервера"
                 android:textColor="@color/text_secondary"
                 android:textSize="18sp"
                 android:layout_marginBottom="8dp" />
@@ -115,7 +116,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="通信密钥"
+                android:text="Ключ связи"
                 android:textColor="@color/text_secondary"
                 android:textSize="18sp"
                 android:layout_marginBottom="8dp" />
@@ -133,7 +134,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="用于签名验证的密钥"
+                    android:hint="Ключ для проверки подписи"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_secondary"
                     android:textSize="16sp"
@@ -148,7 +149,7 @@
                     android:layout_height="48dp"
                     android:src="@drawable/ic_visibility"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="切换密钥可见性"
+                    android:contentDescription="Показать/скрыть ключ"
                     android:tint="@color/text_primary"
                     android:layout_marginEnd="8dp" />
             </LinearLayout>
@@ -157,7 +158,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="推送间隔"
+                android:text="Интервал отправки"
                 android:textColor="@color/text_secondary"
                 android:textSize="18sp"
                 android:layout_marginBottom="8dp" />
@@ -176,7 +177,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="30秒"
+                    android:text="30 сек"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
 
@@ -185,7 +186,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="1分钟"
+                    android:text="1 мин"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
 
@@ -194,7 +195,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="2分钟"
+                    android:text="2 мин"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
 
@@ -203,7 +204,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="5分钟"
+                    android:text="5 мин"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
             </RadioGroup>
@@ -212,7 +213,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="图片质量"
+                android:text="Качество изображения"
                 android:textColor="@color/text_secondary"
                 android:textSize="18sp"
                 android:layout_marginBottom="8dp" />
@@ -258,7 +259,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="原图"
+                    android:text="Оригинал"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
             </RadioGroup>
@@ -267,7 +268,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="推图模式"
+                android:text="Режим отправки"
                 android:textColor="@color/text_secondary"
                 android:textSize="18sp"
                 android:layout_marginBottom="8dp" />
@@ -290,7 +291,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="亮屏推图"
+                        android:text="При включённом экране"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -298,7 +299,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="亮屏且在前台时推图"
+                        android:text="Отправка при включённом экране и активном приложении"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="2dp" />
@@ -331,7 +332,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="息屏推图"
+                        android:text="При выключенном экране"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -339,7 +340,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="息屏30秒后自动唤醒推图"
+                        android:text="Автопробуждение через 30 сек после выключения экрана"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="2dp" />
@@ -357,7 +358,7 @@
                 android:id="@+id/btn_save_config"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="保存配置"
+                android:text="Сохранить настройки"
                 android:textSize="20sp"
                 android:minHeight="56dp"
                 android:layout_marginBottom="16dp"
@@ -383,7 +384,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="自动启动服务"
+                        android:text="Автозапуск сервиса"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -391,7 +392,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="应用启动时自动开始心跳推图"
+                        android:text="Автоматически начинать отправку при запуске приложения"
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp"
                         android:layout_marginTop="4dp" />
@@ -415,7 +416,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="服务状态："
+                    android:text="Статус сервиса:"
                     android:textColor="@color/text_secondary"
                     android:textSize="18sp" />
 
@@ -424,7 +425,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="未启动"
+                    android:text="Не запущен"
                     android:textColor="#FF6666"
                     android:textSize="18sp"
                     android:layout_marginStart="8dp" />
@@ -442,7 +443,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="启动服务"
+                    android:text="Запустить"
                     android:textSize="20sp"
                     android:minHeight="56dp"
                     android:layout_marginEnd="8dp"
@@ -454,7 +455,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="停止服务"
+                    android:text="Остановить"
                     android:textSize="20sp"
                     android:minHeight="56dp"
                     android:layout_marginStart="8dp"
@@ -467,7 +468,7 @@
                 android:id="@+id/btn_test"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="测试推图"
+                android:text="Тест отправки"
                 android:textSize="18sp"
                 android:minHeight="48dp"
                 android:layout_marginBottom="24dp"
@@ -478,7 +479,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="车辆标识"
+                android:text="ID автомобиля"
                 android:textColor="@color/text_secondary"
                 android:textSize="18sp"
                 android:layout_marginBottom="8dp" />
@@ -506,7 +507,7 @@
                     android:id="@+id/btn_copy_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="复制"
+                    android:text="Копировать"
                     android:textSize="14sp"
                     android:minWidth="60dp"
                     android:minHeight="40dp"
@@ -518,7 +519,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="统计信息"
+                android:text="Статистика"
                 android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -536,7 +537,7 @@
                     android:id="@+id/tv_camera_count"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="相机: 0/4 已连接"
+                    android:text="Камеры: 0/4 подключено"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:layout_marginBottom="4dp" />
@@ -545,7 +546,7 @@
                     android:id="@+id/tv_last_upload"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="上次推图: -"
+                    android:text="Последняя отправка: -"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:layout_marginBottom="4dp" />
@@ -554,7 +555,7 @@
                     android:id="@+id/tv_statistics"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="成功: 0 | 失败: 0"
+                    android:text="Успешно: 0 | Ошибки: 0"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -563,7 +564,7 @@
                 android:id="@+id/btn_reset_stats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="重置统计"
+                android:text="Сбросить статистику"
                 android:textSize="14sp"
                 android:minHeight="40dp"
                 android:backgroundTint="@color/button_background"

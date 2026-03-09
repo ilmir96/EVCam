@@ -21,14 +21,14 @@ import android.view.WindowManager;
 import androidx.annotation.Nullable;
 
 /**
- * 悬浮窗服务
- * 显示一个悬浮按钮，与录制状态同步（录制时绿色闪烁，未录制时红色）
- * 点击可打开应用，支持自由拖动
+ * 悬浮窗Сервис
+ * 显示一 шт.悬浮按钮， и ЗаписьСтатус同步（Запись时绿色闪烁，Не Запись时红色)
+ * 点击可открытьПриложение，поддержка自由拖动
  */
 public class FloatingWindowService extends Service {
     private static final String TAG = "FloatingWindowService";
     
-    // 服务运行状态（用于外部检查）
+    // СервисРаботаСтатус（用于Внешнеепроверка)
     private static boolean isServiceRunning = false;
     
     // 广播动作
@@ -43,7 +43,7 @@ public class FloatingWindowService extends Service {
     private WindowManager.LayoutParams layoutParams;
     private AppConfig appConfig;
     
-    // 录制状态
+    // ЗаписьСтатус
     private boolean isRecording = false;
     
     // 闪烁动画
@@ -51,20 +51,20 @@ public class FloatingWindowService extends Service {
     private Runnable blinkRunnable;
     private boolean isBlinkOn = true;
     
-    // 拖动相关
+    // 拖动相Выкл
     private int initialX;
     private int initialY;
     private float initialTouchX;
     private float initialTouchY;
     private boolean isDragging = false;
-    private static final int CLICK_THRESHOLD = 10;  // 点击阈值（像素）
+    private static final int CLICK_THRESHOLD = 10;  // 点击阈值（像素)
     
     // 广播接收器
     private BroadcastReceiver recordingStateReceiver;
     private BroadcastReceiver updateReceiver;
     private BroadcastReceiver foregroundStateReceiver;
     
-    // 悬浮窗显示状态
+    // 悬浮窗显示Статус
     private boolean isFloatingWindowVisible = true;
     
     @Override
@@ -80,13 +80,13 @@ public class FloatingWindowService extends Service {
         // 创建悬浮窗
         createFloatingWindow();
         
-        // 注册录制状态广播接收器
+        // 注册ЗаписьСтатус广播接收器
         registerRecordingStateReceiver();
         
-        // 注册更新悬浮窗广播接收器
+        // 注册обновление悬浮窗广播接收器
         registerUpdateReceiver();
         
-        // 注册前台状态广播接收器
+        // 注册Передний планСтатус广播接收器
         registerForegroundStateReceiver();
     }
     
@@ -108,12 +108,12 @@ public class FloatingWindowService extends Service {
         AppLog.d(TAG, "FloatingWindowService onDestroy");
         isServiceRunning = false;
         
-        // 保存当前位置
+        // СохранитьТекущийПозиция
         if (layoutParams != null) {
             appConfig.setFloatingWindowPosition(layoutParams.x, layoutParams.y);
         }
         
-        // 停止闪烁动画
+        // Остановка闪烁动画
         stopBlinkAnimation();
         
         // 移除悬浮窗
@@ -121,7 +121,7 @@ public class FloatingWindowService extends Service {
             try {
                 windowManager.removeView(floatingView);
             } catch (Exception e) {
-                AppLog.e(TAG, "移除悬浮窗失败", e);
+                AppLog.e(TAG, "移除悬浮窗Ошибка", e);
             }
         }
         
@@ -130,7 +130,7 @@ public class FloatingWindowService extends Service {
             try {
                 unregisterReceiver(recordingStateReceiver);
             } catch (Exception e) {
-                AppLog.e(TAG, "注销录制状态接收器失败", e);
+                AppLog.e(TAG, "注销ЗаписьСтатус接收器Ошибка", e);
             }
         }
         
@@ -138,7 +138,7 @@ public class FloatingWindowService extends Service {
             try {
                 unregisterReceiver(updateReceiver);
             } catch (Exception e) {
-                AppLog.e(TAG, "注销更新接收器失败", e);
+                AppLog.e(TAG, "注销обновление接收器Ошибка", e);
             }
         }
         
@@ -146,7 +146,7 @@ public class FloatingWindowService extends Service {
             try {
                 unregisterReceiver(foregroundStateReceiver);
             } catch (Exception e) {
-                AppLog.e(TAG, "注销前台状态接收器失败", e);
+                AppLog.e(TAG, "注销Передний планСтатус接收器Ошибка", e);
             }
         }
     }
@@ -155,28 +155,28 @@ public class FloatingWindowService extends Service {
      * 创建悬浮窗
      */
     private void createFloatingWindow() {
-        // 检查悬浮窗权限
+        // проверкаРазрешение плавающего окна
         if (!WakeUpHelper.hasOverlayPermission(this)) {
-            AppLog.e(TAG, "没有悬浮窗权限");
+            AppLog.e(TAG, "没有Разрешение плавающего окна");
             stopSelf();
             return;
         }
         
-        // 获取配置
+        // Получениеконфигурация
         int sizeDp = appConfig.getFloatingWindowSize();
         int alpha = appConfig.getFloatingWindowAlpha();
         int savedX = appConfig.getFloatingWindowX();
         int savedY = appConfig.getFloatingWindowY();
         
-        // 转换dp到px
+        // 转换dp до px
         float density = getResources().getDisplayMetrics().density;
         int sizePx = (int) (sizeDp * density);
         
-        // 创建自定义绘制的View
+        // 创建自定义绘制 View
         floatingView = new FloatingButtonView(this, sizePx);
         floatingView.setAlpha(alpha / 100f);
         
-        // 设置布局参数
+        // Настройки布局参数
         int windowType;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             windowType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -194,18 +194,18 @@ public class FloatingWindowService extends Service {
         
         layoutParams.gravity = Gravity.TOP | Gravity.START;
         
-        // 恢复保存的位置或使用默认位置
+        // ВосстановлениеСохранить ПозицияилииспользованиеПо умолчаниюПозиция
         if (savedX >= 0 && savedY >= 0) {
             layoutParams.x = savedX;
             layoutParams.y = savedY;
         } else {
-            // 默认位置：右侧中间
+            // По умолчаниюПозиция：右侧间
             DisplayMetrics metrics = getResources().getDisplayMetrics();
             layoutParams.x = metrics.widthPixels - sizePx - 20;
             layoutParams.y = metrics.heightPixels / 2 - sizePx / 2;
         }
         
-        // 设置触摸事件
+        // Настройки触摸事件
         floatingView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -222,19 +222,19 @@ public class FloatingWindowService extends Service {
                         int deltaX = (int) (event.getRawX() - initialTouchX);
                         int deltaY = (int) (event.getRawY() - initialTouchY);
                         
-                        // 判断是否为拖动
+                        // 判断 否为拖动
                         if (Math.abs(deltaX) > CLICK_THRESHOLD || Math.abs(deltaY) > CLICK_THRESHOLD) {
                             isDragging = true;
                         }
                         
                         if (isDragging) {
-                            // 获取屏幕尺寸
+                            // Получение屏幕尺寸
                             DisplayMetrics metrics = getResources().getDisplayMetrics();
                             int screenWidth = metrics.widthPixels;
                             int screenHeight = metrics.heightPixels;
                             int viewSize = layoutParams.width;
                             
-                            // 计算新位置
+                            // 计算新Позиция
                             int newX = initialX + deltaX;
                             int newY = initialY + deltaY;
                             
@@ -250,10 +250,10 @@ public class FloatingWindowService extends Service {
                         
                     case MotionEvent.ACTION_UP:
                         if (!isDragging) {
-                            // 点击事件：打开应用
+                            // 点击事件：открытьПриложение
                             openApp();
                         } else {
-                            // 拖动结束：保存位置
+                            // 拖动завершить：СохранитьПозиция
                             appConfig.setFloatingWindowPosition(layoutParams.x, layoutParams.y);
                         }
                         return true;
@@ -262,18 +262,18 @@ public class FloatingWindowService extends Service {
             }
         });
         
-        // 添加到窗口
+        // 添加 до 窗口
         try {
             windowManager.addView(floatingView, layoutParams);
-            AppLog.d(TAG, "悬浮窗创建成功，大小: " + sizePx + "px, 透明度: " + alpha + "%");
+            AppLog.d(TAG, "悬浮窗创建Успешно，大小: " + sizePx + "px, 透明度: " + alpha + "%");
         } catch (Exception e) {
-            AppLog.e(TAG, "添加悬浮窗失败", e);
+            AppLog.e(TAG, "添加悬浮窗Ошибка", e);
             stopSelf();
         }
     }
     
     /**
-     * 注册录制状态广播接收器
+     * 注册ЗаписьСтатус广播接收器
      */
     private void registerRecordingStateReceiver() {
         recordingStateReceiver = new BroadcastReceiver() {
@@ -295,14 +295,14 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 注册更新悬浮窗广播接收器
+     * 注册обновление悬浮窗广播接收器
      */
     private void registerUpdateReceiver() {
         updateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (ACTION_UPDATE_FLOATING_WINDOW.equals(intent.getAction())) {
-                    // 重新创建悬浮窗以应用新设置
+                    // 重新创建悬浮窗以Приложение新Настройки
                     updateFloatingWindow();
                 }
             }
@@ -317,7 +317,7 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 注册前台状态广播接收器
+     * 注册Передний планСтатус广播接收器
      */
     private void registerForegroundStateReceiver() {
         foregroundStateReceiver = new BroadcastReceiver() {
@@ -349,7 +349,7 @@ public class FloatingWindowService extends Service {
         if (floatingView != null && isFloatingWindowVisible) {
             floatingView.setVisibility(View.GONE);
             isFloatingWindowVisible = false;
-            AppLog.d(TAG, "悬浮窗已隐藏（应用在前台）");
+            AppLog.d(TAG, "悬浮窗隐藏（Приложение Передний план)");
         }
     }
     
@@ -360,12 +360,12 @@ public class FloatingWindowService extends Service {
         if (floatingView != null && !isFloatingWindowVisible) {
             floatingView.setVisibility(View.VISIBLE);
             isFloatingWindowVisible = true;
-            AppLog.d(TAG, "悬浮窗已显示（应用在后台）");
+            AppLog.d(TAG, "悬浮窗显示（Приложение Фоновый режим)");
         }
     }
     
     /**
-     * 更新录制状态
+     * обновлениеЗаписьСтатус
      */
     private void updateRecordingState(boolean recording) {
         if (isRecording == recording) {
@@ -373,7 +373,7 @@ public class FloatingWindowService extends Service {
         }
         
         isRecording = recording;
-        AppLog.d(TAG, "录制状态更新: " + (recording ? "录制中" : "未录制"));
+        AppLog.d(TAG, "ЗаписьСтатусобновление: " + (recording ? "Запись" : "Не Запись"));
         
         if (recording) {
             startBlinkAnimation();
@@ -381,14 +381,14 @@ public class FloatingWindowService extends Service {
             stopBlinkAnimation();
         }
         
-        // 刷新视图
+        // Обновить视图
         if (floatingView != null) {
             floatingView.invalidate();
         }
     }
     
     /**
-     * 开始闪烁动画
+     * Вкл始闪烁动画
      */
     private void startBlinkAnimation() {
         if (blinkRunnable != null) {
@@ -403,7 +403,7 @@ public class FloatingWindowService extends Service {
                 if (floatingView != null) {
                     floatingView.invalidate();
                 }
-                blinkHandler.postDelayed(this, 1000);  // 1秒闪烁一次
+                blinkHandler.postDelayed(this, 1000);  // 1 сек.闪烁一 раз
             }
         };
         
@@ -411,7 +411,7 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 停止闪烁动画
+     * Остановка闪烁动画
      */
     private void stopBlinkAnimation() {
         if (blinkRunnable != null) {
@@ -422,14 +422,14 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 更新悬浮窗（应用新设置）
+     * обновление悬浮窗（Приложение新Настройки)
      */
     private void updateFloatingWindow() {
         if (floatingView != null && windowManager != null) {
             try {
                 windowManager.removeView(floatingView);
             } catch (Exception e) {
-                AppLog.e(TAG, "移除旧悬浮窗失败", e);
+                AppLog.e(TAG, "移除旧悬浮窗Ошибка", e);
             }
         }
         
@@ -437,16 +437,16 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 打开应用
-     * 使用 startActivity 将应用带回前台
-     * FLAG_ACTIVITY_REORDER_TO_FRONT 会将现有 Activity 移到栈顶
+     * открытьПриложение
+     * использование startActivity 将Приложение带回Передний план
+     * FLAG_ACTIVITY_REORDER_TO_FRONT 会将现有 Activity 移 до 栈顶
      * FLAG_ACTIVITY_SINGLE_TOP 确保不会创建新实例
      * 
-     * 注意：不再使用 moveTaskToFront + startActivity 双保险模式，
-     * 因为会导致 onResume 被调用两次，引发摄像头资源冲突
+     * 注意：不再использование moveTaskToFront + startActivity 双保险режим，
+     * 因为会导致 onResume  调用两 раз，引发Камера资源冲突
      */
     private void openApp() {
-        AppLog.d(TAG, "点击悬浮窗，打开应用");
+        AppLog.d(TAG, "点击悬浮窗，открытьПриложение");
         
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK 
@@ -454,7 +454,7 @@ public class FloatingWindowService extends Service {
                 | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         
-        AppLog.d(TAG, "已发送 startActivity");
+        AppLog.d(TAG, "Отправка startActivity");
     }
     
     /**
@@ -467,9 +467,9 @@ public class FloatingWindowService extends Service {
         private int size;
         private float cornerRadius;
         
-        // 日间模式颜色
+        //  д.间режим颜色
         private static final int COLOR_BG_DAY = 0xFFF9FAFB;      // 浅灰白色背景
-        // 夜间模式颜色
+        // 夜间режим颜色
         private static final int COLOR_BG_NIGHT = 0xFF060809;    // 深黑色背景
         
         public FloatingButtonView(Context context, int size) {
@@ -489,7 +489,7 @@ public class FloatingWindowService extends Service {
         }
         
         /**
-         * 判断当前是否为夜间模式
+         * 判断Текущий 否为夜间режим
          */
         private boolean isNightMode() {
             int nightModeFlags = getContext().getResources().getConfiguration().uiMode 
@@ -509,11 +509,11 @@ public class FloatingWindowService extends Service {
             
             float centerX = size / 2f;
             float centerY = size / 2f;
-            float radius = size * 0.28f;  // 主圆半径（缩小）
-            float innerRadius = size * 0.09f;  // 内圆半径（缩小）
+            float radius = size * 0.28f;  // 主圆半径（缩小)
+            float innerRadius = size * 0.09f;  // 内圆半径（缩小)
             
             if (isRecording) {
-                // 录制中：绿色，闪烁
+                // Запись：绿色，闪烁
                 int color = isBlinkOn ? 0xFF00FF00 : 0xFF006400;  // 亮绿/深绿
                 circlePaint.setColor(color);
                 fillPaint.setColor(color);
@@ -521,11 +521,11 @@ public class FloatingWindowService extends Service {
                 // 绘制外圈
                 canvas.drawCircle(centerX, centerY, radius, circlePaint);
                 
-                // 绘制内部实心圆
+                // 绘制Внутреннее实心圆
                 canvas.drawCircle(centerX, centerY, innerRadius, fillPaint);
             } else {
-                // 未录制：根据主题显示黑色或白色空心圆
-                int circleColor = isNightMode() ? 0xFFFFFFFF : 0xFF000000;  // 夜间白色，日间黑色
+                // Не Запись：根据主题显示黑色или白色空心圆
+                int circleColor = isNightMode() ? 0xFFFFFFFF : 0xFF000000;  // 夜间白色， д.间黑色
                 circlePaint.setColor(circleColor);
                 
                 // 绘制外圈
@@ -535,11 +535,11 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 启动悬浮窗服务
+     * Запуск悬浮窗Сервис
      */
     public static void start(Context context) {
         if (!WakeUpHelper.hasOverlayPermission(context)) {
-            AppLog.w(TAG, "没有悬浮窗权限，无法启动服务");
+            AppLog.w(TAG, "没有Разрешение плавающего окна，无法ЗапускСервис");
             return;
         }
         
@@ -548,7 +548,7 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 停止悬浮窗服务
+     * Остановка悬浮窗Сервис
      */
     public static void stop(Context context) {
         Intent intent = new Intent(context, FloatingWindowService.class);
@@ -556,14 +556,14 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 检查悬浮窗服务是否正在运行
+     * проверка悬浮窗Сервис 否Выполняется Работа
      */
     public static boolean isRunning() {
         return isServiceRunning;
     }
     
     /**
-     * 发送录制状态变化广播
+     * ОтправкаЗаписьСтатус变化广播
      */
     public static void sendRecordingStateChanged(Context context, boolean isRecording) {
         Intent intent = new Intent(ACTION_RECORDING_STATE_CHANGED);
@@ -573,7 +573,7 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 发送更新悬浮窗广播
+     * Отправкаобновление悬浮窗广播
      */
     public static void sendUpdateFloatingWindow(Context context) {
         Intent intent = new Intent(ACTION_UPDATE_FLOATING_WINDOW);
@@ -582,7 +582,7 @@ public class FloatingWindowService extends Service {
     }
     
     /**
-     * 发送应用前台状态广播
+     * ОтправкаПриложениеПередний планСтатус广播
      */
     public static void sendAppForegroundState(Context context, boolean isForeground) {
         Intent intent = new Intent(ACTION_APP_FOREGROUND_STATE);

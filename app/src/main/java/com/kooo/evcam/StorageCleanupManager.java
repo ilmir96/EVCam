@@ -15,32 +15,32 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 存储清理管理器
- * 自动删除超过限制的旧视频和图片文件
+ * ХранилищеОчистка управление器
+ * автоматически删除超过限制 旧Видео и ИзображениеФайл
  * 
- * 功能：
- * - 冷启动30秒后执行首次检测
- * - 每隔1小时执行定期检测
- * - 支持分别设置视频和图片的存储限制（GB）
+ * функция：
+ * - 冷Запуск30 сек.后выполнение首 раз检测
+ * - 每隔1小时выполнение定期检测
+ * - поддержка分别НастройкиВидео и Изображение Хранилище限制（GB)
  * - 删除时额外删除20%，避免频繁删除
  */
 public class StorageCleanupManager {
     private static final String TAG = "StorageCleanupManager";
     
-    // 定时任务延迟
-    private static final long INITIAL_DELAY_MS = 30 * 1000;  // 冷启动后30秒
+    // 定时задача延迟
+    private static final long INITIAL_DELAY_MS = 30 * 1000;  // 冷Запуск后30 сек.
     private static final long PERIODIC_INTERVAL_MS = 60 * 60 * 1000;  // 每1小时
     
-    // 额外删除比例（20%）
+    // 额外删除比例（20%)
     private static final double EXTRA_DELETE_RATIO = 0.20;
     
     // GB 转 字节
     private static final long GB_TO_BYTES = 1024L * 1024L * 1024L;
     
-    // 内部存储低空间阈值（3GB）
+    // Внутренняя памятьНизкий空间阈值（3GB)
     private static final long LOW_SPACE_THRESHOLD_BYTES = 3L * GB_TO_BYTES;
     
-    // 低空间强制清理比例（删除20%的已用空间，保留80%）
+    // Низкий空间强制Очистка 比例（删除20% 用空间，保留80%)
     private static final double LOW_SPACE_CLEANUP_RATIO = 0.20;
     
     private final Context context;
@@ -56,36 +56,36 @@ public class StorageCleanupManager {
     }
     
     /**
-     * 启动存储清理任务
-     * 冷启动30秒后执行首次检测，之后每隔1小时执行一次
-     * 注意：即使清理功能未启用，也会启动以检测内部存储低空间情况
+     * ЗапускХранилищеОчистка задача
+     * 冷Запуск30 сек.后выполнение首 раз检测，после每隔1小时выполнение一 раз
+     * 注意：т.е.使Очистка функцияНе Включить，также会Запуск以检测Внутренняя памятьНизкий空间情况
      */
     public void start() {
         if (isRunning) {
-            AppLog.d(TAG, "存储清理任务已在运行");
+            AppLog.d(TAG, "ХранилищеОчистка задача Работа");
             return;
         }
         
         isRunning = true;
         scheduler = Executors.newSingleThreadScheduledExecutor();
         
-        // 30秒后执行首次检测
+        // 30 сек.后выполнение首 раз检测
         scheduler.schedule(this::performCleanup, INITIAL_DELAY_MS, TimeUnit.MILLISECONDS);
         
-        // 每1小时执行一次定期检测
+        // 每1小时выполнение一 раз定期检测
         scheduler.scheduleAtFixedRate(
             this::performCleanup,
-            INITIAL_DELAY_MS + PERIODIC_INTERVAL_MS,  // 首次定期检测在首次检测后1小时
+            INITIAL_DELAY_MS + PERIODIC_INTERVAL_MS,  // 首 раз定期检测 首 раз检测后1小时
             PERIODIC_INTERVAL_MS,
             TimeUnit.MILLISECONDS
         );
         
-        AppLog.d(TAG, "存储清理任务已启动：30秒后首次检测，之后每1小时检测一次");
-        AppLog.d(TAG, "视频限制: " + appConfig.getVideoStorageLimitGb() + " GB, 图片限制: " + appConfig.getPhotoStorageLimitGb() + " GB");
+        AppLog.d(TAG, "ХранилищеОчистка задачаЗапущено：30 сек.后首 раз检测，после每1小时检测一 раз");
+        AppLog.d(TAG, "Видео限制: " + appConfig.getVideoStorageLimitGb() + " GB, Изображение限制: " + appConfig.getPhotoStorageLimitGb() + " GB");
     }
     
     /**
-     * 停止存储清理任务
+     * ОстановкаХранилищеОчистка задача
      */
     public void stop() {
         if (scheduler != null && !scheduler.isShutdown()) {
@@ -93,95 +93,99 @@ public class StorageCleanupManager {
             scheduler = null;
         }
         isRunning = false;
-        AppLog.d(TAG, "存储清理任务已停止");
+        AppLog.d(TAG, "ХранилищеОчистка задачаОстановлено");
     }
     
     /**
-     * 执行清理任务
+     * выполнениеОчистка задача
      */
     private void performCleanup() {
-        AppLog.d(TAG, "开始执行存储清理检测...");
+        AppLog.d(TAG, "Вкл始выполнениеХранилищеОчистка 检测...");
         
-        // 首先检测内部存储低空间情况（强制清理）
+        // 首先检测Внутренняя памятьНизкий空间情况（强制Очистка )
         performLowSpaceCleanupIfNeeded();
         
         int videoLimitGb = appConfig.getVideoStorageLimitGb();
         int photoLimitGb = appConfig.getPhotoStorageLimitGb();
         
-        // 检测并清理视频
+        // 检测并Очистка Видео
         if (videoLimitGb > 0) {
             CleanupResult videoResult = cleanupDirectory(
                 StorageHelper.getVideoDir(context),
                 videoLimitGb * GB_TO_BYTES,
-                "视频"
+                "Видео"
             );
             if (videoResult.deletedCount > 0) {
-                showCleanupNotification(videoResult, "视频");
+                showCleanupNotification(videoResult, "Видео");
             }
         }
         
-        // 检测并清理图片
+        // 检测并Очистка Изображение
         if (photoLimitGb > 0) {
             CleanupResult photoResult = cleanupDirectory(
                 StorageHelper.getPhotoDir(context),
                 photoLimitGb * GB_TO_BYTES,
-                "图片"
+                "Фото"
             );
             if (photoResult.deletedCount > 0) {
-                showCleanupNotification(photoResult, "图片");
+                showCleanupNotification(photoResult, "Фото");
             }
         }
         
-        AppLog.d(TAG, "存储清理检测完成");
+        AppLog.d(TAG, "ХранилищеОчистка 检测завершение");
     }
     
     /**
-     * 内部存储低空间时强制清理
-     * 当使用内部存储且可用空间低于3GB时，强制清理20%的已用空间
+     * Внутренняя памятьНизкий空间时强制Очистка 
+     * 当использованиеВнутренняя память且Доступно空间ниже3GB时，强制Очистка 20% 用空间
      */
     private void performLowSpaceCleanupIfNeeded() {
-        // 检测当前是否使用内部存储
+        // 检测Текущий 否использованиеВнутренняя память
+        // custom path 不应被当作internal处理
+        if (appConfig.isUsingCustomPath()) {
+            return;
+        }
         boolean usingInternal = !appConfig.isUsingExternalSdCard() || StorageHelper.isSdCardFallback(context);
-        
+
         if (!usingInternal) {
-            // 使用U盘，不需要强制清理
+            // использованиеUSB-накопитель，不необходимо强制Очистка
             return;
         }
         
-        // 获取内部存储可用空间
+        // ПолучениеВнутренняя памятьДоступно空间
         File internalDir = android.os.Environment.getExternalStorageDirectory();
         long availableSpace = StorageHelper.getAvailableSpace(internalDir);
         
-        AppLog.d(TAG, "内部存储可用空间: " + StorageHelper.formatSize(availableSpace));
+        AppLog.d(TAG, "Внутренняя памятьДоступно空间: " + StorageHelper.formatSize(availableSpace));
         
         if (availableSpace < 0 || availableSpace >= LOW_SPACE_THRESHOLD_BYTES) {
-            // 空间充足，不需要清理
+            // 空间充足，不необходимоОчистка 
             return;
         }
         
-        AppLog.w(TAG, "内部存储空间不足（<3GB），开始强制清理...");
+        AppLog.w(TAG, "Внутренняя память空间不足（<3GB)，Вкл始强制Очистка ...");
         
-        // 强制清理视频（删除20%的已用空间）
+        // 强制Очистка Видео（删除20% 用空间)
         File videoDir = StorageHelper.getVideoDir(context, false);
-        CleanupResult videoResult = cleanupByPercentage(videoDir, LOW_SPACE_CLEANUP_RATIO, "视频");
+        CleanupResult videoResult = cleanupByPercentage(videoDir, LOW_SPACE_CLEANUP_RATIO, "Видео");
         if (videoResult.deletedCount > 0) {
-            showLowSpaceCleanupNotification(videoResult, "视频");
+            showLowSpaceCleanupNotification(videoResult, "Видео");
         }
         
-        // 强制清理图片（删除20%的已用空间）
+        // 强制Очистка Изображение（删除20% 用空间)
         File photoDir = StorageHelper.getPhotoDir(context, false);
-        CleanupResult photoResult = cleanupByPercentage(photoDir, LOW_SPACE_CLEANUP_RATIO, "图片");
+        CleanupResult photoResult = cleanupByPercentage(photoDir, LOW_SPACE_CLEANUP_RATIO, "Фото");
         if (photoResult.deletedCount > 0) {
-            showLowSpaceCleanupNotification(photoResult, "图片");
+            showLowSpaceCleanupNotification(photoResult, "Фото");
         }
     }
     
     /**
-     * 按比例清理目录（删除指定比例的已用空间）
-     * @param directory 目标目录
-     * @param deleteRatio 删除比例（0.0-1.0）
+     * 按比例Очистка каталог（删除指定比例 用空间)
+     * @param directory 目标каталог
+     * @param deleteRatio 删除比例（0.0-1.0)
      * @param typeName 类型名称
-     * @return 清理结果
+     * @return Очистка 结果
      */
     private CleanupResult cleanupByPercentage(File directory, double deleteRatio, String typeName) {
         CleanupResult result = new CleanupResult();
@@ -195,7 +199,7 @@ public class StorageCleanupManager {
             return result;
         }
         
-        // 计算当前总大小
+        // 计算Текущий总大小
         long totalSize = 0;
         for (File file : files) {
             totalSize += file.length();
@@ -207,18 +211,18 @@ public class StorageCleanupManager {
             return result;
         }
         
-        // 计算需要删除的大小（总大小的指定比例）
+        // 计算необходимо删除 大小（总大小 指定比例)
         long needToDelete = (long) (totalSize * deleteRatio);
         long targetSize = totalSize - needToDelete;
         
-        AppLog.d(TAG, typeName + "强制清理：当前占用 " + StorageHelper.formatSize(totalSize) + 
-                "，将删除 " + StorageHelper.formatSize(needToDelete) + " (20%)");
+        AppLog.d(TAG, typeName + "强制Очистка ：Текущий占用 " + StorageHelper.formatSize(totalSize) + 
+                ", будет удалено " + StorageHelper.formatSize(needToDelete) + " (20%)");
         
-        // 按修改时间排序（最旧的在前）
+        // 按изменение时间排序（最旧  前)
         List<File> sortedFiles = new ArrayList<>(Arrays.asList(files));
         sortedFiles.sort(Comparator.comparingLong(File::lastModified));
         
-        // 删除最旧的文件直到达到目标大小
+        // 删除最旧 Файл直 до 达 до 目标大小
         long deletedSize = 0;
         int deletedCount = 0;
         
@@ -231,7 +235,7 @@ public class StorageCleanupManager {
             if (file.delete()) {
                 deletedSize += fileSize;
                 deletedCount++;
-                AppLog.d(TAG, "强制删除旧文件: " + file.getName() + " (" + StorageHelper.formatSize(fileSize) + ")");
+                AppLog.d(TAG, "强制删除旧Файл: " + file.getName() + " (" + StorageHelper.formatSize(fileSize) + ")");
             }
         }
         
@@ -239,46 +243,46 @@ public class StorageCleanupManager {
         result.deletedCount = deletedCount;
         result.finalSize = totalSize - deletedSize;
         
-        AppLog.d(TAG, typeName + "强制清理完成：删除 " + deletedCount + " 个文件，释放 " + StorageHelper.formatSize(deletedSize));
+        AppLog.d(TAG, typeName + "强制Очистка завершение: удалено " + deletedCount + " файл(ов), освобождено " + StorageHelper.formatSize(deletedSize));
         
         return result;
     }
     
     /**
-     * 显示低空间强制清理通知
+     * 显示Низкий空间强制Очистка Уведомление
      */
     private void showLowSpaceCleanupNotification(CleanupResult result, String typeName) {
         mainHandler.post(() -> {
-            String message = "内部存储空间不足，已清理" + typeName + " " + 
-                    result.deletedCount + "个文件（" + StorageHelper.formatSize(result.deletedSize) + "）";
+            String message = "Недостаточно места, очистка " + typeName + " " + 
+                    result.deletedCount + " шт.Файл（" + StorageHelper.formatSize(result.deletedSize) + ")";
             Toast.makeText(context, message, Toast.LENGTH_LONG).show();
         });
     }
     
     /**
-     * 清理指定目录
-     * @param directory 目标目录
-     * @param limitBytes 限制大小（字节）
-     * @param typeName 类型名称（用于日志）
-     * @return 清理结果
+     * Очистка 指定каталог
+     * @param directory 目标каталог
+     * @param limitBytes 限制大小（字节)
+     * @param typeName 类型名称（用于 д.志)
+     * @return Очистка 结果
      */
     private CleanupResult cleanupDirectory(File directory, long limitBytes, String typeName) {
         CleanupResult result = new CleanupResult();
         
         if (directory == null || !directory.exists() || !directory.isDirectory()) {
-            AppLog.w(TAG, typeName + "目录不存在: " + (directory != null ? directory.getAbsolutePath() : "null"));
+            AppLog.w(TAG, typeName + "каталогне существует: " + (directory != null ? directory.getAbsolutePath() : "null"));
             return result;
         }
         
-        // 获取目录中所有文件（不筛选格式）
+        // Получениекаталог所有Файл（不筛选格式)
         File[] files = directory.listFiles(File::isFile);
         
         if (files == null || files.length == 0) {
-            AppLog.d(TAG, typeName + "目录为空");
+            AppLog.d(TAG, typeName + "каталогпусто");
             return result;
         }
         
-        // 计算当前总大小
+        // 计算Текущий总大小
         long totalSize = 0;
         for (File file : files) {
             totalSize += file.length();
@@ -286,27 +290,27 @@ public class StorageCleanupManager {
         
         result.originalSize = totalSize;
         
-        AppLog.d(TAG, typeName + "当前占用: " + StorageHelper.formatSize(totalSize) + 
-                " / 限制: " + StorageHelper.formatSize(limitBytes));
+        AppLog.d(TAG, typeName + "Текущий占用: " + StorageHelper.formatSize(totalSize) + 
+                " / Лимит: " + StorageHelper.formatSize(limitBytes));
         
-        // 如果未超过限制，无需清理
+        // Если Не 超过限制，无需Очистка 
         if (totalSize <= limitBytes) {
-            AppLog.d(TAG, typeName + "未超过限制，无需清理");
+            AppLog.d(TAG, typeName + "Не 超过限制，无需Очистка ");
             return result;
         }
         
-        // 计算目标大小（限制的80%，即额外删除20%）
+        // 计算目标大小（限制 80%，т.е.额外删除20%)
         long targetSize = (long) (limitBytes * (1 - EXTRA_DELETE_RATIO));
         long needToDelete = totalSize - targetSize;
         
-        AppLog.d(TAG, typeName + "超过限制，需要删除: " + StorageHelper.formatSize(needToDelete) + 
-                "，目标大小: " + StorageHelper.formatSize(targetSize));
+        AppLog.d(TAG, typeName + "超过限制，необходимо删除: " + StorageHelper.formatSize(needToDelete) + 
+                ", целевой размер: " + StorageHelper.formatSize(targetSize));
         
-        // 按修改时间排序（最旧的在前）
+        // 按изменение时间排序（最旧  前)
         List<File> sortedFiles = new ArrayList<>(Arrays.asList(files));
         sortedFiles.sort(Comparator.comparingLong(File::lastModified));
         
-        // 删除最旧的文件直到达到目标大小
+        // 删除最旧 Файл直 до 达 до 目标大小
         long deletedSize = 0;
         int deletedCount = 0;
         
@@ -321,9 +325,9 @@ public class StorageCleanupManager {
             if (file.delete()) {
                 deletedSize += fileSize;
                 deletedCount++;
-                AppLog.d(TAG, "已删除" + typeName + ": " + fileName + " (" + StorageHelper.formatSize(fileSize) + ")");
+                AppLog.d(TAG, "Удалено" + typeName + ": " + fileName + " (" + StorageHelper.formatSize(fileSize) + ")");
             } else {
-                AppLog.w(TAG, "删除" + typeName + "失败: " + fileName);
+                AppLog.w(TAG, "Удалить" + typeName + "Ошибка: " + fileName);
             }
         }
         
@@ -331,49 +335,49 @@ public class StorageCleanupManager {
         result.deletedSize = deletedSize;
         result.finalSize = totalSize - deletedSize;
         
-        AppLog.d(TAG, typeName + "清理完成：删除 " + deletedCount + " 个文件，释放 " + 
-                StorageHelper.formatSize(deletedSize) + "，剩余 " + StorageHelper.formatSize(result.finalSize));
+        AppLog.d(TAG, typeName + "Очистка завершение: удалено " + deletedCount + " файл(ов), освобождено " + 
+                StorageHelper.formatSize(deletedSize) + ", осталось " + StorageHelper.formatSize(result.finalSize));
         
         return result;
     }
     
     /**
-     * 显示清理通知
+     * 显示Очистка Уведомление
      */
     private void showCleanupNotification(CleanupResult result, String typeName) {
         mainHandler.post(() -> {
-            String message = "已清理" + typeName + "：删除 " + result.deletedCount + " 个文件，释放 " + 
+            String message = "Очистка " + typeName + ": удалено " + result.deletedCount + " файл(ов), освобождено " + 
                     StorageHelper.formatSize(result.deletedSize);
             Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-            AppLog.d(TAG, "清理通知: " + message);
+            AppLog.d(TAG, "Очистка Уведомление: " + message);
         });
     }
     
     /**
-     * 手动触发清理（用于测试或用户手动清理）
+     * вручную触发Очистка （用于тестированиеили用户вручнуюОчистка )
      */
     public void manualCleanup() {
         new Thread(this::performCleanup).start();
     }
     
     /**
-     * 获取当前视频占用大小
-     * @return 占用大小（字节）
+     * ПолучениеТекущийВидео占用大小
+     * @return 占用大小（字节)
      */
     public long getVideoUsedSize() {
         return getDirectorySize(StorageHelper.getVideoDir(context));
     }
     
     /**
-     * 获取当前图片占用大小
-     * @return 占用大小（字节）
+     * ПолучениеТекущийИзображение占用大小
+     * @return 占用大小（字节)
      */
     public long getPhotoUsedSize() {
         return getDirectorySize(StorageHelper.getPhotoDir(context));
     }
     
     /**
-     * 获取目录中所有文件的总大小
+     * Получениекаталог所有Файл 总大小
      */
     private long getDirectorySize(File directory) {
         if (directory == null || !directory.exists() || !directory.isDirectory()) {
@@ -394,12 +398,12 @@ public class StorageCleanupManager {
     }
     
     /**
-     * 清理结果
+     * Очистка 结果
      */
     private static class CleanupResult {
-        long originalSize = 0;  // 清理前大小
-        long deletedSize = 0;   // 删除的大小
-        long finalSize = 0;     // 清理后大小
-        int deletedCount = 0;   // 删除的文件数
+        long originalSize = 0;  // Очистка 前大小
+        long deletedSize = 0;   // 删除 大小
+        long finalSize = 0;     // Очистка 后大小
+        int deletedCount = 0;   // 删除 Файл数
     }
 }

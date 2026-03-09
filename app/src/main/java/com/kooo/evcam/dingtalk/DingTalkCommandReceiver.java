@@ -8,8 +8,8 @@ import android.os.Looper;
 import android.util.Log;
 
 /**
- * 钉钉指令接收器
- * 负责解析和处理从钉钉接收到的指令
+ * DingTalkкоманда接收器
+ * 负责解析 и 处理 от DingTalk接Получена команда:  команда
  */
 public class DingTalkCommandReceiver implements DingTalkStreamClient.MessageCallback {
     private static final String TAG = "DingTalkCommandReceiver";
@@ -33,49 +33,49 @@ public class DingTalkCommandReceiver implements DingTalkStreamClient.MessageCall
 
     @Override
     public void onConnected() {
-        AppLog.d(TAG, "Stream 连接已建立");
+        AppLog.d(TAG, "Stream Подключение建立");
         mainHandler.post(() -> listener.onConnectionStatusChanged(true));
     }
 
     @Override
     public void onDisconnected() {
-        AppLog.d(TAG, "Stream 连接已断开");
+        AppLog.d(TAG, "Stream Подключениеотключено");
         mainHandler.post(() -> listener.onConnectionStatusChanged(false));
     }
 
     @Override
     public void onMessageReceived(String conversationId, String conversationType, String senderUserId, String text) {
-        AppLog.d(TAG, "收到消息: " + text + " from " + senderUserId + " (type: " + conversationType + ")");
+        AppLog.d(TAG, "Получена команда: 消息: " + text + " from " + senderUserId + " (type: " + conversationType + ")");
 
-        // 解析指令
+        // 解析команда
         String command = parseCommand(text);
 
-        // 解析录制时长（秒）
+        // 解析Запись时长（ сек.)
         int durationSeconds = parseRecordDuration(command);
 
-        if (command.startsWith("录制") || command.toLowerCase().startsWith("record")) {
-            AppLog.d(TAG, "收到录制指令，时长: " + durationSeconds + " 秒");
+        if (command.startsWith("Запись") || command.toLowerCase().startsWith("record")) {
+            AppLog.d(TAG, "Получена команда: Записькоманда，时长: " + durationSeconds + "  сек.");
 
-            // 发送确认消息，传递 conversationType 和 senderUserId
-            String confirmMsg = String.format("收到录制指令，开始录制 %d 秒视频...", durationSeconds);
+            // ОтправкаПодтвердить消息，传递 conversationType  и  senderUserId
+            String confirmMsg = String.format("Получена команда записи, начинаю запись %d  сек. видео...", durationSeconds);
             sendResponse(conversationId, conversationType, senderUserId, confirmMsg);
 
-            // 通知监听器执行录制，传递 conversationType、senderUserId 和时长
+            // Уведомление监听器выполнениеЗапись，传递 conversationType、senderUserId  и 时长
             mainHandler.post(() -> listener.onRecordCommand(conversationId, conversationType, senderUserId, durationSeconds));
         } else {
-            AppLog.d(TAG, "未识别的指令: " + command);
-            sendResponse(conversationId, conversationType, senderUserId, "未识别的指令。请发送「录制」或「录制+数字」开始录制视频（如：录制30 表示录制30秒，默认60秒）。");
+            AppLog.d(TAG, "Неизвестная команда: " + command);
+            sendResponse(conversationId, conversationType, senderUserId, "Неизвестная команда。Отправьте「Запись」или「Запись+数字」Начать записьВидео（если：Запись30 表示Запись30 сек.，По умолчанию60 сек.)。");
         }
     }
 
     @Override
     public void onError(String error) {
-        AppLog.e(TAG, "错误: " + error);
+        AppLog.e(TAG, "Ошибка: " + error);
     }
 
     /**
-     * 解析指令文本
-     * 移除 @机器人 的部分，提取实际指令
+     * 解析команда文本
+     * 移除 @机器人  部分，提取实际команда
      */
     private String parseCommand(String text) {
         if (text == null) {
@@ -88,25 +88,25 @@ public class DingTalkCommandReceiver implements DingTalkStreamClient.MessageCall
     }
 
     /**
-     * 解析录制时长（秒）
-     * 支持格式：录制、录制30、录制 30、record、record 30
-     * 默认返回 60 秒（1分钟）
+     * 解析Запись时长（ сек.)
+     * поддержка格式：Запись、Запись30、Запись 30、record、record 30
+     * По умолчанию返回 60  сек.（1 мин.)
      */
     private int parseRecordDuration(String command) {
         if (command == null || command.isEmpty()) {
             return 60;
         }
 
-        // 移除"录制"或"record"关键字，提取数字
-        String durationStr = command.replaceAll("(?i)(录制|record)", "").trim();
+        // 移除"Запись"или"record"Выкл键字，提取数字
+        String durationStr = command.replaceAll("(?i)(Запись|record)", "").trim();
 
         if (durationStr.isEmpty()) {
-            return 60; // 默认 1 分钟
+            return 60; // По умолчанию 1  мин.
         }
 
         try {
             int duration = Integer.parseInt(durationStr);
-            // 限制范围：最少 5 秒，最多 600 秒（10分钟）
+            // 限制范围：最少 5  сек.，最多 600  сек.（10 мин.)
             if (duration < 5) {
                 return 5;
             } else if (duration > 600) {
@@ -114,21 +114,21 @@ public class DingTalkCommandReceiver implements DingTalkStreamClient.MessageCall
             }
             return duration;
         } catch (NumberFormatException e) {
-            AppLog.w(TAG, "无法解析录制时长: " + durationStr + "，使用默认值 60 秒");
+            AppLog.w(TAG, "无法解析Запись时长: " + durationStr + "，использованиеПо умолчанию值 60  сек.");
             return 60;
         }
     }
 
     /**
-     * 发送响应消息到钉钉
+     * Отправка响应消息 до DingTalk
      */
     public void sendResponse(String conversationId, String conversationType, String userId, String message) {
         new Thread(() -> {
             try {
                 apiClient.sendTextMessage(conversationId, conversationType, message, userId);
-                AppLog.d(TAG, "响应消息已发送: " + message);
+                AppLog.d(TAG, "响应消息Отправка: " + message);
             } catch (Exception e) {
-                AppLog.e(TAG, "发送响应消息失败", e);
+                AppLog.e(TAG, "Отправка响应сообщения — ошибка", e);
             }
         }).start();
     }

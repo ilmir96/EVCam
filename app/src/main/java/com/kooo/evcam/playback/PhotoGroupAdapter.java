@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 图片分组列表适配器
+ * Изображение分 групп列表适配器
  */
 public class PhotoGroupAdapter extends RecyclerView.Adapter<PhotoGroupAdapter.ViewHolder> {
 
@@ -98,7 +98,7 @@ public class PhotoGroupAdapter extends RecyclerView.Adapter<PhotoGroupAdapter.Vi
         holder.videoSize.setText(group.getFormattedSize());
 
         int count = group.getPhotoCount();
-        holder.videoCountBadge.setText(count + "张");
+        holder.videoCountBadge.setText(count + " шт.");
 
         loadThumbnail(group.getFrontPhoto(), holder.thumbFront);
         loadThumbnail(group.getBackPhoto(), holder.thumbBack);

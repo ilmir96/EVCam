@@ -12,7 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * 扁平化 HSV 色盘选色器。上方色相条 + 下方饱和度/明度面板 + 底部预览条。
+ * 扁平化 HSV 色 диск选色器。方色相条 + 方饱 и 度/明度面板 + 底部预览条。
  */
 public class ColorPickerView extends View {
 

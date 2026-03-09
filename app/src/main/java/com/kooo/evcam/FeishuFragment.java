@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 import com.kooo.evcam.feishu.FeishuConfig;
 
 /**
- * 飞书 Bot 配置界面
+ * Feishu Bot конфигурация界面
  */
 public class FeishuFragment extends Fragment {
     private static final String TAG = "FeishuFragment";
@@ -107,7 +107,7 @@ public class FeishuFragment extends Fragment {
                 etAppSecret.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 btnToggleSecretVisibility.setImageResource(R.drawable.ic_visibility);
             }
-            // 保持光标在末尾
+            // 保持光标 末尾
             etAppSecret.setSelection(etAppSecret.getText().length());
         });
 
@@ -118,7 +118,7 @@ public class FeishuFragment extends Fragment {
         switchAutoStart.setOnCheckedChangeListener((buttonView, isChecked) -> {
             config.setAutoStart(isChecked);
             Toast.makeText(requireContext(),
-                isChecked ? "已启用自动启动" : "已禁用自动启动",
+                isChecked ? "Автозапуск включён" : "Автозапуск выключен",
                 Toast.LENGTH_SHORT).show();
         });
     }
@@ -129,22 +129,22 @@ public class FeishuFragment extends Fragment {
         String allowedUserIds = etAllowedUserIds.getText().toString().trim();
 
         if (appId.isEmpty()) {
-            Toast.makeText(requireContext(), "请填写 App ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Укажите App ID", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (appSecret.isEmpty()) {
-            Toast.makeText(requireContext(), "请填写 App Secret", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Укажите App Secret", Toast.LENGTH_SHORT).show();
             return;
         }
 
         config.saveConfig(appId, appSecret, allowedUserIds);
-        Toast.makeText(requireContext(), "配置已保存", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "Настройки сохранены", Toast.LENGTH_SHORT).show();
     }
 
     private void startService() {
         if (!config.isConfigured()) {
-            Toast.makeText(requireContext(), "请先保存配置", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Сначала сохраните настройки", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -160,7 +160,7 @@ public class FeishuFragment extends Fragment {
     }
 
     /**
-     * 更新服务状态显示（由 MainActivity 调用）
+     * обновлениеСервисСтатус显示（由 MainActivity 调用)
      */
     public void updateServiceStatus() {
         if (getActivity() instanceof MainActivity) {
@@ -168,12 +168,12 @@ public class FeishuFragment extends Fragment {
             boolean isRunning = activity.isFeishuServiceRunning();
 
             if (isRunning) {
-                tvConnectionStatus.setText("已连接");
+                tvConnectionStatus.setText("Подключён");
                 tvConnectionStatus.setTextColor(0xFF66FF66);
                 btnStartService.setEnabled(false);
                 btnStopService.setEnabled(true);
             } else {
-                tvConnectionStatus.setText("未连接");
+                tvConnectionStatus.setText("Не подключён");
                 tvConnectionStatus.setTextColor(0xFFFF6666);
                 btnStartService.setEnabled(true);
                 btnStopService.setEnabled(false);

@@ -19,7 +19,7 @@ import java.util.Locale;
 
 /**
  * 预览画面矫正悬浮窗
- * 悬浮在主界面预览之上，用户可实时调节缩放/平移参数
+ * 悬浮 主界面预览之，用户可实时调节缩放/平移参数
  */
 public class PreviewCorrectionFloatingWindow {
     private static final String TAG = "PreviewCorrectionFloating";
@@ -81,7 +81,7 @@ public class PreviewCorrectionFloatingWindow {
         );
         layoutParams.gravity = Gravity.TOP | Gravity.START;
         layoutParams.x = 50;
-        // 获取状态栏高度，避免悬浮窗被状态栏遮挡
+        // ПолучениеСтатус栏Высокий度，避免悬浮窗 Статус栏遮挡
         int statusBarHeight = 0;
         int resId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resId > 0) {
@@ -173,11 +173,11 @@ public class PreviewCorrectionFloatingWindow {
             }
         });
 
-        // 关闭
+        // Закрыто
         Button closeButton = floatingView.findViewById(R.id.btn_close);
         closeButton.setOnClickListener(v -> dismiss());
 
-        // 摄像头选择按钮
+        // КамераВыбрать按钮
         View.OnClickListener camClickListener = v -> {
             if (v == btnCamFront) selectCamera("front");
             else if (v == btnCamBack) selectCamera("back");
@@ -227,7 +227,7 @@ public class PreviewCorrectionFloatingWindow {
         seekTranslateX.setOnSeekBarChangeListener(seekListener);
         seekTranslateY.setOnSeekBarChangeListener(seekListener);
 
-        // 恢复当前摄像头默认
+        // ВосстановлениеТекущийКамераПо умолчанию
         Button resetButton = floatingView.findViewById(R.id.btn_reset);
         resetButton.setOnClickListener(v -> {
             appConfig.resetPreviewCorrection(currentCameraPos);
@@ -235,7 +235,7 @@ public class PreviewCorrectionFloatingWindow {
             notifyMainActivityRefresh();
         });
 
-        // 全部重置
+        // ВсеСброс
         Button resetAllButton = floatingView.findViewById(R.id.btn_reset_all);
         resetAllButton.setOnClickListener(v -> {
             appConfig.resetAllPreviewCorrection();
@@ -252,7 +252,7 @@ public class PreviewCorrectionFloatingWindow {
     }
 
     /**
-     * 高亮当前选中的摄像头按钮，其余恢复普通样式
+     * Высокий亮Текущий选 Камера按钮，其余Восстановление普通样式
      */
     private void updateCameraButtonStyles() {
         ColorStateList accentTint = ContextCompat.getColorStateList(context, R.color.button_accent);

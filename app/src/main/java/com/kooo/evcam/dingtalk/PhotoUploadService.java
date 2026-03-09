@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 图片上传服务
- * 负责将拍摄的照片上传到钉钉
+ * Изображение传Сервис
+ * 负责将拍 Фото传 до DingTalk
  */
 public class PhotoUploadService {
     private static final String TAG = "PhotoUploadService";
@@ -31,22 +31,22 @@ public class PhotoUploadService {
     }
 
     /**
-     * 上传图片文件到钉钉
-     * @param photoFiles 图片文件列表
-     * @param conversationId 钉钉会话 ID
-     * @param conversationType 会话类型（"1"=单聊，"2"=群聊）
-     * @param userId 钉钉用户 ID（用于发送图片消息）
-     * @param callback 上传回调
+     * 传ИзображениеФайл до DingTalk
+     * @param photoFiles ИзображениеФайл列表
+     * @param conversationId DingTalk会话 ID
+     * @param conversationType 会话类型（"1"=личный чат，"2"=групповой чат)
+     * @param userId DingTalk用户 ID（用于ОтправкаИзображение消息)
+     * @param callback 传回调
      */
     public void uploadPhotos(List<File> photoFiles, String conversationId, String conversationType, String userId, UploadCallback callback) {
         new Thread(() -> {
             try {
                 if (photoFiles == null || photoFiles.isEmpty()) {
-                    callback.onError("没有图片文件可上传");
+                    callback.onError("Нет фото для отправки");
                     return;
                 }
 
-                callback.onProgress("开始上传 " + photoFiles.size() + " 张照片...");
+                callback.onProgress("Начало отправки " + photoFiles.size() + " фото...");
 
                 List<String> uploadedFiles = new ArrayList<>();
 
@@ -54,70 +54,70 @@ public class PhotoUploadService {
                     File photoFile = photoFiles.get(i);
 
                     if (!photoFile.exists()) {
-                        AppLog.w(TAG, "图片文件不存在: " + photoFile.getPath());
+                        AppLog.w(TAG, "ИзображениеФайлне существует: " + photoFile.getPath());
                         continue;
                     }
 
-                    callback.onProgress("正在上传 (" + (i + 1) + "/" + photoFiles.size() + "): " + photoFile.getName());
+                    callback.onProgress("Отправка (" + (i + 1) + "/" + photoFiles.size() + "): " + photoFile.getName());
 
                     try {
-                        // 1. 上传图片到钉钉（使用 image 类型）
-                        callback.onProgress("正在上传图片 (" + (i + 1) + "/" + photoFiles.size() + ")...");
+                        // 1. 传Изображение до DingTalk（использование image 类型)
+                        callback.onProgress("Отправка фото (" + (i + 1) + "/" + photoFiles.size() + ")...");
                         String mediaId = apiClient.uploadImage(photoFile);
-                        AppLog.d(TAG, "图片上传成功，mediaId: " + mediaId);
+                        AppLog.d(TAG, "Изображение传Успешно，mediaId: " + mediaId);
 
-                        // 2. 尝试使用 mediaId 发送图片消息
-                        callback.onProgress("正在发送图片消息 (" + (i + 1) + "/" + photoFiles.size() + ")...");
+                        // 2. попыткаиспользование mediaId ОтправкаИзображение消息
+                        callback.onProgress("Отправка фото-сообщения (" + (i + 1) + "/" + photoFiles.size() + ")...");
                         try {
-                            // 尝试直接使用 mediaId 作为 photoURL (可能钉钉会自动处理)
+                            // попытка直接использование mediaId 作为 photoURL (可能DingTalk会автоматически处理)
                             apiClient.sendImageMessage(conversationId, conversationType, mediaId, userId);
-                            AppLog.d(TAG, "图片消息发送成功: " + photoFile.getName());
+                            AppLog.d(TAG, "Изображение消息ОтправкаУспешно: " + photoFile.getName());
                         } catch (Exception imageError) {
-                            // 如果图片消息失败,降级为文件消息
-                            AppLog.w(TAG, "图片消息发送失败,降级为文件消息: " + imageError.getMessage());
+                            // Если Изображениесообщения — ошибка,降级为Файл消息
+                            AppLog.w(TAG, "Изображение消息Ошибка отправки,降级为Файл消息: " + imageError.getMessage());
                             apiClient.sendFileMessage(conversationId, conversationType, mediaId, photoFile.getName(), userId);
-                            AppLog.d(TAG, "文件消息发送成功: " + photoFile.getName());
+                            AppLog.d(TAG, "Файл消息ОтправкаУспешно: " + photoFile.getName());
                         }
 
                         uploadedFiles.add(photoFile.getName());
 
-                        // 3. 延迟2秒后再上传下一张照片，减少网络和系统压力
-                        if (i < photoFiles.size() - 1) {  // 不是最后一张照片
-                            callback.onProgress("等待2秒后上传下一张照片...");
+                        // 3. 延迟2 сек.后再传一 фото，减少Сеть и Система压力
+                        if (i < photoFiles.size() - 1) {  // 不 最后一 фото
+                            callback.onProgress("Загрузка следующего фото через 2 сек....");
                             Thread.sleep(2000);
                         }
 
                     } catch (Exception e) {
-                        AppLog.e(TAG, "上传图片失败: " + photoFile.getName(), e);
-                        callback.onError("上传失败: " + photoFile.getName() + " - " + e.getMessage());
+                        AppLog.e(TAG, "Ошибка загрузки изображения: " + photoFile.getName(), e);
+                        callback.onError("Ошибка отправки: " + photoFile.getName() + " - " + e.getMessage());
                     }
                 }
 
                 if (uploadedFiles.isEmpty()) {
-                    callback.onError("所有图片上传失败");
+                    callback.onError("Ошибка загрузки всех фото");
                 } else {
-                    String successMessage = "图片上传完成！共上传 " + uploadedFiles.size() + " 张照片";
+                    String successMessage = "Загрузка фото завершена！Всего загружено " + uploadedFiles.size() + " фото";
                     callback.onSuccess(successMessage);
 
-                    // 等待3秒，确保图片消息被钉钉服务器处理完毕后再发送完成消息
-                    // 避免"上传完成"消息比图片先到达用户端
+                    // ожидание3 сек.，确保Изображение消息 DingTalkСервис器处理完毕后再Отправказавершение消息
+                    // 避免"Отправка завершена"消息比Изображение先 до 达用户端
                     try {
                         Thread.sleep(3000);
                     } catch (InterruptedException ignored) {}
 
-                    // 发送完成消息，传递 conversationType 和 userId
+                    // Отправказавершение消息，传递 conversationType  и  userId
                     apiClient.sendTextMessage(conversationId, conversationType, successMessage, userId);
                 }
 
             } catch (Exception e) {
-                AppLog.e(TAG, "上传过程出错", e);
-                callback.onError("上传过程出错: " + e.getMessage());
+                AppLog.e(TAG, "传过程出错", e);
+                callback.onError("Ошибка при загрузке: " + e.getMessage());
             }
         }).start();
     }
 
     /**
-     * 上传单张图片
+     * 传单 шт.Изображение
      */
     public void uploadPhoto(File photoFile, String conversationId, String conversationType, String userId, UploadCallback callback) {
         List<File> files = new ArrayList<>();

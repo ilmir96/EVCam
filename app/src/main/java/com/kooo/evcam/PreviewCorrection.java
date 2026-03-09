@@ -3,9 +3,9 @@ package com.kooo.evcam;
 import android.graphics.Matrix;
 
 /**
- * 预览画面矫正工具类
- * 对主界面预览 TextureView 的画面进行缩放/平移矫正
- * 在基础变换（旋转等）之后叠加应用，每路摄像头参数独立
+ * 预览画面矫正инструмент类
+ *  主界面预览 TextureView  画面进行缩放/平移矫正
+ *  基础变换（Поворот 等)после叠加Приложение，每 кам.Камера参数独立
  */
 public final class PreviewCorrection {
     private static final float MIN_SCALE = 0.1f;
@@ -16,14 +16,14 @@ public final class PreviewCorrection {
     private PreviewCorrection() {}
 
     /**
-     * 将预览矫正参数叠加到已有的 Matrix 上
-     * 应在基础变换（旋转/缩放）之后调用
+     * 将预览矫正参数叠加 до 有  Matrix 
+     * 应 基础变换（Поворот /缩放)после调用
      *
-     * @param matrix     已包含基础变换的 Matrix（会被就地修改）
-     * @param appConfig  配置
-     * @param cameraPos  摄像头位置（front/back/left/right）
+     * @param matrix     содержит基础变换  Matrix（会 地изменение)
+     * @param appConfig  конфигурация
+     * @param cameraPos  КамераПозиция（front/back/left/right)
      * @param viewWidth  TextureView 宽度
-     * @param viewHeight TextureView 高度
+     * @param viewHeight TextureView Высокий度
      */
     public static void postApply(Matrix matrix, AppConfig appConfig, String cameraPos,
                                  int viewWidth, int viewHeight) {

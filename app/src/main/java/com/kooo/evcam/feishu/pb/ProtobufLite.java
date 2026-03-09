@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 轻量级 Protobuf 编解码工具类
- * 仅支持飞书 WebSocket 协议所需的功能
+ * 轻量级 Protobuf 编解码инструмент类
+ * толькоподдержкаFeishu WebSocket 协议所需 функция
  */
 public class ProtobufLite {
 
@@ -111,8 +111,8 @@ public class ProtobufLite {
                     skipBytes(4);
                     break;
                 default:
-                    // 未知 wire type，尝试跳过（可能是 deprecated group types 3/4）
-                    // 记录警告但不抛异常
+                    // Неизвестно wire type，попытка跳过（可能  deprecated group types 3/4)
+                    // 记录警告但不抛аномалия
                     break;
             }
         }

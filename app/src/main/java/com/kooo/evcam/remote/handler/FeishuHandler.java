@@ -15,13 +15,13 @@ import java.io.File;
 import java.util.List;
 
 /**
- * 飞书远程命令处理器
- * 实现飞书平台特定的功能
+ * FeishuУдалённыйкоманда处理器
+ * 实现Feishu平台特定 функция
  */
 public class FeishuHandler extends RemoteCommandHandler {
     private static final String TAG = "FeishuHandler";
     
-    // 飞书文件大小限制
+    // FeishuФайл大小限制
     private static final long MAX_FILE_SIZE_BYTES = 30 * 1024 * 1024; // 30MB
     
     private FeishuApiClient apiClient;
@@ -36,7 +36,7 @@ public class FeishuHandler extends RemoteCommandHandler {
     
     @Override
     protected String getPlatformName() {
-        return "飞书";
+        return "Feishu";
     }
     
     @Override
@@ -52,7 +52,7 @@ public class FeishuHandler extends RemoteCommandHandler {
     @Override
     public void sendMessage(ChatIdentifier chatId, String message) {
         if (apiClient == null) {
-            AppLog.e(TAG, "飞书 API 客户端未初始化");
+            AppLog.e(TAG, "Feishu API 客户端Не инициализация");
             return;
         }
         
@@ -61,7 +61,7 @@ public class FeishuHandler extends RemoteCommandHandler {
             try {
                 apiClient.sendTextMessage("chat_id", feishuChatId, message);
             } catch (Exception e) {
-                AppLog.e(TAG, "发送飞书消息失败", e);
+                AppLog.e(TAG, "ОтправкаFeishuсообщения — ошибка", e);
             }
         }).start();
     }
@@ -82,21 +82,21 @@ public class FeishuHandler extends RemoteCommandHandler {
     }
     
     /**
-     * 处理上传错误 - 飞书特有的文件大小限制提示
+     * 处理传Ошибка - Feishu特有 Файл大小限制Уведомление
      */
     @Override
     protected void handleUploadError(ChatIdentifier chatId, String error) {
         if (error.contains("413") || 
             error.contains("99991663") || 
             error.contains("file size")) {
-            sendMessage(chatId, "提示：飞书限制上传文件不能超过30MB，该文件大小已超出。");
+            sendMessage(chatId, "Feishu ограничивает размер файла до 30 МБ. Файл превышает лимит.");
         }
     }
     
-    // ==================== 上传服务适配器 ====================
+    // ==================== 传Сервис适配器 ====================
     
     /**
-     * 飞书视频上传适配器
+     * FeishuВидео传适配器
      */
     private static class FeishuVideoUploadAdapter implements MediaUploadService {
         private final FeishuVideoUploadService uploadService;
@@ -129,12 +129,12 @@ public class FeishuHandler extends RemoteCommandHandler {
         
         @Override
         public void uploadPhotos(List<File> photoFiles, ChatIdentifier chatId, RemoteUploadCallback callback) {
-            // 视频上传服务不处理照片
+            // Видео传Сервис不处理Фото
         }
     }
     
     /**
-     * 飞书照片上传适配器
+     * FeishuФото传适配器
      */
     private static class FeishuPhotoUploadAdapter implements MediaUploadService {
         private final FeishuPhotoUploadService uploadService;
@@ -145,7 +145,7 @@ public class FeishuHandler extends RemoteCommandHandler {
         
         @Override
         public void uploadVideos(List<File> videoFiles, ChatIdentifier chatId, RemoteUploadCallback callback) {
-            // 照片上传服务不处理视频
+            // Фото传Сервис不处理Видео
         }
         
         @Override

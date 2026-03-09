@@ -75,7 +75,7 @@
                                     android:paddingEnd="8dp"
                                     android:paddingTop="2dp"
                                     android:paddingBottom="2dp"
-                                    android:text="前"
+                                    android:text="П"
                                     android:textColor="#C8C8D0"
                                     android:textSize="11sp"
                                     android:background="@drawable/camera_corner_label_bg" />
@@ -375,7 +375,7 @@
                                     android:paddingEnd="8dp"
                                     android:paddingTop="2dp"
                                     android:paddingBottom="2dp"
-                                    android:text="后"
+                                    android:text="З"
                                     android:textColor="#C8C8D0"
                                     android:textSize="11sp"
                                     android:background="@drawable/camera_corner_label_bg" />
@@ -673,7 +673,7 @@
                                     android:paddingEnd="8dp"
                                     android:paddingTop="2dp"
                                     android:paddingBottom="2dp"
-                                    android:text="左"
+                                    android:text="Л"
                                     android:textColor="#C8C8D0"
                                     android:textSize="11sp"
                                     android:background="@drawable/camera_corner_label_bg" />
@@ -952,7 +952,7 @@
                                 android:id="@+id/btn_front_wheel"
                                 android:layout_width="120dp"
                                 android:layout_height="70dp"
-                                android:text="前轮"
+                                android:text="Перед. колёса"
                                 android:textSize="17sp"
                                 android:textColor="#9898B0"
                                 android:backgroundTint="#00000000"
@@ -967,14 +967,14 @@
                                 android:layout_marginBottom="5dp"
                                 android:src="@drawable/ic_vehicle_outline_normal"
                                 android:scaleType="fitCenter"
-                                android:contentDescription="车辆轮廓" />
+                                android:contentDescription="Контур автомобиля" />
 
                             <!-- 后轮按键 -->
                             <Button
                                 android:id="@+id/btn_rear_wheel"
                                 android:layout_width="120dp"
                                 android:layout_height="70dp"
-                                android:text="后轮"
+                                android:text="Задн. колёса"
                                 android:textSize="17sp"
                                 android:textColor="#9898B0"
                                 android:backgroundTint="#00000000"
@@ -1025,7 +1025,7 @@
                                     android:paddingEnd="8dp"
                                     android:paddingTop="2dp"
                                     android:paddingBottom="2dp"
-                                    android:text="右"
+                                    android:text="Пр"
                                     android:textColor="#C8C8D0"
                                     android:textSize="11sp"
                                     android:background="@drawable/camera_corner_label_bg" />
@@ -1297,7 +1297,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginBottom="12dp"
-                            android:text="布局调节模式"
+                            android:text="Режим настройки макета"
                             android:textColor="#FFFFFF"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -1308,7 +1308,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:layout_marginBottom="8dp"
-                            android:text="底部按钮调节："
+                            android:text="Настройка нижних кнопок:"
                             android:textColor="#AAAAAA"
                             android:textSize="14sp" />
 
@@ -1384,7 +1384,7 @@
                                 android:layout_width="90dp"
                                 android:layout_height="50dp"
                                 android:layout_margin="4dp"
-                                android:text="保存"
+                                android:text="Сохранить"
                                 android:textSize="16sp"
                                 android:textColor="#FFFFFF"
                                 android:backgroundTint="#007AFF"
@@ -1397,7 +1397,7 @@
                                 android:layout_width="90dp"
                                 android:layout_height="50dp"
                                 android:layout_margin="4dp"
-                                android:text="重置"
+                                android:text="Сброс"
                                 android:textSize="16sp"
                                 android:textColor="#FFFFFF"
                                 android:backgroundTint="#FF453A"
@@ -1410,7 +1410,7 @@
                                 android:layout_width="90dp"
                                 android:layout_height="50dp"
                                 android:layout_margin="4dp"
-                                android:text="重载"
+                                android:text="Перезагрузить"
                                 android:textSize="16sp"
                                 android:textColor="#FFFFFF"
                                 android:backgroundTint="#FF9800"
@@ -1424,7 +1424,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="12dp"
-                            android:text="直接拖动画面调整位置"
+                            android:text="Перетаскивайте для настройки"
                             android:textColor="#888888"
                             android:textSize="12sp" />
 

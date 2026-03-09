@@ -1,26 +1,26 @@
 package com.kooo.evcam.remote.core;
 
 /**
- * 远程上传回调接口
- * 统一所有平台的上传回调
+ * Удалённый传回调接口
+ * 统一所有平台 传回调
  */
 public interface RemoteUploadCallback {
     
     /**
-     * 上传进度更新
+     * 传进度обновление
      * @param message 进度消息
      */
     void onProgress(String message);
     
     /**
-     * 上传成功
-     * @param message 成功消息
+     * 传Успешно
+     * @param message Успешно消息
      */
     void onSuccess(String message);
     
     /**
-     * 上传失败
-     * @param error 错误信息
+     * Ошибка загрузки
+     * @param error ОшибкаИнформация
      */
     void onError(String error);
 }

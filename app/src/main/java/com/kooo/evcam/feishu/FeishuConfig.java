@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * 飞书配置存储工具类
+ * FeishuконфигурацияХранилищеинструмент类
  */
 public class FeishuConfig {
     private static final String PREF_NAME = "feishu_config";
@@ -22,9 +22,9 @@ public class FeishuConfig {
     }
 
     /**
-     * 保存配置
-     * @param appId 应用 App ID
-     * @param appSecret 应用 App Secret
+     * Сохранитьконфигурация
+     * @param appId Приложение App ID
+     * @param appSecret Приложение App Secret
      */
     public void saveConfig(String appId, String appSecret) {
         prefs.edit()
@@ -34,7 +34,7 @@ public class FeishuConfig {
     }
 
     /**
-     * 保存配置（包含允许的用户ID）
+     * Сохранитьконфигурация（содержитразрешить 用户ID)
      */
     public void saveConfig(String appId, String appSecret, String allowedUserIds) {
         prefs.edit()
@@ -53,21 +53,21 @@ public class FeishuConfig {
     }
 
     /**
-     * 获取允许的用户ID列表
-     * @return 逗号分隔的用户ID字符串
+     * Получениеразрешить 用户ID列表
+     * @return 逗号分隔 用户ID字符串
      */
     public String getAllowedUserIds() {
         return prefs.getString(KEY_ALLOWED_USER_IDS, "");
     }
 
     /**
-     * 检查用户ID是否被允许
-     * 如果未配置任何用户ID，则允许所有
+     * проверка用户ID 否 разрешить
+     * Если Не конфигурация任何用户ID，则разрешить所有
      */
     public boolean isUserIdAllowed(String userId) {
         String allowedIds = getAllowedUserIds();
         if (allowedIds.isEmpty()) {
-            return true; // 未配置时允许所有
+            return true; // Не конфигурация时разрешить所有
         }
 
         String[] ids = allowedIds.split(",");
@@ -84,7 +84,7 @@ public class FeishuConfig {
     }
 
     /**
-     * 保存 Access Token
+     * Сохранить Access Token
      */
     public void saveAccessToken(String token, long expireTime) {
         prefs.edit()
@@ -103,7 +103,7 @@ public class FeishuConfig {
     }
 
     /**
-     * 清除缓存的 AccessToken
+     * очистка缓存  AccessToken
      */
     public void clearAccessToken() {
         prefs.edit()

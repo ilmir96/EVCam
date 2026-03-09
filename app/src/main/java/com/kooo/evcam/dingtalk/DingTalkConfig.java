@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * 钉钉配置存储工具类
+ * DingTalkконфигурацияХранилищеинструмент类
  */
 public class DingTalkConfig {
     private static final String PREF_NAME = "dingtalk_config";
@@ -57,7 +57,7 @@ public class DingTalkConfig {
     }
 
     /**
-     * 清除缓存的 AccessToken（用于测试连接时强制重新获取）
+     * очистка缓存  AccessToken（用于тестированиеПодключение时强制重新Получение)
      */
     public void clearAccessToken() {
         prefs.edit()

@@ -11,18 +11,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
- * Telegram Bot 消息轮询管理器
- * 使用 Long Polling 方式接收消息
+ * Telegram Bot 消息轮询управление器
+ * использование Long Polling 方式接收消息
  */
 public class TelegramBotManager {
     private static final String TAG = "TelegramBotManager";
-    private static final int POLL_TIMEOUT = 30; // 长轮询超时时间（秒）
-    private static final int POLL_LIMIT = 5; // 每次拉取的消息数量限制
-    private static final int MESSAGE_EXPIRE_SECONDS = 600; // 消息过期时间（10分钟 = 600秒）
+    private static final int POLL_TIMEOUT = 30; // 长轮询таймаут时间（ сек.)
+    private static final int POLL_LIMIT = 5; // 每 раз拉取 消息数量限制
+    private static final int MESSAGE_EXPIRE_SECONDS = 600; // 消息истекло时间（10 мин. = 600 сек.)
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
-    private static final long RECONNECT_DELAY_MS = 5000; // 5秒
-    private static final long CONFLICT_RETRY_DELAY_MS = 10000; // 409 冲突时等待 10 秒再重试
-    private static final int MAX_CONFLICT_RETRIES = 3; // 最大冲突重试次数
+    private static final long RECONNECT_DELAY_MS = 5000; // 5 сек.
+    private static final long CONFLICT_RETRY_DELAY_MS = 10000; // 409 冲突时ожидание 10  сек.再重试
+    private static final int MAX_CONFLICT_RETRIES = 3; // максимум冲突重试 раз数
 
     private final Context context;
     private final TelegramConfig config;
@@ -52,19 +52,19 @@ public class TelegramBotManager {
         String onExitCommand(boolean confirmed);
         
         /**
-         * 切换到前台
-         * @return 执行结果消息
+         * переключиться на передний план
+         * @return выполнение结果消息
          */
         default String onForegroundCommand() {
-            return "功能不可用";
+            return "Функция недоступна";
         }
         
         /**
-         * 切换到后台
-         * @return 执行结果消息
+         * переключиться в фоновый режим
+         * @return выполнение结果消息
          */
         default String onBackgroundCommand() {
-            return "功能不可用";
+            return "Функция недоступна";
         }
     }
 
@@ -78,15 +78,15 @@ public class TelegramBotManager {
     }
 
     /**
-     * 启动消息轮询
+     * Запуск消息轮询
      */
     public synchronized void start(CommandCallback commandCallback) {
         if (isRunning) {
-            AppLog.w(TAG, "Bot 已在运行");
+            AppLog.w(TAG, "Bot  Работа");
             return;
         }
 
-        // 立即设置为运行状态，防止重复启动
+        // 立т.е.Настройки为РаботаСтатус，防止重复Запуск
         isRunning = true;
         
         this.currentCommandCallback = commandCallback;
@@ -98,46 +98,46 @@ public class TelegramBotManager {
     }
 
     /**
-     * 内部方法：启动轮询线程
+     * Внутреннее方法：Запуск轮询线程
      */
     private void startPolling() {
         pollingThread = new Thread(() -> {
             try {
-                AppLog.d(TAG, "正在验证 Bot Token...");
+                AppLog.d(TAG, "Выполняется 验证 Bot Token...");
 
                 // 验证 Token
                 JsonObject botInfo = apiClient.getMe();
                 String botUsername = botInfo.get("username").getAsString();
-                AppLog.d(TAG, "Bot 验证成功: @" + botUsername);
+                AppLog.d(TAG, "Bot 验证Успешно: @" + botUsername);
 
-                // 清除可能存在的旧连接（发送一个无等待的请求来"抢占"连接）
-                AppLog.d(TAG, "清除旧连接状态...");
+                // очистка可能существует 旧Подключение（Отправка一 шт.无ожидание 求来"抢占"Подключение)
+                AppLog.d(TAG, "очистка旧ПодключениеСтатус...");
                 try {
-                    // 使用 timeout=0 立即返回，这会断开其他可能存在的长轮询连接
+                    // использование timeout=0 立т.е.返回，这会отключеноДругое可能существует 长轮询Подключение
                     apiClient.getUpdates(-1, 0, 1);
-                    Thread.sleep(500); // 短暂等待
+                    Thread.sleep(500); // 短暂ожидание
                 } catch (Exception e) {
-                    AppLog.d(TAG, "清除旧连接: " + e.getMessage());
-                    // 如果是 409 错误，等待更长时间
+                    AppLog.d(TAG, "очистка旧Подключение: " + e.getMessage());
+                    // Если   409 Ошибка，ожидание更长时间
                     if (e.getMessage() != null && e.getMessage().contains("409")) {
-                        AppLog.d(TAG, "检测到 409 冲突，等待旧连接断开...");
+                        AppLog.d(TAG, "Обнаружено 409 冲突，ожидание旧Подключениеотключено...");
                         Thread.sleep(3000);
                     }
                 }
 
-                // isRunning 已在 start() 中设置
+                // isRunning   start() Настройки
                 reconnectAttempts = 0;
 
-                // 通知连接成功
+                // УведомлениеПодключениеУспешно
                 mainHandler.post(() -> connectionCallback.onConnected());
 
-                // 开始长轮询
+                // Вкл始长轮询
                 long offset = config.getLastUpdateId() + 1;
 
                 while (!shouldStop) {
                     try {
                         JsonArray updates = apiClient.getUpdates(offset, POLL_TIMEOUT, POLL_LIMIT);
-                        long currentTime = System.currentTimeMillis() / 1000; // 当前时间（秒）
+                        long currentTime = System.currentTimeMillis() / 1000; // Текущий时间（ сек.)
 
                         for (int i = 0; i < updates.size(); i++) {
                             JsonObject update = updates.get(i).getAsJsonObject();
@@ -147,15 +147,15 @@ public class TelegramBotManager {
                             if (update.has("message")) {
                                 JsonObject message = update.getAsJsonObject("message");
 
-                                // 检查消息时间，忽略超过 10 分钟的旧消息
+                                // проверка消息时间，忽略超过 10  мин. 旧消息
                                 if (message.has("date")) {
                                     long messageTime = message.get("date").getAsLong();
                                     long messageAge = currentTime - messageTime;
 
                                     if (messageAge > MESSAGE_EXPIRE_SECONDS) {
-                                        AppLog.d(TAG, "忽略过期消息，消息时间: " + messageTime +
-                                                ", 已过去 " + messageAge + " 秒");
-                                        // 仍然更新 offset，避免重复拉取
+                                        AppLog.d(TAG, "忽略истекло消息，消息时间: " + messageTime +
+                                                ", прошло " + messageAge + "  сек.");
+                                        // 仍然обновление offset，避免重复拉取
                                         offset = updateId + 1;
                                         config.saveLastUpdateId(updateId);
                                         continue;
@@ -165,7 +165,7 @@ public class TelegramBotManager {
                                 processMessage(message);
                             }
 
-                            // 更新 offset
+                            // обновление offset
                             offset = updateId + 1;
                             config.saveLastUpdateId(updateId);
                         }
@@ -175,20 +175,20 @@ public class TelegramBotManager {
                             String errorMsg = e.getMessage();
                             AppLog.e(TAG, "轮询出错: " + errorMsg);
                             
-                            // 检查是否是 409 冲突错误
+                            // проверка 否  409 冲突Ошибка
                             if (errorMsg != null && errorMsg.contains("409")) {
                                 conflictRetries++;
                                 if (conflictRetries >= MAX_CONFLICT_RETRIES) {
-                                    // 只记录日志，不弹窗（不影响实际连接）
-                                    AppLog.w(TAG, "409 冲突错误达到最大重试次数，可能有其他设备在运行此 Bot");
+                                    // 只记录 д.志，不弹窗（不影响实际Подключение)
+                                    AppLog.w(TAG, "409 冲突Ошибка达 до максимум重试 раз数，可能有Другое设备 Работа此 Bot");
                                     shouldStop = true;
                                     break;
                                 }
-                                AppLog.d(TAG, "409 冲突，等待 " + CONFLICT_RETRY_DELAY_MS + "ms 后重试（第 " + conflictRetries + " 次）");
+                                AppLog.d(TAG, "409 冲突，ожидание " + CONFLICT_RETRY_DELAY_MS + "ms 后重试（第 " + conflictRetries + "  раз)");
                                 Thread.sleep(CONFLICT_RETRY_DELAY_MS);
                             } else {
-                                // 其他错误，短暂休眠后继续
-                                conflictRetries = 0; // 重置冲突计数
+                                // ДругоеОшибка，短暂休眠后продолжить
+                                conflictRetries = 0; // Сброс冲突计数
                                 Thread.sleep(1000);
                             }
                         }
@@ -196,21 +196,21 @@ public class TelegramBotManager {
                 }
 
             } catch (Exception e) {
-                AppLog.e(TAG, "启动 Bot 失败", e);
+                AppLog.e(TAG, "Запуск Bot Ошибка", e);
                 isRunning = false;
 
-                // 尝试重连
+                // попытка重连
                 if (!shouldStop && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
                     reconnectAttempts++;
-                    AppLog.d(TAG, "将在 " + RECONNECT_DELAY_MS + "ms 后尝试第 " + reconnectAttempts + " 次重连");
+                    AppLog.d(TAG, "将  " + RECONNECT_DELAY_MS + "ms 后попытка第 " + reconnectAttempts + "  раз重连");
                     mainHandler.postDelayed(() -> {
                         if (!shouldStop) {
                             startPolling();
                         }
                     }, RECONNECT_DELAY_MS);
                 } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-                    // 只记录日志，不弹窗
-                    AppLog.w(TAG, "达到最大重连次数（" + MAX_RECONNECT_ATTEMPTS + "），启动失败: " + e.getMessage());
+                    // 只记录 д.志，不弹窗
+                    AppLog.w(TAG, "达 до максимум重连 раз数（" + MAX_RECONNECT_ATTEMPTS + ")，Ошибка запуска: " + e.getMessage());
                 }
             }
 
@@ -225,171 +225,171 @@ public class TelegramBotManager {
     }
 
     /**
-     * 处理收到的消息
+     * 处理Получена команда:  消息
      */
     private void processMessage(JsonObject message) {
         try {
-            // 获取 chat 信息
+            // Получение chat Информация
             JsonObject chat = message.getAsJsonObject("chat");
             long chatId = chat.get("id").getAsLong();
             String chatType = chat.get("type").getAsString(); // private, group, supergroup, channel
 
-            // 检查是否允许此 chat
+            // проверка 否разрешить此 chat
             if (!config.isChatIdAllowed(chatId)) {
-                AppLog.d(TAG, "Chat ID 不在白名单中: " + chatId);
+                AppLog.d(TAG, "Chat ID 不 白名单: " + chatId);
                 return;
             }
 
-            // 获取消息文本
+            // 获Отмена息文本
             if (!message.has("text")) {
                 return; // 非文本消息，忽略
             }
 
             String text = message.get("text").getAsString();
-            AppLog.d(TAG, "收到消息 - chatId: " + chatId + ", type: " + chatType + ", text: " + text);
+            AppLog.d(TAG, "Получена команда: 消息 - chatId: " + chatId + ", type: " + chatType + ", text: " + text);
 
-            // 解析指令
+            // 解析команда
             String command = parseCommand(text);
-            AppLog.d(TAG, "解析的指令: " + command);
+            AppLog.d(TAG, "解析 команда: " + command);
 
-            // 处理指令
-            if (command.startsWith("/record") || command.startsWith("录制") ||
+            // 处理команда
+            if (command.startsWith("/record") || command.startsWith("Запись") ||
                 command.toLowerCase().startsWith("record")) {
 
                 int durationSeconds = parseRecordDuration(command);
-                AppLog.d(TAG, "收到录制指令，时长: " + durationSeconds + " 秒");
+                AppLog.d(TAG, "Получена команда: Записькоманда，时长: " + durationSeconds + "  сек.");
 
-                // 发送确认消息
-                String confirmMsg = String.format("收到录制指令，开始录制 %d 秒视频...", durationSeconds);
+                // ОтправкаПодтвердить消息
+                String confirmMsg = String.format("Получена команда записи, начинаю запись %d  сек. видео...", durationSeconds);
                 sendResponseAndThen(chatId, confirmMsg, () -> {
-                    // 使用 WakeUpHelper 唤醒并启动录制
-                    AppLog.d(TAG, "使用 WakeUpHelper 启动录制...");
+                    // использование WakeUpHelper 唤醒并Начать запись
+                    AppLog.d(TAG, "использование WakeUpHelper Начать запись...");
                     WakeUpHelper.launchForRecordingTelegram(context, chatId, durationSeconds);
                 });
 
-            } else if ("/photo".equals(command) || "拍照".equals(command) ||
+            } else if ("/photo".equals(command) || "Фото".equals(command) ||
                        "photo".equalsIgnoreCase(command)) {
 
-                AppLog.d(TAG, "收到拍照指令");
+                AppLog.d(TAG, "Получена команда: Фотокоманда");
 
-                // 发送确认消息
-                sendResponseAndThen(chatId, "收到拍照指令，正在拍照...", () -> {
-                    // 使用 WakeUpHelper 唤醒并启动拍照
-                    AppLog.d(TAG, "使用 WakeUpHelper 启动拍照...");
+                // ОтправкаПодтвердить消息
+                sendResponseAndThen(chatId, "Получена команда фото, делаю снимок...", () -> {
+                    // использование WakeUpHelper 唤醒并ЗапускФото
+                    AppLog.d(TAG, "использование WakeUpHelper ЗапускФото...");
                     WakeUpHelper.launchForPhotoTelegram(context, chatId);
                 });
 
-            } else if ("/status".equals(command) || "状态".equals(command)) {
-                // 状态指令：显示应用详细状态
-                AppLog.d(TAG, "收到状态指令");
+            } else if ("/status".equals(command) || "Статус".equals(command)) {
+                // Статускоманда：显示Приложение详细Статус
+                AppLog.d(TAG, "Получена команда: Статускоманда");
                 String statusInfo = currentCommandCallback != null ? 
-                        currentCommandCallback.getStatusInfo() : "✅ Bot 正在运行中";
+                        currentCommandCallback.getStatusInfo() : "✅ Bot работает";
                 apiClient.sendMessage(chatId, statusInfo);
 
-            } else if ("启动录制".equals(command) || "开始录制".equals(command) || 
+            } else if ("Начать запись".equals(command) || "Начать запись".equals(command) || 
                        "/start_rec".equals(command) || "start".equalsIgnoreCase(command)) {
-                // 启动录制指令：唤醒到前台并开始持续录制
-                AppLog.d(TAG, "收到启动录制指令");
+                // Начать записькоманда：唤醒 до Передний план并Начать непрерывную запись
+                AppLog.d(TAG, "Получена команда: Начать записькоманда");
                 if (currentCommandCallback != null) {
                     String result = currentCommandCallback.onStartRecordingCommand();
                     apiClient.sendMessage(chatId, result);
                 } else {
-                    apiClient.sendMessage(chatId, "❌ 功能不可用");
+                    apiClient.sendMessage(chatId, "❌ Функция недоступна");
                 }
 
-            } else if ("结束录制".equals(command) || "停止录制".equals(command) || 
+            } else if ("Остановить запись".equals(command) || "Остановить запись".equals(command) || 
                        "/stop_rec".equals(command) || "stop".equalsIgnoreCase(command)) {
-                // 结束录制指令：停止录制并退到后台
-                AppLog.d(TAG, "收到结束录制指令");
+                // Остановить записькоманда：Остановить запись并退 до Фоновый режим
+                AppLog.d(TAG, "Получена команда: Остановить записькоманда");
                 if (currentCommandCallback != null) {
                     String result = currentCommandCallback.onStopRecordingCommand();
                     apiClient.sendMessage(chatId, result);
                 } else {
-                    apiClient.sendMessage(chatId, "❌ 功能不可用");
+                    apiClient.sendMessage(chatId, "❌ Функция недоступна");
                 }
 
-            } else if ("退出".equals(command) || "/exit".equals(command) || 
+            } else if ("Выход".equals(command) || "/exit".equals(command) || 
                        "exit".equalsIgnoreCase(command)) {
-                // 退出指令：需要二次确认
-                AppLog.d(TAG, "收到退出指令（需二次确认）");
+                // Выходкоманда：необходимо二 разПодтвердить
+                AppLog.d(TAG, "Получена команда: Выходкоманда（需二 разПодтвердить)");
                 apiClient.sendMessage(chatId, 
-                    "⚠️ 确认要退出 EVCam 吗？\n\n" +
-                    "退出后将停止所有录制和远程服务。\n" +
-                    "发送「确认退出」或 /confirm_exit 执行退出操作。");
+                    "⚠️ Подтвердите выход из EVCam?\n\n" +
+                    "После выхода все записи и удалённые сервисы будут остановлены。\n" +
+                    "Отправка「Подтвердить выход」или /confirm_exit Выполняется выход。");
 
-            } else if ("确认退出".equals(command) || "/confirm_exit".equals(command)) {
-                // 确认退出指令：执行退出
-                AppLog.d(TAG, "收到确认退出指令");
+            } else if ("Подтвердить выход".equals(command) || "/confirm_exit".equals(command)) {
+                // Подтвердить выходкоманда：выполнениеВыход
+                AppLog.d(TAG, "Получена команда: Подтвердить выходкоманда");
                 if (currentCommandCallback != null) {
                     String result = currentCommandCallback.onExitCommand(true);
                     apiClient.sendMessage(chatId, result);
                 } else {
-                    apiClient.sendMessage(chatId, "❌ 功能不可用");
+                    apiClient.sendMessage(chatId, "❌ Функция недоступна");
                 }
 
-            } else if ("前台".equals(command) || "/foreground".equals(command) ||
+            } else if ("Передний план".equals(command) || "/foreground".equals(command) ||
                        "foreground".equalsIgnoreCase(command)) {
-                // 前台指令：将应用切换到前台
-                AppLog.d(TAG, "收到前台指令");
+                // Передний планкоманда：将Приложение переключено на передний план
+                AppLog.d(TAG, "Получена команда: Передний планкоманда");
                 if (currentCommandCallback != null) {
                     String result = currentCommandCallback.onForegroundCommand();
                     apiClient.sendMessage(chatId, result);
                 } else {
-                    apiClient.sendMessage(chatId, "❌ 功能不可用");
+                    apiClient.sendMessage(chatId, "❌ Функция недоступна");
                 }
 
-            } else if ("后台".equals(command) || "/background".equals(command) ||
+            } else if ("Фоновый режим".equals(command) || "/background".equals(command) ||
                        "background".equalsIgnoreCase(command)) {
-                // 后台指令：将应用切换到后台
-                AppLog.d(TAG, "收到后台指令");
+                // Фоновый режимкоманда：将Приложениепереключиться в фоновый режим
+                AppLog.d(TAG, "Получена команда: Фоновый режимкоманда");
                 if (currentCommandCallback != null) {
                     String result = currentCommandCallback.onBackgroundCommand();
                     apiClient.sendMessage(chatId, result);
                 } else {
-                    apiClient.sendMessage(chatId, "❌ 功能不可用");
+                    apiClient.sendMessage(chatId, "❌ Функция недоступна");
                 }
 
-            } else if ("/help".equals(command) || "帮助".equals(command) ||
+            } else if ("/help".equals(command) || "Помощь".equals(command) ||
                        "/start".equals(command)) {
 
                 apiClient.sendMessage(chatId,
-                    "📋 <b>EVCam 远程控制</b>\n" +
+                    "📋 <b>EVCam Удалённое управление</b>\n" +
                     "━━━━━━━━━━━━━━\n\n" +
-                    "📹 <b>远程录制</b>\n" +
-                    "/record ─ 录制60秒视频\n" +
-                    "/record 30 ─ 录制指定秒数\n" +
-                    "录制 / 录制30 ─ 中文指令\n\n" +
-                    "▶️ <b>持续录制</b>\n" +
-                    "/start_rec ─ 开始持续录制\n" +
-                    "/stop_rec ─ 停止录制\n" +
-                    "启动录制 / 结束录制 ─ 中文\n\n" +
-                    "📷 <b>拍照</b>\n" +
-                    "/photo ─ 拍摄照片\n" +
-                    "拍照 ─ 中文指令\n\n" +
-                    "🔄 <b>前后台切换</b>\n" +
-                    "/foreground ─ 切换到前台\n" +
-                    "/background ─ 切换到后台\n" +
-                    "前台 / 后台 ─ 中文指令\n\n" +
-                    "ℹ️ <b>其他</b>\n" +
-                    "/status ─ 查看应用状态\n" +
-                    "/exit ─ 退出应用\n" +
-                    "/help ─ 显示此帮助\n\n" +
+                    "📹 <b>Удалённая запись</b>\n" +
+                    "/record ─ Запись60 сек. видео\n" +
+                    "/record 30 ─ запись указанного кол-ва секунд\n" +
+                    "Запись / Запись30 ─ команда\n\n" +
+                    "▶️ <b>Непрерывная запись</b>\n" +
+                    "/start_rec ─ Начать непрерывную запись\n" +
+                    "/stop_rec ─ Остановить запись\n" +
+                    "Начать запись / Остановить запись ─ RU команда\n\n" +
+                    "📷 <b>Фото</b>\n" +
+                    "/photo ─ Сделать фото\n" +
+                    "Фото ─ команда\n\n" +
+                    "🔄 <b>Переключение переднего/фонового режима</b>\n" +
+                    "/foreground ─ переключиться на передний план\n" +
+                    "/background ─ переключиться в фоновый режим\n" +
+                    "Передний план / Фоновый режим ─ команда\n\n" +
+                    "ℹ️ <b>Другое</b>\n" +
+                    "/status ─ ПросмотрПриложениеСтатус\n" +
+                    "/exit ─ Выход из приложения\n" +
+                    "/help ─ показать Помощь\n\n" +
                     "━━━━━━━━━━━━━━\n" +
-                    "💡 所有指令支持中英文");
+                    "💡 Все команды доступны на русском и английском");
 
             } else {
-                AppLog.d(TAG, "未识别的指令: " + command);
+                AppLog.d(TAG, "Неизвестная команда: " + command);
                 apiClient.sendMessage(chatId,
-                    "未识别的指令。发送 /help 查看可用指令。");
+                    "Неизвестная команда。Отправка /help ПросмотрДоступные команды。");
             }
 
         } catch (Exception e) {
-            AppLog.e(TAG, "处理消息失败", e);
+            AppLog.e(TAG, "处理сообщения — ошибка", e);
         }
     }
 
     /**
-     * 解析指令文本
+     * 解析команда文本
      * 移除 @ 机器人名称部分
      */
     private String parseCommand(String text) {
@@ -403,26 +403,26 @@ public class TelegramBotManager {
     }
 
     /**
-     * 解析录制时长（秒）
-     * 支持格式：/record、/record 30、录制、录制30、录制 30
+     * 解析Запись时长（ сек.)
+     * поддержка格式：/record、/record 30、Запись、Запись30、Запись 30
      */
     private int parseRecordDuration(String command) {
         if (command == null || command.isEmpty()) {
             return 60;
         }
 
-        // 移除指令关键字，提取数字
+        // 移除командаВыкл键字，提取数字
         String durationStr = command
-                .replaceAll("(?i)(/record|录制|record)", "")
+                .replaceAll("(?i)(/record|Запись|record)", "")
                 .trim();
 
         if (durationStr.isEmpty()) {
-            return 60; // 默认 1 分钟
+            return 60; // По умолчанию 1  мин.
         }
 
         try {
             int duration = Integer.parseInt(durationStr);
-            // 限制范围：最少 5 秒，最多 600 秒（10分钟）
+            // 限制范围：最少 5  сек.，最多 600  сек.（10 мин.)
             if (duration < 5) {
                 return 5;
             } else if (duration > 600) {
@@ -430,26 +430,26 @@ public class TelegramBotManager {
             }
             return duration;
         } catch (NumberFormatException e) {
-            AppLog.w(TAG, "无法解析录制时长: " + durationStr + "，使用默认值 60 秒");
+            AppLog.w(TAG, "无法解析Запись时长: " + durationStr + "，использованиеПо умолчанию值 60  сек.");
             return 60;
         }
     }
 
     /**
-     * 发送响应消息，并在发送完成后执行回调
+     * Отправка响应消息，并 Отправказавершение后выполнение回调
      */
     private void sendResponseAndThen(long chatId, String message, Runnable callback) {
         new Thread(() -> {
             try {
                 apiClient.sendMessage(chatId, message);
-                AppLog.d(TAG, "响应消息已发送: " + message);
+                AppLog.d(TAG, "响应消息Отправка: " + message);
 
                 if (callback != null) {
                     callback.run();
                 }
             } catch (Exception e) {
-                AppLog.e(TAG, "发送响应消息失败", e);
-                // 即使发送失败，也执行回调
+                AppLog.e(TAG, "Отправка响应сообщения — ошибка", e);
+                // т.е.使Ошибка отправки，такжевыполнение回调
                 if (callback != null) {
                     callback.run();
                 }
@@ -458,37 +458,37 @@ public class TelegramBotManager {
     }
 
     /**
-     * 停止消息轮询
+     * Остановка消息轮询
      */
     public void stop() {
-        AppLog.d(TAG, "正在停止 Bot...");
+        AppLog.d(TAG, "Выполняется Остановка Bot...");
         shouldStop = true;
         isRunning = false;
 
         if (pollingThread != null) {
             pollingThread.interrupt();
             
-            // 等待轮询线程完全结束，最多等待 35 秒（比 POLL_TIMEOUT 稍长）
-            // 这样可以避免重启时新旧连接冲突导致 409 错误
+            // ожидание轮询线程完全завершить，最多ожидание 35  сек.（比 POLL_TIMEOUT 稍长)
+            // 这样可以避免перезагрузка时新旧Подключение冲突导致 409 Ошибка
             try {
                 pollingThread.join(35000);
                 if (pollingThread.isAlive()) {
-                    AppLog.w(TAG, "轮询线程未能在超时内结束");
+                    AppLog.w(TAG, "轮询线程Не 能 таймаут内завершить");
                 } else {
-                    AppLog.d(TAG, "轮询线程已完全停止");
+                    AppLog.d(TAG, "轮询线程完全Остановка");
                 }
             } catch (InterruptedException e) {
-                AppLog.w(TAG, "等待轮询线程停止时被中断");
+                AppLog.w(TAG, "ожидание轮询线程Остановка时 断");
                 Thread.currentThread().interrupt();
             }
             pollingThread = null;
         }
 
-        AppLog.d(TAG, "Bot 已停止");
+        AppLog.d(TAG, "Bot Остановлено");
     }
 
     /**
-     * 检查是否正在运行
+     * проверка 否Выполняется Работа
      */
     public boolean isRunning() {
         return isRunning;

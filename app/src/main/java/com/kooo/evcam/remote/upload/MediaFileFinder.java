@@ -12,8 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 媒体文件查找工具
- * 统一处理视频/照片文件的查找逻辑
+ * 媒体Файл查找инструмент
+ * 统一处理Видео/ФотоФайл 查找逻辑
  */
 public class MediaFileFinder {
     private static final String TAG = "MediaFileFinder";
@@ -25,19 +25,19 @@ public class MediaFileFinder {
     }
     
     /**
-     * 查找视频文件
-     * 优先从临时目录查找，再查找最终目录
+     * 查找ВидеоФайл
+     * 优先 от временнокаталог查找，再查找最终каталог
      * 
-     * @param timestamp 录制时间戳
-     * @return 视频文件列表，如果未找到返回空列表
+     * @param timestamp Запись时间戳
+     * @return ВидеоФайл列表，Если Не 找 до 返回空列表
      */
     public List<File> findVideoFiles(String timestamp) {
         if (timestamp == null || timestamp.isEmpty()) {
-            AppLog.e(TAG, "时间戳为空，无法查找视频文件");
+            AppLog.e(TAG, "时间戳пусто，无法查找ВидеоФайл");
             return new ArrayList<>();
         }
         
-        // 1. 优先从临时目录查找
+        // 1. 优先 от временнокаталог查找
         File tempDir = new File(context.getCacheDir(), FileTransferManager.TEMP_VIDEO_DIR);
         if (tempDir.exists() && tempDir.isDirectory()) {
             File[] tempFiles = tempDir.listFiles((dir, name) -> 
@@ -47,15 +47,15 @@ public class MediaFileFinder {
             );
             
             if (tempFiles != null && tempFiles.length > 0) {
-                AppLog.d(TAG, "从临时目录找到 " + tempFiles.length + " 个视频文件");
+                AppLog.d(TAG, " от временнокаталог找 до  " + tempFiles.length + " видеофайл(ов)");
                 return new ArrayList<>(Arrays.asList(tempFiles));
             }
         }
         
-        // 2. 从最终目录查找
+        // 2.  от 最终каталог查找
         File videoDir = StorageHelper.getVideoDir(context);
         if (videoDir == null || !videoDir.exists()) {
-            AppLog.e(TAG, "视频目录不存在");
+            AppLog.e(TAG, "Видеокаталогне существует");
             return new ArrayList<>();
         }
         
@@ -64,30 +64,30 @@ public class MediaFileFinder {
         );
         
         if (files == null || files.length == 0) {
-            AppLog.e(TAG, "未找到录制的视频文件，时间戳: " + timestamp);
+            AppLog.e(TAG, "Не найдены записанные видеофайлы，时间戳: " + timestamp);
             return new ArrayList<>();
         }
         
-        AppLog.d(TAG, "从最终目录找到 " + files.length + " 个视频文件");
+        AppLog.d(TAG, " от 最终каталог找 до  " + files.length + " видеофайл(ов)");
         return new ArrayList<>(Arrays.asList(files));
     }
     
     /**
-     * 查找视频文件（支持多个时间戳）
-     * 用于 Watchdog 重建后查找所有录制的文件
+     * 查找ВидеоФайл（поддержка多 шт.时间戳)
+     * 用于 Watchdog 重建后查找所有Запись Файл
      * 
-     * @param timestamps 所有录制时间戳列表
-     * @return 视频文件列表，如果未找到返回空列表
+     * @param timestamps 所有Запись时间戳列表
+     * @return ВидеоФайл列表，Если Не 找 до 返回空列表
      */
     public List<File> findVideoFiles(List<String> timestamps) {
         if (timestamps == null || timestamps.isEmpty()) {
-            AppLog.e(TAG, "时间戳列表为空，无法查找视频文件");
+            AppLog.e(TAG, "时间戳列表пусто，无法查找ВидеоФайл");
             return new ArrayList<>();
         }
         
         List<File> allFiles = new ArrayList<>();
         
-        // 1. 从临时目录查找所有时间戳对应的文件
+        // 1.  от временнокаталог查找所有时间戳 应 Файл
         File tempDir = new File(context.getCacheDir(), FileTransferManager.TEMP_VIDEO_DIR);
         if (tempDir.exists() && tempDir.isDirectory()) {
             File[] tempFiles = tempDir.listFiles((dir, name) -> {
@@ -104,11 +104,11 @@ public class MediaFileFinder {
             
             if (tempFiles != null && tempFiles.length > 0) {
                 allFiles.addAll(Arrays.asList(tempFiles));
-                AppLog.d(TAG, "从临时目录找到 " + tempFiles.length + " 个视频文件");
+                AppLog.d(TAG, " от временнокаталог找 до  " + tempFiles.length + " видеофайл(ов)");
             }
         }
         
-        // 2. 从最终目录查找所有时间戳对应的文件
+        // 2.  от 最终каталог查找所有时间戳 应 Файл
         File videoDir = StorageHelper.getVideoDir(context);
         if (videoDir != null && videoDir.exists()) {
             File[] files = videoDir.listFiles((dir, name) -> {
@@ -124,7 +124,7 @@ public class MediaFileFinder {
             });
             
             if (files != null && files.length > 0) {
-                // 避免重复添加（临时目录和最终目录可能有同名文件）
+                // 避免重复添加（временнокаталог и 最终каталог可能有同名Файл)
                 for (File f : files) {
                     boolean exists = false;
                     for (File existing : allFiles) {
@@ -137,34 +137,34 @@ public class MediaFileFinder {
                         allFiles.add(f);
                     }
                 }
-                AppLog.d(TAG, "从最终目录额外找到视频文件");
+                AppLog.d(TAG, " от 最终каталог额外找 до ВидеоФайл");
             }
         }
         
         if (allFiles.isEmpty()) {
-            AppLog.e(TAG, "未找到录制的视频文件，时间戳: " + timestamps);
+            AppLog.e(TAG, "Не найдены записанные видеофайлы，时间戳: " + timestamps);
         } else {
-            AppLog.d(TAG, "总共找到 " + allFiles.size() + " 个视频文件（时间戳数: " + timestamps.size() + "）");
+            AppLog.d(TAG, "总Всего 找 до  " + allFiles.size() + " видеофайл(ов)（时间戳数: " + timestamps.size() + ")");
         }
         
         return allFiles;
     }
     
     /**
-     * 查找照片文件
+     * 查找ФотоФайл
      * 
-     * @param timestamp 拍照时间戳
-     * @return 照片文件列表，如果未找到返回空列表
+     * @param timestamp Фото时间戳
+     * @return ФотоФайл列表，Если Не 找 до 返回空列表
      */
     public List<File> findPhotoFiles(String timestamp) {
         if (timestamp == null || timestamp.isEmpty()) {
-            AppLog.e(TAG, "时间戳为空，无法查找照片文件");
+            AppLog.e(TAG, "时间戳пусто，无法查找ФотоФайл");
             return new ArrayList<>();
         }
         
         File photoDir = StorageHelper.getPhotoDir(context);
         if (photoDir == null || !photoDir.exists()) {
-            AppLog.e(TAG, "照片目录不存在");
+            AppLog.e(TAG, "Фотокаталогне существует");
             return new ArrayList<>();
         }
         
@@ -174,46 +174,46 @@ public class MediaFileFinder {
         );
         
         if (files == null || files.length == 0) {
-            AppLog.e(TAG, "未找到拍摄的照片，时间戳: " + timestamp);
+            AppLog.e(TAG, "Не найдены сделанные фото，时间戳: " + timestamp);
             return new ArrayList<>();
         }
         
-        AppLog.d(TAG, "找到 " + files.length + " 张照片");
+        AppLog.d(TAG, "找 до  " + files.length + " фото");
         return new ArrayList<>(Arrays.asList(files));
     }
     
     /**
-     * 将临时文件传输到最终目录
+     * 将временноФайл传输 до 最终каталог
      * 
-     * @param tempFiles 临时文件列表
+     * @param tempFiles временноФайл列表
      */
     public void transferToFinalDir(List<File> tempFiles) {
         if (tempFiles == null || tempFiles.isEmpty()) {
             return;
         }
         
-        // 获取最终视频目录
+        // Получение最终Видеокаталог
         File videoDir = StorageHelper.getVideoDir(context);
         if (videoDir == null) {
-            AppLog.e(TAG, "无法获取视频目录，跳过文件传输");
+            AppLog.e(TAG, "无法ПолучениеВидеокаталог，跳过Файл传输");
             return;
         }
         
         FileTransferManager transferManager = FileTransferManager.getInstance(context);
         for (File tempFile : tempFiles) {
             if (tempFile.exists()) {
-                // 构造目标文件路径
+                // 构造目标ФайлПуть
                 File targetFile = new File(videoDir, tempFile.getName());
                 
                 transferManager.addTransferTask(tempFile, targetFile, new FileTransferManager.TransferCallback() {
                     @Override
                     public void onTransferComplete(File sourceFile, File targetFile) {
-                        AppLog.d(TAG, "文件传输完成: " + sourceFile.getName() + " -> " + targetFile.getAbsolutePath());
+                        AppLog.d(TAG, "Файл传输завершение: " + sourceFile.getName() + " -> " + targetFile.getAbsolutePath());
                     }
                     
                     @Override
                     public void onTransferFailed(File sourceFile, File targetFile, String error) {
-                        AppLog.e(TAG, "文件传输失败: " + sourceFile.getName() + ", 错误: " + error);
+                        AppLog.e(TAG, "Файл传输Ошибка: " + sourceFile.getName() + ", Ошибка: " + error);
                     }
                 });
             }

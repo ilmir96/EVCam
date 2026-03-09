@@ -25,7 +25,7 @@ public class VhalNative {
     }
     
     /**
-     * 检查 native 库是否已成功加载
+     * проверка native 库 否Успешнозагрузка
      */
     public static boolean isLibraryLoaded() {
         return sLibraryLoaded;

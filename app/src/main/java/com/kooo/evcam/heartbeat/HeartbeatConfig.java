@@ -10,40 +10,40 @@ import com.kooo.evcam.AppLog;
 import java.security.MessageDigest;
 
 /**
- * 心跳推图配置管理类
- * 管理实时监控推送的配置项
+ * Мониторингконфигурацияуправление类
+ * управление实时监控推送 конфигурация项
  */
 public class HeartbeatConfig {
     private static final String TAG = "HeartbeatConfig";
     private static final String PREF_NAME = "heartbeat_config";
     
-    // 配置项键名
-    private static final String KEY_ENABLED = "enabled";                      // 功能开关
-    private static final String KEY_INTERVAL_SECONDS = "interval_seconds";    // 推送间隔（秒）
-    private static final String KEY_SERVER_URL = "server_url";                // 服务器地址
+    // конфигурация项键名
+    private static final String KEY_ENABLED = "enabled";                      // функцияВклВыкл
+    private static final String KEY_INTERVAL_SECONDS = "interval_seconds";    // 推送间隔（ сек.)
+    private static final String KEY_SERVER_URL = "server_url";                // Адрес сервера
     private static final String KEY_VEHICLE_ID = "vehicle_id";                // 车辆ID
     private static final String KEY_SECRET_KEY = "secret_key";                // 通信密钥
     private static final String KEY_TARGET_SIZE_KB = "target_size_kb";        // 目标压缩大小
-    private static final String KEY_SCREEN_ON_PUSH = "screen_on_push";        // 亮屏推图开关
-    private static final String KEY_SCREEN_OFF_PUSH = "screen_off_push";      // 息屏推图开关
-    private static final String KEY_AUTO_START = "auto_start";                // 自动启动服务
+    private static final String KEY_SCREEN_ON_PUSH = "screen_on_push";        // 亮屏推图ВклВыкл
+    private static final String KEY_SCREEN_OFF_PUSH = "screen_off_push";      // 息屏推图ВклВыкл
+    private static final String KEY_AUTO_START = "auto_start";                // автоматическиЗапускСервис
     
-    // 统计信息
-    private static final String KEY_LAST_UPLOAD_TIME = "last_upload_time";    // 上次上传时间
-    private static final String KEY_SUCCESS_COUNT = "success_count";          // 成功次数
-    private static final String KEY_FAIL_COUNT = "fail_count";                // 失败次数
-    private static final String KEY_LAST_ERROR = "last_error";                // 最后一次错误信息
+    // 统计Информация
+    private static final String KEY_LAST_UPLOAD_TIME = "last_upload_time";    //  раз传时间
+    private static final String KEY_SUCCESS_COUNT = "success_count";          // Успешно раз数
+    private static final String KEY_FAIL_COUNT = "fail_count";                // Ошибка раз数
+    private static final String KEY_LAST_ERROR = "last_error";                // 最后一 разОшибкаИнформация
     
-    // 推送间隔常量（秒）
+    // 推送间隔常量（ сек.)
     public static final int INTERVAL_30_SECONDS = 30;
     public static final int INTERVAL_60_SECONDS = 60;
     public static final int INTERVAL_120_SECONDS = 120;
     public static final int INTERVAL_300_SECONDS = 300;
     
-    // 默认值
+    // По умолчанию值
     private static final int DEFAULT_INTERVAL = INTERVAL_60_SECONDS;
-    private static final boolean DEFAULT_SCREEN_ON_PUSH = true;   // 亮屏推图默认开
-    private static final boolean DEFAULT_SCREEN_OFF_PUSH = false; // 息屏推图默认关
+    private static final boolean DEFAULT_SCREEN_ON_PUSH = true;   // 亮屏推图По умолчаниюВкл
+    private static final boolean DEFAULT_SCREEN_OFF_PUSH = false; // 息屏推图По умолчаниюВыкл
     
     // 压缩目标大小选项
     public static final int TARGET_SIZE_100KB = 100;
@@ -59,114 +59,114 @@ public class HeartbeatConfig {
         this.context = context;
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         
-        // 确保车辆ID已生成
+        // 确保车辆ID生成
         ensureVehicleId();
     }
     
-    // ==================== 基本配置 ====================
+    // ==================== 基本конфигурация ====================
     
     /**
-     * 获取功能开关状态
+     * ПолучениефункцияВклВыклСтатус
      */
     public boolean isEnabled() {
         return prefs.getBoolean(KEY_ENABLED, false);
     }
     
     /**
-     * 设置功能开关
+     * НастройкифункцияВклВыкл
      */
     public void setEnabled(boolean enabled) {
         prefs.edit().putBoolean(KEY_ENABLED, enabled).apply();
-        AppLog.d(TAG, "心跳推图功能: " + (enabled ? "启用" : "禁用"));
+        AppLog.d(TAG, "Мониторингфункция: " + (enabled ? "Включить" : "Отключить"));
     }
     
     /**
-     * 获取推送间隔（秒）
+     * Получение推送间隔（ сек.)
      */
     public int getIntervalSeconds() {
         return prefs.getInt(KEY_INTERVAL_SECONDS, DEFAULT_INTERVAL);
     }
     
     /**
-     * 设置推送间隔（秒）
+     * Настройки推送间隔（ сек.)
      */
     public void setIntervalSeconds(int seconds) {
         prefs.edit().putInt(KEY_INTERVAL_SECONDS, seconds).apply();
-        AppLog.d(TAG, "推送间隔设置: " + seconds + "秒");
+        AppLog.d(TAG, "推送间隔Настройки: " + seconds + " сек.");
     }
     
     /**
-     * 获取服务器地址
+     * ПолучениеАдрес сервера
      */
     public String getServerUrl() {
         return prefs.getString(KEY_SERVER_URL, "");
     }
     
     /**
-     * 设置服务器地址
+     * НастройкиАдрес сервера
      */
     public void setServerUrl(String url) {
         prefs.edit().putString(KEY_SERVER_URL, url).apply();
-        AppLog.d(TAG, "服务器地址设置: " + url);
+        AppLog.d(TAG, "Адрес сервераНастройки: " + url);
     }
     
     /**
-     * 检查服务器地址是否已配置
+     * проверкаАдрес сервера 否конфигурация
      */
     public boolean hasServerUrl() {
         String url = getServerUrl();
         return url != null && !url.trim().isEmpty();
     }
     
-    // ==================== 认证配置 ====================
+    // ==================== 认证конфигурация ====================
     
     /**
-     * 确保车辆ID已生成
-     * 使用设备唯一标识生成固定的车辆ID
+     * 确保车辆ID生成
+     * использование设备唯一标识生成固定 车辆ID
      */
     private void ensureVehicleId() {
         String savedId = prefs.getString(KEY_VEHICLE_ID, "");
         String expectedId = generateVehicleId();
         
-        // 如果保存的ID与基于设备生成的ID不一致，则更新
-        // 这确保即使用户清除数据，也能恢复到相同的ID
+        // Если Сохранить ID и 基于设备生成 ID不一致，则обновление
+        // 这确保т.е.использование户очистка数据，также能Восстановление до 相同 ID
         if (!expectedId.equals(savedId)) {
             prefs.edit().putString(KEY_VEHICLE_ID, expectedId).apply();
-            AppLog.d(TAG, "车辆ID已初始化: " + expectedId);
+            AppLog.d(TAG, "车辆IDинициализация: " + expectedId);
         }
     }
     
     /**
-     * 基于设备唯一标识生成固定的车辆ID
+     * 基于设备唯一标识生成固定 车辆ID
      * 算法：SHA256(ANDROID_ID + Build.FINGERPRINT + Build.BOARD) 取前8位
      * 
      * 特点：
-     * - 同一设备始终生成相同的ID
-     * - 不同设备生成不同的ID
-     * - 用户无法修改
+     * - 同一设备始终生成相同 ID
+     * - 不同设备生成不同 ID
+     * - 用户无法изменение
      * 
      * @return 格式: EV-{8位十六进制}
      */
     private String generateVehicleId() {
         try {
-            // 获取 Android ID（每个设备+用户+签名 唯一）
+            // Получение Android ID（每 шт.设备+用户+签名 唯一)
             String androidId = Settings.Secure.getString(
                     context.getContentResolver(), 
                     Settings.Secure.ANDROID_ID
             );
             
-            // 组合多个设备特征，增加唯一性
+            //  групп合多 шт.设备特征，增加唯一性
             String deviceInfo = (androidId != null ? androidId : "") 
                     + Build.FINGERPRINT  // 设备指纹
                     + Build.BOARD        // 主板名
                     + Build.DEVICE       // 设备名
                     + Build.HARDWARE;    // 硬件名
             
-            // 使用 SHA-256 哈希
+            // использование SHA-256 哈希
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(deviceInfo.getBytes("UTF-8"));
             
-            // 取前4字节（8位十六进制）
+            // 取前4字节（8位十六进制)
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < 4; i++) {
                 sb.append(String.format("%02X", hash[i]));
@@ -175,8 +175,8 @@ public class HeartbeatConfig {
             return "EV-" + sb.toString();
             
         } catch (Exception e) {
-            AppLog.e(TAG, "生成车辆ID失败: " + e.getMessage());
-            // 降级方案：使用 ANDROID_ID 直接截取
+            AppLog.e(TAG, "生成车辆IDОшибка: " + e.getMessage());
+            // 降级方案：использование ANDROID_ID 直接截取
             String androidId = Settings.Secure.getString(
                     context.getContentResolver(), 
                     Settings.Secure.ANDROID_ID
@@ -184,13 +184,13 @@ public class HeartbeatConfig {
             if (androidId != null && androidId.length() >= 8) {
                 return "EV-" + androidId.substring(0, 8).toUpperCase();
             }
-            // 最后的降级：基于时间戳（不推荐，但保证不崩溃）
+            // 最后 降级：基于时间戳（不рекомендуется，但保证不崩溃)
             return "EV-" + String.format("%08X", System.currentTimeMillis() & 0xFFFFFFFFL);
         }
     }
     
     /**
-     * 获取车辆ID
+     * Получение车辆ID
      * 基于设备唯一标识生成，固定不变
      */
     public String getVehicleId() {
@@ -198,137 +198,137 @@ public class HeartbeatConfig {
     }
     
     /**
-     * 获取通信密钥
+     * Получение通信密钥
      */
     public String getSecretKey() {
         return prefs.getString(KEY_SECRET_KEY, "");
     }
     
     /**
-     * 设置通信密钥
+     * Настройки通信密钥
      */
     public void setSecretKey(String key) {
         prefs.edit().putString(KEY_SECRET_KEY, key).apply();
-        AppLog.d(TAG, "通信密钥已设置");
+        AppLog.d(TAG, "通信密钥Настройки");
     }
     
     /**
-     * 检查通信密钥是否已配置
+     * проверка通信密钥 否конфигурация
      */
     public boolean hasSecretKey() {
         String key = getSecretKey();
         return key != null && !key.trim().isEmpty();
     }
     
-    // ==================== 图片配置 ====================
+    // ==================== Изображениеконфигурация ====================
     
     /**
-     * 获取目标压缩大小（KB）
+     * Получение目标压缩大小（KB)
      */
     public int getTargetSizeKB() {
         return prefs.getInt(KEY_TARGET_SIZE_KB, DEFAULT_TARGET_SIZE_KB);
     }
     
     /**
-     * 设置目标压缩大小（KB）
+     * Настройки目标压缩大小（KB)
      */
     public void setTargetSizeKB(int sizeKB) {
         prefs.edit().putInt(KEY_TARGET_SIZE_KB, sizeKB).apply();
-        AppLog.d(TAG, "目标压缩大小设置: " + (sizeKB == 0 ? "不压缩" : sizeKB + "KB"));
+        AppLog.d(TAG, "目标压缩大小Настройки: " + (sizeKB == 0 ? "不压缩" : sizeKB + "KB"));
     }
     
     /**
-     * 获取目标大小的显示名称
+     * Получение目标大小 显示名称
      */
     public static String getTargetSizeDisplayName(int sizeKB) {
         switch (sizeKB) {
             case TARGET_SIZE_100KB:
-                return "100KB（省流量）";
+                return "100 КБ (экономия трафика)";
             case TARGET_SIZE_500KB:
                 return "500KB";
             case TARGET_SIZE_1MB:
                 return "1MB";
             case TARGET_SIZE_NO_COMPRESS:
-                return "不压缩（原图质量）";
+                return "Без сжатия (оригинальное качество)";
             default:
                 return sizeKB + "KB";
         }
     }
     
-    // ==================== 推图模式配置 ====================
+    // ==================== 推图режимконфигурация ====================
     
     /**
-     * 获取亮屏推图开关
-     * 亮屏状态下，如果在前台就推图
+     * Получение亮屏推图ВклВыкл
+     * 亮屏Статус，Если  Передний план推图
      */
     public boolean isScreenOnPushEnabled() {
         return prefs.getBoolean(KEY_SCREEN_ON_PUSH, DEFAULT_SCREEN_ON_PUSH);
     }
     
     /**
-     * 设置亮屏推图开关
+     * Настройки亮屏推图ВклВыкл
      */
     public void setScreenOnPushEnabled(boolean enabled) {
         prefs.edit().putBoolean(KEY_SCREEN_ON_PUSH, enabled).apply();
-        AppLog.d(TAG, "亮屏推图设置: " + (enabled ? "启用" : "禁用"));
+        AppLog.d(TAG, "亮屏推图Настройки: " + (enabled ? "Включить" : "Отключить"));
     }
     
     /**
-     * 获取息屏推图开关
-     * 息屏状态下，定时唤醒到前台推图
+     * Получение息屏推图ВклВыкл
+     * 息屏Статус，定时唤醒 до Передний план推图
      */
     public boolean isScreenOffPushEnabled() {
         return prefs.getBoolean(KEY_SCREEN_OFF_PUSH, DEFAULT_SCREEN_OFF_PUSH);
     }
     
     /**
-     * 设置息屏推图开关
+     * Настройки息屏推图ВклВыкл
      */
     public void setScreenOffPushEnabled(boolean enabled) {
         prefs.edit().putBoolean(KEY_SCREEN_OFF_PUSH, enabled).apply();
-        AppLog.d(TAG, "息屏推图设置: " + (enabled ? "启用" : "禁用"));
+        AppLog.d(TAG, "息屏推图Настройки: " + (enabled ? "Включить" : "Отключить"));
     }
     
     /**
-     * 获取自动启动开关
+     * ПолучениеавтоматическиЗапускВклВыкл
      */
     public boolean isAutoStartEnabled() {
         return prefs.getBoolean(KEY_AUTO_START, false);
     }
     
     /**
-     * 设置自动启动开关
+     * НастройкиавтоматическиЗапускВклВыкл
      */
     public void setAutoStartEnabled(boolean enabled) {
         prefs.edit().putBoolean(KEY_AUTO_START, enabled).apply();
-        AppLog.d(TAG, "自动启动设置: " + (enabled ? "启用" : "禁用"));
+        AppLog.d(TAG, "автоматическиЗапускНастройки: " + (enabled ? "Включить" : "Отключить"));
     }
     
-    // ==================== 统计信息 ====================
+    // ==================== 统计Информация ====================
     
     /**
-     * 获取上次上传时间
+     * Получение раз传时间
      */
     public long getLastUploadTime() {
         return prefs.getLong(KEY_LAST_UPLOAD_TIME, 0);
     }
     
     /**
-     * 设置上次上传时间
+     * Настройки раз传时间
      */
     public void setLastUploadTime(long time) {
         prefs.edit().putLong(KEY_LAST_UPLOAD_TIME, time).apply();
     }
     
     /**
-     * 获取成功次数
+     * ПолучениеУспешно раз数
      */
     public int getSuccessCount() {
         return prefs.getInt(KEY_SUCCESS_COUNT, 0);
     }
     
     /**
-     * 增加成功次数
+     * 增加Успешно раз数
      */
     public void incrementSuccessCount() {
         int count = getSuccessCount() + 1;
@@ -336,14 +336,14 @@ public class HeartbeatConfig {
     }
     
     /**
-     * 获取失败次数
+     * Ошибка получения раз数
      */
     public int getFailCount() {
         return prefs.getInt(KEY_FAIL_COUNT, 0);
     }
     
     /**
-     * 增加失败次数
+     * 增加Ошибка раз数
      */
     public void incrementFailCount() {
         int count = getFailCount() + 1;
@@ -351,21 +351,21 @@ public class HeartbeatConfig {
     }
     
     /**
-     * 获取最后一次错误信息
+     * Получение最后一 разОшибкаИнформация
      */
     public String getLastError() {
         return prefs.getString(KEY_LAST_ERROR, "");
     }
     
     /**
-     * 设置最后一次错误信息
+     * Настройки最后一 разОшибкаИнформация
      */
     public void setLastError(String error) {
         prefs.edit().putString(KEY_LAST_ERROR, error).apply();
     }
     
     /**
-     * 重置统计信息
+     * Сброс统计Информация
      */
     public void resetStatistics() {
         prefs.edit()
@@ -374,48 +374,48 @@ public class HeartbeatConfig {
             .putInt(KEY_FAIL_COUNT, 0)
             .remove(KEY_LAST_ERROR)
             .apply();
-        AppLog.d(TAG, "统计信息已重置");
+        AppLog.d(TAG, "统计ИнформацияСброс");
     }
     
-    // ==================== 配置检查 ====================
+    // ==================== конфигурацияпроверка ====================
     
     /**
-     * 检查配置是否完整（可以启动服务）
+     * проверкаконфигурация 否完整（可以ЗапускСервис)
      */
     public boolean isConfigured() {
         return hasServerUrl() && hasSecretKey();
     }
     
     /**
-     * 获取配置状态描述
+     * ПолучениеконфигурацияСтатус描述
      */
     public String getConfigStatus() {
         if (!hasServerUrl()) {
-            return "请配置服务器地址";
+            return "Укажите адрес сервера";
         }
         if (!hasSecretKey()) {
-            return "请配置通信密钥";
+            return "Укажите ключ связи";
         }
-        return "配置完成";
+        return "конфигурациязавершение";
     }
     
     // ==================== 间隔显示名称 ====================
     
     /**
-     * 获取间隔的显示名称
+     * Получение间隔 显示名称
      */
     public static String getIntervalDisplayName(int seconds) {
         switch (seconds) {
             case INTERVAL_30_SECONDS:
-                return "30秒";
+                return "30 сек.";
             case INTERVAL_60_SECONDS:
-                return "1分钟（推荐）";
+                return "1 мин.（рекомендуется)";
             case INTERVAL_120_SECONDS:
-                return "2分钟";
+                return "2 мин.";
             case INTERVAL_300_SECONDS:
-                return "5分钟";
+                return "5 мин.";
             default:
-                return seconds + "秒";
+                return seconds + " сек.";
         }
     }
 }

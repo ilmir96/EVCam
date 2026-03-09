@@ -25,11 +25,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 /**
- * 权限设置界面 Fragment
+ * РазрешениеНастройки界面 Fragment
  */
 public class PermissionSettingsFragment extends Fragment {
 
-    // ADB 一键获取
+    // ADB 一键Получение
     private Button btnAdbGrantAll;
     private ScrollView scrollAdbLog;
     private TextView tvAdbLog;
@@ -37,7 +37,7 @@ public class PermissionSettingsFragment extends Fragment {
     private boolean isAdbRunning = false;
     private boolean autoScrollAdbLog = true;
 
-    // 基础权限
+    // 基础Разрешение
     private TextView tvCameraStatus;
     private Button btnCameraPermission;
     private TextView tvMicrophoneStatus;
@@ -45,12 +45,12 @@ public class PermissionSettingsFragment extends Fragment {
     private TextView tvStorageStatus;
     private Button btnStoragePermission;
     
-    // 通知权限（Android 13+）
+    // УведомлениеРазрешение（Android 13+)
     private LinearLayout layoutNotificationPermission;
     private TextView tvNotificationStatus;
     private Button btnNotificationPermission;
     
-    // 高级权限
+    // Высокий级Разрешение
     private LinearLayout layoutAllFilesPermission;
     private TextView tvUsageStatsStatus;
     private Button btnUsageStatsPermission;
@@ -63,7 +63,7 @@ public class PermissionSettingsFragment extends Fragment {
     private TextView tvBatteryStatus;
     private Button btnBatteryPermission;
 
-    // 系统白名单（E245）
+    // Система白名单（E245)
     private Button btnSystemWhitelist;
     private TextView tvWhitelistStatus;
     private ScrollView scrollWhitelistLog;
@@ -72,7 +72,7 @@ public class PermissionSettingsFragment extends Fragment {
     private boolean isWhitelistRunning = false;
     private boolean autoScrollWhitelistLog = true;
 
-    // 恢复系统白名单
+    // ВосстановлениеСистема白名单
     private Button btnRestoreWhitelist;
     private ScrollView scrollRestoreLog;
     private TextView tvRestoreLog;
@@ -92,16 +92,16 @@ public class PermissionSettingsFragment extends Fragment {
             }
         });
 
-        // 初始化控件
+        // инициализация控件
         initViews(view);
         
-        // 设置点击事件
+        // Настройки点击事件
         setupClickListeners();
         
-        // 更新权限状态
+        // обновлениеРазрешениеСтатус
         updateAllPermissionStatus();
 
-        // 沉浸式状态栏兼容
+        // 沉浸式Статус栏совместимость
         View toolbar = view.findViewById(R.id.toolbar);
         if (toolbar != null) {
             final int originalPaddingTop = toolbar.getPaddingTop();
@@ -117,11 +117,11 @@ public class PermissionSettingsFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        // ADB 一键获取
+        // ADB 一键Получение
         btnAdbGrantAll = view.findViewById(R.id.btn_adb_grant_all);
         scrollAdbLog = view.findViewById(R.id.scroll_adb_log);
         tvAdbLog = view.findViewById(R.id.tv_adb_log);
-        // 触摸日志区域时：1.阻止外层ScrollView拦截，让日志可滑动 2.停止自动滚动
+        // 触摸 д.志区域时：1.阻止外层ScrollView拦截，让 д.志可滑动 2.Остановкаавтоматически滚动
         scrollAdbLog.setOnTouchListener((v, event) -> {
             v.getParent().requestDisallowInterceptTouchEvent(true);
             if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
@@ -130,7 +130,7 @@ public class PermissionSettingsFragment extends Fragment {
             return false;
         });
 
-        // 基础权限
+        // 基础Разрешение
         tvCameraStatus = view.findViewById(R.id.tv_camera_status);
         btnCameraPermission = view.findViewById(R.id.btn_camera_permission);
         tvMicrophoneStatus = view.findViewById(R.id.tv_microphone_status);
@@ -138,12 +138,12 @@ public class PermissionSettingsFragment extends Fragment {
         tvStorageStatus = view.findViewById(R.id.tv_storage_status);
         btnStoragePermission = view.findViewById(R.id.btn_storage_permission);
         
-        // 通知权限
+        // УведомлениеРазрешение
         layoutNotificationPermission = view.findViewById(R.id.layout_notification_permission);
         tvNotificationStatus = view.findViewById(R.id.tv_notification_status);
         btnNotificationPermission = view.findViewById(R.id.btn_notification_permission);
         
-        // 高级权限
+        // Высокий级Разрешение
         layoutAllFilesPermission = view.findViewById(R.id.layout_all_files_permission);
         tvAllFilesStatus = view.findViewById(R.id.tv_all_files_status);
         btnAllFilesPermission = view.findViewById(R.id.btn_all_files_permission);
@@ -156,12 +156,12 @@ public class PermissionSettingsFragment extends Fragment {
         tvUsageStatsStatus = view.findViewById(R.id.tv_usage_stats_status);
         btnUsageStatsPermission = view.findViewById(R.id.btn_usage_stats_permission);
         
-        // 系统白名单（E245）
+        // Система白名单（E245)
         btnSystemWhitelist = view.findViewById(R.id.btn_system_whitelist);
         tvWhitelistStatus = view.findViewById(R.id.tv_whitelist_status);
         scrollWhitelistLog = view.findViewById(R.id.scroll_whitelist_log);
         tvWhitelistLog = view.findViewById(R.id.tv_whitelist_log);
-        // 触摸日志区域时：1.阻止外层ScrollView拦截，让日志可滑动 2.停止自动滚动
+        // 触摸 д.志区域时：1.阻止外层ScrollView拦截，让 д.志可滑动 2.Остановкаавтоматически滚动
         scrollWhitelistLog.setOnTouchListener((v, event) -> {
             v.getParent().requestDisallowInterceptTouchEvent(true);
             if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
@@ -170,7 +170,7 @@ public class PermissionSettingsFragment extends Fragment {
             return false;
         });
 
-        // 恢复系统白名单
+        // ВосстановлениеСистема白名单
         btnRestoreWhitelist = view.findViewById(R.id.btn_restore_whitelist);
         scrollRestoreLog = view.findViewById(R.id.scroll_restore_log);
         tvRestoreLog = view.findViewById(R.id.tv_restore_log);
@@ -182,7 +182,7 @@ public class PermissionSettingsFragment extends Fragment {
             return false;
         });
 
-        // 根据系统版本显示/隐藏某些选项
+        // 根据Система版本显示/隐藏某些选项
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             layoutNotificationPermission.setVisibility(View.VISIBLE);
         }
@@ -192,19 +192,19 @@ public class PermissionSettingsFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        // ADB 一键获取权限
+        // ADB 一键ПолучениеРазрешение
         btnAdbGrantAll.setOnClickListener(v -> startAdbGrant());
 
-        // 相机权限
+        // Разрешение камеры
         btnCameraPermission.setOnClickListener(v -> openAppSettings());
         
-        // 麦克风权限
+        // Разрешение микрофона
         btnMicrophonePermission.setOnClickListener(v -> openAppSettings());
         
-        // 存储权限
+        // ХранилищеРазрешение
         btnStoragePermission.setOnClickListener(v -> openAppSettings());
         
-        // 通知权限
+        // УведомлениеРазрешение
         btnNotificationPermission.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 openNotificationSettings();
@@ -213,21 +213,21 @@ public class PermissionSettingsFragment extends Fragment {
             }
         });
         
-        // 所有文件访问权限
+        // Доступ ко всем файлам
         btnAllFilesPermission.setOnClickListener(v -> requestAllFilesAccessPermission());
         
-        // 悬浮窗权限
+        // Разрешение плавающего окна
         btnOverlayPermission.setOnClickListener(v -> {
             if (getContext() != null) {
                 WakeUpHelper.requestOverlayPermission(getContext());
-                Toast.makeText(getContext(), "请开启悬浮窗权限", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Please enable floating window permission", Toast.LENGTH_LONG).show();
             }
         });
         
-        // 无障碍服务
+        // 无障碍Сервис
         btnAccessibilityPermission.setOnClickListener(v -> openAccessibilitySettings());
         
-        // 使用情况访问权限
+        // Разрешение статистики использования
         btnUsageStatsPermission.setOnClickListener(v -> openUsageStatsSettings());
 
         // 电池优化
@@ -237,22 +237,22 @@ public class PermissionSettingsFragment extends Fragment {
             }
         });
         
-        // 系统白名单（E245）
+        // Система白名单（E245)
         btnSystemWhitelist.setOnClickListener(v -> showWhitelistRiskDialog());
 
-        // 恢复系统白名单
+        // ВосстановлениеСистема白名单
         btnRestoreWhitelist.setOnClickListener(v -> showRestoreConfirmDialog());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // 每次返回时更新权限状态
+        // 每 раз返回时обновлениеРазрешениеСтатус
         updateAllPermissionStatus();
     }
 
     /**
-     * 更新所有权限状态
+     * обновление所有РазрешениеСтатус
      */
     private void updateAllPermissionStatus() {
         if (getContext() == null) return;
@@ -269,7 +269,7 @@ public class PermissionSettingsFragment extends Fragment {
     }
 
     /**
-     * 更新相机权限状态
+     * обновлениеРазрешение камерыСтатус
      */
     private void updateCameraPermissionStatus() {
         if (getContext() == null) return;
@@ -278,20 +278,20 @@ public class PermissionSettingsFragment extends Fragment {
                 == PackageManager.PERMISSION_GRANTED;
         
         if (granted) {
-            tvCameraStatus.setText("已授权 ✓");
+            tvCameraStatus.setText("Разрешено ✓");
             tvCameraStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnCameraPermission.setText("已授权");
+            btnCameraPermission.setText("Разрешено");
             btnCameraPermission.setEnabled(false);
         } else {
-            tvCameraStatus.setText("未授权 - 核心功能必需");
+            tvCameraStatus.setText("Не разрешено — необходимо для основных функций");
             tvCameraStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark, null));
-            btnCameraPermission.setText("去授权");
+            btnCameraPermission.setText("Разрешить");
             btnCameraPermission.setEnabled(true);
         }
     }
 
     /**
-     * 更新麦克风权限状态
+     * обновлениеРазрешение микрофонаСтатус
      */
     private void updateMicrophonePermissionStatus() {
         if (getContext() == null) return;
@@ -300,53 +300,53 @@ public class PermissionSettingsFragment extends Fragment {
                 == PackageManager.PERMISSION_GRANTED;
         
         if (granted) {
-            tvMicrophoneStatus.setText("已授权 ✓");
+            tvMicrophoneStatus.setText("Разрешено ✓");
             tvMicrophoneStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnMicrophonePermission.setText("已授权");
+            btnMicrophonePermission.setText("Разрешено");
             btnMicrophonePermission.setEnabled(false);
         } else {
-            tvMicrophoneStatus.setText("未授权 - 录制视频时无声音");
+            tvMicrophoneStatus.setText("Не разрешено — видео будет без звука");
             tvMicrophoneStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, null));
-            btnMicrophonePermission.setText("去授权");
+            btnMicrophonePermission.setText("Разрешить");
             btnMicrophonePermission.setEnabled(true);
         }
     }
 
     /**
-     * 更新存储权限状态
+     * обновлениеСтатус разрешений хранилища
      */
     private void updateStoragePermissionStatus() {
         if (getContext() == null) return;
         
         boolean granted;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ 使用媒体权限
+            // Android 13+ использование媒体Разрешение
             granted = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_MEDIA_VIDEO) 
                     == PackageManager.PERMISSION_GRANTED;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Android 10-12
-            granted = true; // 分区存储，不需要特殊权限
+            granted = true; // 分区Хранилище，不необходимо特殊Разрешение
         } else {
-            // Android 9 及以下
+            // Android 9 及и ниже
             granted = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) 
                     == PackageManager.PERMISSION_GRANTED;
         }
         
         if (granted) {
-            tvStorageStatus.setText("已授权 ✓");
+            tvStorageStatus.setText("Разрешено ✓");
             tvStorageStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnStoragePermission.setText("已授权");
+            btnStoragePermission.setText("Разрешено");
             btnStoragePermission.setEnabled(false);
         } else {
-            tvStorageStatus.setText("未授权 - 无法保存视频和照片");
+            tvStorageStatus.setText("Не разрешено — невозможно сохранять видео и фото");
             tvStorageStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark, null));
-            btnStoragePermission.setText("去授权");
+            btnStoragePermission.setText("Разрешить");
             btnStoragePermission.setEnabled(true);
         }
     }
 
     /**
-     * 更新通知权限状态（Android 13+）
+     * обновлениеУведомлениеРазрешениеСтатус（Android 13+)
      */
     private void updateNotificationPermissionStatus() {
         if (getContext() == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;
@@ -355,20 +355,20 @@ public class PermissionSettingsFragment extends Fragment {
                 == PackageManager.PERMISSION_GRANTED;
         
         if (granted) {
-            tvNotificationStatus.setText("已授权 ✓");
+            tvNotificationStatus.setText("Разрешено ✓");
             tvNotificationStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnNotificationPermission.setText("已授权");
+            btnNotificationPermission.setText("Разрешено");
             btnNotificationPermission.setEnabled(false);
         } else {
-            tvNotificationStatus.setText("未授权 - 无法显示录制状态通知");
+            tvNotificationStatus.setText("Не разрешено — уведомления о записи недоступны");
             tvNotificationStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, null));
-            btnNotificationPermission.setText("去授权");
+            btnNotificationPermission.setText("Разрешить");
             btnNotificationPermission.setEnabled(true);
         }
     }
 
     /**
-     * 更新所有文件访问权限状态（Android 11+）
+     * обновлениеДоступ ко всем файламСтатус（Android 11+)
      */
     private void updateAllFilesPermissionStatus() {
         if (getContext() == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return;
@@ -376,20 +376,20 @@ public class PermissionSettingsFragment extends Fragment {
         boolean granted = android.os.Environment.isExternalStorageManager();
         
         if (granted) {
-            tvAllFilesStatus.setText("已授权 ✓");
+            tvAllFilesStatus.setText("Разрешено ✓");
             tvAllFilesStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnAllFilesPermission.setText("已授权");
+            btnAllFilesPermission.setText("Разрешено");
             btnAllFilesPermission.setEnabled(false);
         } else {
-            tvAllFilesStatus.setText("未授权 - 无法存储到U盘");
+            tvAllFilesStatus.setText("Не разрешено — запись на USB недоступна");
             tvAllFilesStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, null));
-            btnAllFilesPermission.setText("去授权");
+            btnAllFilesPermission.setText("Разрешить");
             btnAllFilesPermission.setEnabled(true);
         }
     }
 
     /**
-     * 更新悬浮窗权限状态
+     * обновлениеРазрешение плавающего окнаСтатус
      */
     private void updateOverlayPermissionStatus() {
         if (getContext() == null) return;
@@ -397,20 +397,20 @@ public class PermissionSettingsFragment extends Fragment {
         boolean granted = WakeUpHelper.hasOverlayPermission(getContext());
         
         if (granted) {
-            tvOverlayStatus.setText("已授权 ✓");
+            tvOverlayStatus.setText("Разрешено ✓");
             tvOverlayStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnOverlayPermission.setText("已授权");
+            btnOverlayPermission.setText("Разрешено");
             btnOverlayPermission.setEnabled(false);
         } else {
-            tvOverlayStatus.setText("未授权 - 悬浮窗和后台唤醒不可用");
+            tvOverlayStatus.setText("Не разрешено — плавающее окно и фоновое пробуждение недоступны");
             tvOverlayStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, null));
-            btnOverlayPermission.setText("去授权");
+            btnOverlayPermission.setText("Разрешить");
             btnOverlayPermission.setEnabled(true);
         }
     }
 
     /**
-     * 更新无障碍服务状态
+     * обновление无障碍СервисСтатус
      */
     private void updateAccessibilityServiceStatus() {
         if (getContext() == null) return;
@@ -418,20 +418,20 @@ public class PermissionSettingsFragment extends Fragment {
         boolean enabled = isAccessibilityServiceEnabled(getContext());
         
         if (enabled) {
-            tvAccessibilityStatus.setText("已启用 ✓");
+            tvAccessibilityStatus.setText("Включено ✓");
             tvAccessibilityStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnAccessibilityPermission.setText("已启用");
+            btnAccessibilityPermission.setText("Включено");
             btnAccessibilityPermission.setEnabled(false);
         } else {
-            tvAccessibilityStatus.setText("未启用 - 应用可能被系统清理");
+            tvAccessibilityStatus.setText("Не включено — приложение может быть завершено системой");
             tvAccessibilityStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, null));
-            btnAccessibilityPermission.setText("去启用");
+            btnAccessibilityPermission.setText("Включить");
             btnAccessibilityPermission.setEnabled(true);
         }
     }
 
     /**
-     * 检查无障碍服务是否已启用
+     * проверка无障碍Сервис 否Включено
      */
     private boolean isAccessibilityServiceEnabled(Context context) {
         try {
@@ -450,13 +450,13 @@ public class PermissionSettingsFragment extends Fragment {
                 }
             }
         } catch (Exception e) {
-            AppLog.e("PermissionSettings", "检查无障碍服务状态失败", e);
+            AppLog.e("PermissionSettings", "проверка无障碍СервисСтатусОшибка", e);
         }
         return false;
     }
 
     /**
-     * 更新电池优化状态
+     * обновление电池优化Статус
      */
     private void updateBatteryOptimizationStatus() {
         if (getContext() == null) return;
@@ -464,20 +464,20 @@ public class PermissionSettingsFragment extends Fragment {
         boolean ignored = WakeUpHelper.isIgnoringBatteryOptimizations(getContext());
         
         if (ignored) {
-            tvBatteryStatus.setText("已关闭优化 ✓");
+            tvBatteryStatus.setText("Оптимизация отключена ✓");
             tvBatteryStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnBatteryPermission.setText("已设置");
+            btnBatteryPermission.setText("Задано");
             btnBatteryPermission.setEnabled(false);
         } else {
-            tvBatteryStatus.setText("优化中 - 应用可能被系统休眠");
+            tvBatteryStatus.setText("Оптимизация вкл. — приложение может быть усыплено");
             tvBatteryStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, null));
-            btnBatteryPermission.setText("去设置");
+            btnBatteryPermission.setText("Настроить");
             btnBatteryPermission.setEnabled(true);
         }
     }
 
     /**
-     * 打开应用设置页面
+     * открытьПриложениеНастройки页面
      */
     private void openAppSettings() {
         if (getContext() == null) return;
@@ -486,15 +486,15 @@ public class PermissionSettingsFragment extends Fragment {
             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             intent.setData(Uri.parse("package:" + getContext().getPackageName()));
             startActivity(intent);
-            Toast.makeText(getContext(), "请在权限列表中授予所需权限", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Предоставьте необходимые разрешения в списке", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            AppLog.e("PermissionSettings", "打开应用设置失败", e);
-            Toast.makeText(getContext(), "无法打开设置页面，请使用第三方权限管理工具设置", Toast.LENGTH_SHORT).show();
+            AppLog.e("PermissionSettings", "открытьПриложениеНастройкиОшибка", e);
+            Toast.makeText(getContext(), "Не удалось открыть настройки, используйте стороннее ПО", Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
-     * 打开通知设置页面
+     * открытьУведомлениеНастройки页面
      */
     private void openNotificationSettings() {
         if (getContext() == null) return;
@@ -503,14 +503,14 @@ public class PermissionSettingsFragment extends Fragment {
             Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
             intent.putExtra(Settings.EXTRA_APP_PACKAGE, getContext().getPackageName());
             startActivity(intent);
-            Toast.makeText(getContext(), "请开启通知权限", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Включите разрешение на уведомления", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             openAppSettings();
         }
     }
 
     /**
-     * 请求所有文件访问权限
+     * 求Доступ ко всем файлам
      */
     private void requestAllFilesAccessPermission() {
         if (getContext() == null) return;
@@ -520,22 +520,22 @@ public class PermissionSettingsFragment extends Fragment {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                 intent.setData(Uri.parse("package:" + getContext().getPackageName()));
                 startActivity(intent);
-                Toast.makeText(getContext(), "请开启「允许访问所有文件」", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Включите «Доступ ко всем файлам»", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
                 try {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                     startActivity(intent);
-                    Toast.makeText(getContext(), "请找到本应用并开启权限", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Найдите приложение и включите разрешение", Toast.LENGTH_LONG).show();
                 } catch (Exception e2) {
-                    AppLog.e("PermissionSettings", "无法打开权限设置页面", e2);
-                    Toast.makeText(getContext(), "无法打开设置页面，请使用第三方权限管理工具设置", Toast.LENGTH_SHORT).show();
+                    AppLog.e("PermissionSettings", "无法открытьРазрешениеНастройки页面", e2);
+                    Toast.makeText(getContext(), "Не удалось открыть настройки, используйте стороннее ПО", Toast.LENGTH_SHORT).show();
                 }
             }
         }
     }
 
     /**
-     * 更新使用情况访问权限状态
+     * обновлениеРазрешение статистики использованияСтатус
      */
     private void updateUsageStatsPermissionStatus() {
         if (getContext() == null) return;
@@ -543,20 +543,20 @@ public class PermissionSettingsFragment extends Fragment {
         boolean granted = hasUsageStatsPermission(getContext());
 
         if (granted) {
-            tvUsageStatsStatus.setText("已授权 ✓");
+            tvUsageStatsStatus.setText("Разрешено ✓");
             tvUsageStatsStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
-            btnUsageStatsPermission.setText("已授权");
+            btnUsageStatsPermission.setText("Разрешено");
             btnUsageStatsPermission.setEnabled(false);
         } else {
-            tvUsageStatsStatus.setText("未授权 - 全景影像避让不可用");
+            tvUsageStatsStatus.setText("Не разрешено — панорамная система недоступна");
             tvUsageStatsStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, null));
-            btnUsageStatsPermission.setText("去授权");
+            btnUsageStatsPermission.setText("Разрешить");
             btnUsageStatsPermission.setEnabled(true);
         }
     }
 
     /**
-     * 检查使用情况访问权限
+     * проверкаРазрешение статистики использования
      */
     private boolean hasUsageStatsPermission(Context context) {
         android.app.AppOpsManager appOps = (android.app.AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
@@ -566,7 +566,7 @@ public class PermissionSettingsFragment extends Fragment {
     }
 
     /**
-     * 打开使用情况访问权限设置页面
+     * открытьРазрешение статистики использованияНастройки页面
      */
     private void openUsageStatsSettings() {
         if (getContext() == null) return;
@@ -574,32 +574,32 @@ public class PermissionSettingsFragment extends Fragment {
         try {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
-            Toast.makeText(getContext(), "请找到本应用并开启使用情况访问权限", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Найдите приложение и включите доступ к использованию", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            AppLog.e("PermissionSettings", "打开使用情况访问设置失败", e);
-            Toast.makeText(getContext(), "无法打开设置页面", Toast.LENGTH_SHORT).show();
+            AppLog.e("PermissionSettings", "открытьиспользование情况доступНастройкиОшибка", e);
+            Toast.makeText(getContext(), "Не удалось открыть настройки", Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
-     * 打开无障碍设置页面
+     * открыть无障碍Настройки页面
      */
     private void openAccessibilitySettings() {
         try {
             Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-            Toast.makeText(getContext(), "请找到「电车记录仪 - 保活服务」并启用", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Найдите «EVCam — Служба поддержки активности» и включите", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            AppLog.e("PermissionSettings", "打开无障碍设置失败", e);
-            Toast.makeText(getContext(), "无法打开设置页面，请使用第三方权限管理工具设置", Toast.LENGTH_SHORT).show();
+            AppLog.e("PermissionSettings", "открыть无障碍НастройкиОшибка", e);
+            Toast.makeText(getContext(), "Не удалось открыть настройки, используйте стороннее ПО", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // ==================== ADB 一键获取权限 ====================
+    // ==================== ADB 一键ПолучениеРазрешение ====================
 
     /**
-     * 启动 ADB 一键获取权限
+     * Запуск ADB 一键ПолучениеРазрешение
      */
     private void startAdbGrant() {
         if (isAdbRunning) return;
@@ -608,7 +608,7 @@ public class PermissionSettingsFragment extends Fragment {
         isAdbRunning = true;
         autoScrollAdbLog = true;
         btnAdbGrantAll.setEnabled(false);
-        btnAdbGrantAll.setText("正在执行...");
+        btnAdbGrantAll.setText("Выполнение...");
         scrollAdbLog.setVisibility(View.VISIBLE);
         tvAdbLog.setText("");
 
@@ -630,39 +630,39 @@ public class PermissionSettingsFragment extends Fragment {
             public void onComplete(boolean allSuccess) {
                 isAdbRunning = false;
                 btnAdbGrantAll.setEnabled(true);
-                btnAdbGrantAll.setText("一键获取权限");
-                // 刷新所有权限状态显示
+                btnAdbGrantAll.setText("Получить все разрешения");
+                // Обновить所有РазрешениеСтатус显示
                 updateAllPermissionStatus();
             }
         });
     }
 
-    // ==================== E245 系统白名单配置 ====================
+    // ==================== E245 Система白名单конфигурация ====================
 
     /**
-     * 显示风险提醒对话框
+     * 显示风险提醒 话框
      */
     private void showWhitelistRiskDialog() {
         if (getContext() == null) return;
 
         new MaterialAlertDialogBuilder(getContext(), R.style.Theme_Cam_MaterialAlertDialog)
-                .setTitle("风险提醒")
-                .setMessage("此操作将修改车机系统分区的配置文件，请仔细阅读：\n\n"
-                        + "1. 仅适用于银河E5（E245）车机\n"
-                        + "2. 需要设备已打开USB调试\n"
-                        + "3. 将修改 system 和 vendor 分区的 3 个 XML 文件\n"
-                        + "4. 修改前会自动备份原文件到 /sdcard/evcam_backup/\n"
-                        + "5. 修改完成后需要重启车机才能生效\n"
-                        + "6. 本脚本理论上不会对车机造成危害，但出现任何问题均请自行承担后果\n"
-                        + "7. 如果设备不是 E245，脚本会自动检测并中止。\n\n"
-                        + "确认要继续执行吗？")
-                .setPositiveButton("确认执行", (dialog, which) -> startWhitelistSetup())
-                .setNegativeButton("取消", null)
+                .setTitle("Предупреждение")
+                .setMessage("此операция将изменение车机Система分区 конфигурацияФайл，仔细阅读：\n\n"
+                        + "1. только适用于GalaxyE5（E245)车机\n"
+                        + "2. необходимо设备открытьUSBотладка\n"
+                        + "3. 将изменение system  и  vendor 分区  3  шт. XML Файл\n"
+                        + "4. изменение前会автоматическирезервное копирование原Файл до  /sdcard/evcam_backup/\n"
+                        + "5. изменениезавершение后необходимоперезагрузка车机才能生效\n"
+                        + "6. 本脚本理论不会 车机造成危害，但出现任何问题均自行承担后果\n"
+                        + "7. Если 设备不  E245，脚本会автоматически检测并прервать。\n\n"
+                        + "Подтвердить要продолжитьвыполнение?？")
+                .setPositiveButton("Выполнить", (dialog, which) -> startWhitelistSetup())
+                .setNegativeButton("Отмена", null)
                 .show();
     }
 
     /**
-     * 启动系统白名单配置
+     * ЗапускСистема白名单конфигурация
      */
     private void startWhitelistSetup() {
         if (isWhitelistRunning) return;
@@ -671,7 +671,7 @@ public class PermissionSettingsFragment extends Fragment {
         isWhitelistRunning = true;
         autoScrollWhitelistLog = true;
         btnSystemWhitelist.setEnabled(false);
-        btnSystemWhitelist.setText("正在执行...");
+        btnSystemWhitelist.setText("Выполнение...");
         scrollWhitelistLog.setVisibility(View.VISIBLE);
         tvWhitelistLog.setText("");
 
@@ -693,44 +693,44 @@ public class PermissionSettingsFragment extends Fragment {
             public void onComplete(boolean success) {
                 isWhitelistRunning = false;
                 btnSystemWhitelist.setEnabled(true);
-                btnSystemWhitelist.setText("一键配置");
+                btnSystemWhitelist.setText("Настроить автоматически");
 
                 if (getContext() == null) return;
 
                 if (success) {
-                    tvWhitelistStatus.setText("配置成功 - 请重启车机使配置生效");
+                    tvWhitelistStatus.setText("Настройка выполнена — перезагрузите головное устройство");
                     tvWhitelistStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
                 } else {
-                    tvWhitelistStatus.setText("配置失败 - 请查看日志了解详情");
+                    tvWhitelistStatus.setText("Ошибка настройки — проверьте логи");
                     tvWhitelistStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark, null));
                 }
             }
         });
     }
 
-    // ==================== E245 恢复系统白名单 ====================
+    // ==================== E245 ВосстановлениеСистема白名单 ====================
 
     /**
-     * 显示恢复确认对话框
+     * 显示ВосстановлениеПодтвердить 话框
      */
     private void showRestoreConfirmDialog() {
         if (getContext() == null) return;
 
         new MaterialAlertDialogBuilder(getContext(), R.style.Theme_Cam_MaterialAlertDialog)
-                .setTitle("恢复确认")
-                .setMessage("此操作将从备份恢复车机系统白名单配置：\n\n"
-                        + "1. 恢复后 EVCam 的白名单配置将被移除\n"
-                        + "2. 系统配置文件将还原为修改前的状态\n"
-                        + "3. 需要重启车机才能生效\n"
-                        + "4. 如果之前「一键配置」导致全景影像等功能异常，恢复后应恢复正常\n\n"
-                        + "确认要恢复吗？")
-                .setPositiveButton("确认恢复", (dialog, which) -> startWhitelistRestore())
-                .setNegativeButton("取消", null)
+                .setTitle("Подтверждение восстановления")
+                .setMessage("Восстановить системную конфигурацию из резервной копии?\n\n"
+                    + "1. Белый список EVCam будет удалён\n"
+                    + "2. Системные файлы будут восстановлены\n"
+                    + "3. Потребуется перезагрузка\n"
+                    + "4. Если «Быстрая настройка» вызвала проблемы, всё нормализуется\n\n"
+                    + "Восстановить?")
+                .setPositiveButton("ПодтвердитьВосстановление", (dialog, which) -> startWhitelistRestore())
+                .setNegativeButton("Отмена", null)
                 .show();
     }
 
     /**
-     * 启动系统白名单恢复
+     * ЗапускСистема白名单Восстановление
      */
     private void startWhitelistRestore() {
         if (isRestoreRunning) return;
@@ -739,7 +739,7 @@ public class PermissionSettingsFragment extends Fragment {
         isRestoreRunning = true;
         autoScrollRestoreLog = true;
         btnRestoreWhitelist.setEnabled(false);
-        btnRestoreWhitelist.setText("正在恢复...");
+        btnRestoreWhitelist.setText("Восстановление...");
         scrollRestoreLog.setVisibility(View.VISIBLE);
         tvRestoreLog.setText("");
 
@@ -761,15 +761,15 @@ public class PermissionSettingsFragment extends Fragment {
             public void onComplete(boolean success) {
                 isRestoreRunning = false;
                 btnRestoreWhitelist.setEnabled(true);
-                btnRestoreWhitelist.setText("恢复系统白名单");
+                btnRestoreWhitelist.setText("Восстановить белый список");
 
                 if (getContext() == null) return;
 
                 if (success) {
-                    tvWhitelistStatus.setText("已恢复 - 请重启车机使配置生效");
+                    tvWhitelistStatus.setText("Восстановлено — перезагрузите головное устройство");
                     tvWhitelistStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark, null));
                 } else {
-                    tvWhitelistStatus.setText("恢复失败 - 请查看日志了解详情");
+                    tvWhitelistStatus.setText("Ошибка восстановления — проверьте логи");
                     tvWhitelistStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark, null));
                 }
             }

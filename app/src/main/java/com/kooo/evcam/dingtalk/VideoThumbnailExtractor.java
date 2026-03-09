@@ -11,17 +11,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * 视频缩略图提取工具
- * 用于从视频文件中提取第一帧作为封面图
+ * Видео缩略图提取инструмент
+ * 用于 от ВидеоФайл提取Первый帧作为封面图
  */
 public class VideoThumbnailExtractor {
     private static final String TAG = "VideoThumbnailExtractor";
 
     /**
-     * 从视频文件提取封面图
-     * @param videoFile 视频文件
-     * @param outputFile 输出的封面图文件
-     * @return 是否成功
+     *  от ВидеоФайл提取封面图
+     * @param videoFile ВидеоФайл
+     * @param outputFile 输出 封面图Файл
+     * @return  否Успешно
      */
     public static boolean extractThumbnail(File videoFile, File outputFile) {
         MediaMetadataRetriever retriever = null;
@@ -31,24 +31,24 @@ public class VideoThumbnailExtractor {
             retriever = new MediaMetadataRetriever();
             retriever.setDataSource(videoFile.getAbsolutePath());
 
-            // 获取第一帧（时间为 0 微秒）
+            // ПолучениеПервый帧（时间为 0 微 сек.)
             Bitmap bitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
 
             if (bitmap == null) {
-                AppLog.e(TAG, "无法从视频中提取帧: " + videoFile.getName());
+                AppLog.e(TAG, "无法 от Видео提取帧: " + videoFile.getName());
                 return false;
             }
 
-            // 保存为 JPEG 文件
+            // Сохранить为 JPEG Файл
             fos = new FileOutputStream(outputFile);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
             fos.flush();
 
-            AppLog.d(TAG, "封面图提取成功: " + outputFile.getAbsolutePath());
+            AppLog.d(TAG, "封面图提取Успешно: " + outputFile.getAbsolutePath());
             return true;
 
         } catch (Exception e) {
-            AppLog.e(TAG, "提取封面图失败: " + videoFile.getName(), e);
+            AppLog.e(TAG, "提取封面图Ошибка: " + videoFile.getName(), e);
             return false;
         } finally {
             try {
@@ -59,15 +59,15 @@ public class VideoThumbnailExtractor {
                     fos.close();
                 }
             } catch (IOException e) {
-                AppLog.e(TAG, "关闭资源失败", e);
+                AppLog.e(TAG, "Закрыто资源Ошибка", e);
             }
         }
     }
 
     /**
-     * 获取视频时长（秒）
-     * @param videoFile 视频文件
-     * @return 视频时长，失败返回 0
+     * ПолучениеВидео时长（ сек.)
+     * @param videoFile ВидеоФайл
+     * @return Видео时长，Ошибка返回 0
      */
     public static int getVideoDuration(File videoFile) {
         MediaMetadataRetriever retriever = null;
@@ -79,17 +79,17 @@ public class VideoThumbnailExtractor {
             if (durationStr != null) {
                 long durationMs = Long.parseLong(durationStr);
                 int durationSec = (int) (durationMs / 1000);
-                AppLog.d(TAG, "视频时长: " + durationSec + " 秒");
+                AppLog.d(TAG, "Видео时长: " + durationSec + "  сек.");
                 return durationSec;
             }
         } catch (Exception e) {
-            AppLog.e(TAG, "获取视频时长失败: " + videoFile.getName(), e);
+            AppLog.e(TAG, "ПолучениеВидео时长Ошибка: " + videoFile.getName(), e);
         } finally {
             if (retriever != null) {
                 try {
                     retriever.release();
                 } catch (Exception e) {
-                    AppLog.e(TAG, "释放 MediaMetadataRetriever 失败", e);
+                    AppLog.e(TAG, "释放 MediaMetadataRetriever Ошибка", e);
                 }
             }
         }

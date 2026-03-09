@@ -21,15 +21,15 @@ import com.dingtalk.open.app.stream.protocol.event.EventAckStatus;
 import org.json.JSONObject;
 
 /**
- * 钉钉 Stream 客户端管理器
- * 使用官方 app-stream-client SDK
+ * DingTalk Stream 客户端управление器
+ * использование官方 app-stream-client SDK
  */
 public class DingTalkStreamManager {
     private static final String TAG = "DingTalkStreamManager";
-    private static final long RECONNECT_DELAY_MS = 5000; // 初始重连延迟5秒
-    private static final long MAX_RECONNECT_DELAY_MS = 60_000; // 最大重连延迟60秒（指数退避上限）
+    private static final long RECONNECT_DELAY_MS = 5000; // 初始重连延迟5 сек.
+    private static final long MAX_RECONNECT_DELAY_MS = 60_000; // максимум重连延迟60 сек.（指数退避限)
 
-    // 钉钉官方事件主题
+    // DingTalk官方事件主题
     private static final String BOT_MESSAGE_TOPIC = "/v1.0/im/bot/messages/get";
 
     private final Context context;
@@ -45,13 +45,13 @@ public class DingTalkStreamManager {
     private int reconnectAttempts = 0;
     private CommandCallback currentCommandCallback;
 
-    // 网络状态监控（用于深度休眠唤醒后自动重连）
+    // СетьСтатус监控（用于深度休眠唤醒后автоматически重连)
     private ConnectivityManager.NetworkCallback networkCallback;
     private volatile boolean networkWasLost = false;
     private Runnable pendingReconnectRunnable;
     private Runnable reconnectCheckRunnable;
-    private static final long RECONNECT_AFTER_NETWORK_DELAY_MS = 10_000; // 网络恢复后等10秒再重连（深度休眠唤醒后网络栈需要时间就绪）
-    private static final long RECONNECT_CHECK_INTERVAL_MS = 120_000; // 2分钟安全网检查
+    private static final long RECONNECT_AFTER_NETWORK_DELAY_MS = 10_000; // СетьВосстановление后等10 сек.再重连（深度休眠唤醒后Сеть栈необходимо时间绪)
+    private static final long RECONNECT_CHECK_INTERVAL_MS = 120_000; // 2 мин.安全网проверка
 
     public interface ConnectionCallback {
         void onConnected();
@@ -64,52 +64,52 @@ public class DingTalkStreamManager {
         void onPhotoCommand(String conversationId, String conversationType, String userId);
         
         /**
-         * 获取应用状态信息
-         * @return 状态信息字符串
+         * ПолучениеПриложениеСтатусИнформация
+         * @return СтатусИнформация字符串
          */
         default String getStatusInfo() {
-            return "状态信息不可用";
+            return "Информация о статусе недоступна";
         }
         
         /**
-         * 启动持续录制（模拟点击录制按钮）
-         * @return 执行结果消息
+         * ЗапускНепрерывная запись（模拟点击Запись按钮)
+         * @return выполнение结果消息
          */
         default String onStartRecordingCommand() {
-            return "功能不可用";
+            return "Функция недоступна";
         }
         
         /**
-         * 停止录制并退到后台
-         * @return 执行结果消息
+         * Остановить запись并退 до Фоновый режим
+         * @return выполнение结果消息
          */
         default String onStopRecordingCommand() {
-            return "功能不可用";
+            return "Функция недоступна";
         }
         
         /**
-         * 退出应用（需二次确认）
-         * @param confirmed 是否已确认
-         * @return 执行结果消息
+         * Выход из приложения（需二 разПодтвердить)
+         * @param confirmed  否Подтвердить
+         * @return выполнение结果消息
          */
         default String onExitCommand(boolean confirmed) {
-            return "功能不可用";
+            return "Функция недоступна";
         }
         
         /**
-         * 切换到前台
-         * @return 执行结果消息
+         * переключиться на передний план
+         * @return выполнение结果消息
          */
         default String onForegroundCommand() {
-            return "功能不可用";
+            return "Функция недоступна";
         }
         
         /**
-         * 切换到后台
-         * @return 执行结果消息
+         * переключиться в фоновый режим
+         * @return выполнение结果消息
          */
         default String onBackgroundCommand() {
-            return "功能不可用";
+            return "Функция недоступна";
         }
     }
 
@@ -123,21 +123,21 @@ public class DingTalkStreamManager {
     }
 
     /**
-     * 启动 Stream 连接
-     * @param commandCallback 指令回调
+     * Запуск Stream Подключение
+     * @param commandCallback команда回调
      */
     public void start(CommandCallback commandCallback) {
         start(commandCallback, false);
     }
 
     /**
-     * 启动 Stream 连接
-     * @param commandCallback 指令回调
-     * @param enableAutoReconnect 是否启用自动重连
+     * Запуск Stream Подключение
+     * @param commandCallback команда回调
+     * @param enableAutoReconnect  否Включитьавтоматически重连
      */
     public void start(CommandCallback commandCallback, boolean enableAutoReconnect) {
         if (isRunning) {
-            AppLog.w(TAG, "Stream 客户端已在运行");
+            AppLog.w(TAG, "Stream 客户端 Работа");
             return;
         }
 
@@ -149,22 +149,22 @@ public class DingTalkStreamManager {
     }
 
     /**
-     * 内部方法：启动连接
+     * Внутреннее方法：ЗапускПодключение
      */
     private void startConnection() {
         if (isRunning) {
-            AppLog.w(TAG, "Stream 客户端已在运行");
+            AppLog.w(TAG, "Stream 客户端 Работа");
             return;
         }
 
         new Thread(() -> {
             try {
-                AppLog.d(TAG, "正在初始化钉钉 Stream 客户端...");
+                AppLog.d(TAG, "Выполняется инициализацияDingTalk Stream 客户端...");
 
                 // 创建消息监听器
                 messageListener = new ChatbotMessageListener(context, apiClient, currentCommandCallback, mainHandler);
 
-                // 使用官方 SDK 构建客户端
+                // использование官方 SDK 构建客户端
                 streamClient = OpenDingTalkStreamClientBuilder.custom()
                         .credential(new AuthClientCredential(
                                 config.getClientId(),
@@ -173,58 +173,58 @@ public class DingTalkStreamManager {
                         .registerCallbackListener(BOT_MESSAGE_TOPIC, messageListener)
                         .build();
 
-                AppLog.d(TAG, "Stream 客户端已创建，正在启动连接...");
+                AppLog.d(TAG, "Stream 客户端创建，Выполняется ЗапускПодключение...");
 
-                // 启动连接
+                // ЗапускПодключение
                 streamClient.start();
 
                 isRunning = true;
-                reconnectAttempts = 0; // 重置重连计数
-                AppLog.d(TAG, "Stream 客户端已启动");
+                reconnectAttempts = 0; // Сброс重连计数
+                AppLog.d(TAG, "Stream 客户端Запущено");
 
-                // 通知连接成功
+                // УведомлениеПодключениеУспешно
                 mainHandler.post(() -> {
                     callback.onConnected();
-                    // 注册网络状态监控（用于深度休眠唤醒后自动重连）
+                    // 注册СетьСтатус监控（用于深度休眠唤醒后автоматически重连)
                     registerNetworkCallback();
                     startReconnectCheck();
                 });
 
             } catch (Exception e) {
-                AppLog.e(TAG, "启动 Stream 客户端失败", e);
+                AppLog.e(TAG, "Запуск Stream 客户端Ошибка", e);
                 isRunning = false;
 
-                // 如果启用了自动重连，使用指数退避无限重试
+                // Если Включитьавтоматически重连，использование指数退避无限重试
                 if (autoReconnect) {
                     reconnectAttempts++;
                     // 指数退避：5s, 10s, 20s, 40s, 60s, 60s, ...
                     long delay = Math.min(RECONNECT_DELAY_MS * (1L << Math.min(reconnectAttempts - 1, 4)), MAX_RECONNECT_DELAY_MS);
-                    AppLog.d(TAG, "将在 " + delay + "ms 后尝试第 " + reconnectAttempts + " 次重连");
+                    AppLog.d(TAG, "将  " + delay + "ms 后попытка第 " + reconnectAttempts + "  раз重连");
                     mainHandler.postDelayed(() -> {
                         if (autoReconnect) {
                             startConnection();
                         }
                     }, delay);
                 } else {
-                    mainHandler.post(() -> callback.onError("启动失败: " + e.getMessage()));
+                    mainHandler.post(() -> callback.onError("Ошибка запуска: " + e.getMessage()));
                 }
             }
         }).start();
     }
 
     /**
-     * 停止 Stream 连接
+     * Остановка Stream Подключение
      */
     public void stop() {
         if (!isRunning) {
             return;
         }
 
-        // 禁用自动重连
+        // Отключитьавтоматически重连
         autoReconnect = false;
         reconnectAttempts = 0;
 
-        // 清理网络监控和定时检查
+        // Очистка Сеть监控 и Плановая проверка
         unregisterNetworkCallback();
         stopReconnectCheck();
         networkWasLost = false;
@@ -236,70 +236,70 @@ public class DingTalkStreamManager {
         new Thread(() -> {
             try {
                 if (streamClient != null) {
-                    AppLog.d(TAG, "正在停止 Stream 客户端...");
+                    AppLog.d(TAG, "Выполняется Остановка Stream 客户端...");
                     // OpenDingTalkClient doesn't have a close() method
                     // Just set to null to allow garbage collection
                     streamClient = null;
                 }
 
                 isRunning = false;
-                AppLog.d(TAG, "Stream 客户端已停止");
+                AppLog.d(TAG, "Stream 客户端Остановлено");
 
                 mainHandler.post(() -> callback.onDisconnected());
 
             } catch (Exception e) {
-                AppLog.e(TAG, "停止 Stream 客户端失败", e);
+                AppLog.e(TAG, "Остановка Stream 客户端Ошибка", e);
             }
         }).start();
     }
 
     /**
-     * 检查是否正在运行
+     * проверка 否Выполняется Работа
      */
     public boolean isRunning() {
         return isRunning;
     }
 
     /**
-     * 强制重连（用于深度休眠唤醒后连接丢失的场景）
-     * @param reason 重连原因（用于日志）
+     * 强制重连（用于深度休眠唤醒后Подключение丢失 场景)
+     * @param reason 重连原因（用于 д.志)
      */
     public synchronized void forceReconnect(String reason) {
         if (!autoReconnect) {
-            AppLog.w(TAG, "自动重连未启用，跳过强制重连");
+            AppLog.w(TAG, "автоматически重连Не Включить，跳过强制重连");
             return;
         }
 
-        AppLog.d(TAG, "强制重连钉钉 Stream (" + reason + ")");
+        AppLog.d(TAG, "强制重连DingTalk Stream (" + reason + ")");
 
-        // 清理旧连接的网络监控（安全网检查保留，让它持续守护）
+        // Очистка 旧Подключение Сеть监控（安全网проверка保留，让它持续守护)
         unregisterNetworkCallback();
 
-        // 销毁旧连接
+        // 销毁旧Подключение
         try {
             streamClient = null;
         } catch (Exception e) {
-            AppLog.e(TAG, "销毁旧 Stream 客户端失败", e);
+            AppLog.e(TAG, "销毁旧 Stream 客户端Ошибка", e);
         }
 
         boolean wasRunning = isRunning;
         isRunning = false;
         reconnectAttempts = 0;
 
-        // 仅之前在运行时通知断开
+        // толькодо Работа时Уведомлениеотключено
         if (wasRunning) {
             mainHandler.post(() -> callback.onDisconnected());
         }
 
-        // 取消之前可能存在的重连任务
+        // Отменадо可能существует 重连задача
         if (pendingReconnectRunnable != null) {
             mainHandler.removeCallbacks(pendingReconnectRunnable);
         }
 
-        // 延迟后启动新连接
+        // 延迟后Запуск新Подключение
         pendingReconnectRunnable = () -> {
             if (autoReconnect && !isRunning) {
-                AppLog.d(TAG, "开始重新建立 Stream 连接...");
+                AppLog.d(TAG, "Вкл始重新建立 Stream Подключение...");
                 startConnection();
             }
         };
@@ -307,14 +307,14 @@ public class DingTalkStreamManager {
     }
 
     /**
-     * 注册网络状态回调
-     * 用于检测深度休眠唤醒后网络恢复，自动触发重连
+     * 注册СетьСтатус回调
+     * 用于检测深度休眠唤醒后СетьВосстановление，автоматически触发重连
      */
     private void registerNetworkCallback() {
         try {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (cm == null) {
-                AppLog.w(TAG, "ConnectivityManager 不可用，跳过网络监控");
+                AppLog.w(TAG, "ConnectivityManager 不Доступно，跳过Сеть监控");
                 return;
             }
 
@@ -324,15 +324,15 @@ public class DingTalkStreamManager {
                 @Override
                 public void onAvailable(Network network) {
                     if (networkWasLost && autoReconnect) {
-                        AppLog.d(TAG, "网络恢复（深度休眠唤醒），" + RECONNECT_AFTER_NETWORK_DELAY_MS + "ms 后重连");
+                        AppLog.d(TAG, "СетьВосстановление（深度休眠唤醒)，" + RECONNECT_AFTER_NETWORK_DELAY_MS + "ms 后重连");
                         networkWasLost = false;
-                        mainHandler.postDelayed(() -> forceReconnect("网络恢复(深度休眠唤醒)"), RECONNECT_AFTER_NETWORK_DELAY_MS);
+                        mainHandler.postDelayed(() -> forceReconnect("Восстановление сети (пробуждение из сна)"), RECONNECT_AFTER_NETWORK_DELAY_MS);
                     }
                 }
 
                 @Override
                 public void onLost(Network network) {
-                    AppLog.d(TAG, "网络连接丢失（可能进入深度休眠），标记需要重连");
+                    AppLog.d(TAG, "СетьПодключение丢失（可能进入深度休眠)，标记необходимо重连");
                     networkWasLost = true;
                 }
             };
@@ -341,15 +341,15 @@ public class DingTalkStreamManager {
                     .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                     .build();
             cm.registerNetworkCallback(request, networkCallback);
-            AppLog.d(TAG, "网络状态回调已注册（监控深度休眠唤醒）");
+            AppLog.d(TAG, "СетьСтатус回调注册（监控深度休眠唤醒)");
 
         } catch (Exception e) {
-            AppLog.e(TAG, "注册网络状态回调失败", e);
+            AppLog.e(TAG, "注册СетьСтатус回调Ошибка", e);
         }
     }
 
     /**
-     * 注销网络状态回调
+     * 注销СетьСтатус回调
      */
     private void unregisterNetworkCallback() {
         try {
@@ -361,13 +361,13 @@ public class DingTalkStreamManager {
                 networkCallback = null;
             }
         } catch (Exception e) {
-            AppLog.e(TAG, "注销网络状态回调失败", e);
+            AppLog.e(TAG, "注销СетьСтатус回调Ошибка", e);
         }
     }
 
     /**
-     * 启动定时重连安全网检查
-     * 每隔一段时间检查网络状态，防止 onAvailable 回调被遗漏
+     * Запуск定时重连安全网проверка
+     * 每隔一时间проверкаСетьСтатус，防止 onAvailable 回调 遗漏
      */
     private void startReconnectCheck() {
         stopReconnectCheck();
@@ -381,21 +381,21 @@ public class DingTalkStreamManager {
                     boolean hasNetwork = cm != null && cm.getActiveNetwork() != null;
 
                     if (!isRunning && hasNetwork) {
-                        // 连接断了但网络可用 → 可能重连失败了，再次触发重连
-                        AppLog.w(TAG, "安全网检查：连接未运行但网络可用，触发重连");
+                        // Подключение断但СетьДоступно → 可能重连Ошибка，再 раз触发重连
+                        AppLog.w(TAG, "安全网проверка：ПодключениеНе Работа但СетьДоступно，触发重连");
                         networkWasLost = false;
-                        forceReconnect("安全网检查(连接已断开)");
+                        forceReconnect("Проверка безопасности (соединение разорвано)");
                     } else if (isRunning && networkWasLost && hasNetwork) {
-                        // 运行中但网络曾丢失且已恢复 → onAvailable 可能被遗漏
-                        AppLog.w(TAG, "安全网检查：网络已恢复但未收到回调，强制重连");
+                        // Работа但Сеть曾丢失且Восстановление → onAvailable 可能 遗漏
+                        AppLog.w(TAG, "安全网проверка：СетьВосстановление但Не Получена команда: 回调，强制重连");
                         networkWasLost = false;
-                        forceReconnect("安全网检查(网络恢复遗漏)");
+                        forceReconnect("Проверка (пропущенное восстановление сети)");
                     }
                 } catch (Exception e) {
-                    AppLog.e(TAG, "安全网检查失败", e);
+                    AppLog.e(TAG, "安全网проверкаОшибка", e);
                 }
 
-                // 无论如何都继续下一轮检查
+                // 无论если何всепродолжить一轮проверка
                 mainHandler.postDelayed(this, RECONNECT_CHECK_INTERVAL_MS);
             }
         };
@@ -403,7 +403,7 @@ public class DingTalkStreamManager {
     }
 
     /**
-     * 停止定时重连安全网检查
+     * Остановка定时重连安全网проверка
      */
     private void stopReconnectCheck() {
         if (reconnectCheckRunnable != null) {
@@ -414,7 +414,7 @@ public class DingTalkStreamManager {
 
     /**
      * 机器人消息监听器
-     * 实现官方 SDK 的回调接口
+     * 实现官方 SDK  回调接口
      */
     private static class ChatbotMessageListener implements OpenDingTalkCallbackListener<String, EventAckStatus> {
         private static final String TAG = "ChatbotMessageListener";
@@ -435,12 +435,12 @@ public class DingTalkStreamManager {
         @Override
         public EventAckStatus execute(String messageJson) {
             try {
-                // 记录原始消息用于调试
-                AppLog.d(TAG, "收到原始消息JSON: " + messageJson);
+                // 记录原始消息用于отладка
+                AppLog.d(TAG, "Получена команда: 原始消息JSON: " + messageJson);
 
                 // 解析 JSON 字符串
                 JSONObject message = new JSONObject(messageJson);
-                AppLog.d(TAG, "解析后的消息对象: " + message.toString());
+                AppLog.d(TAG, "解析后 消息 象: " + message.toString());
 
                 String content = null;
                 String conversationId = null;
@@ -448,25 +448,25 @@ public class DingTalkStreamManager {
                 String senderId = null;
                 String sessionWebhook = null;
 
-                // 解析文本内容 - 钉钉机器人消息格式
+                // 解析文本内容 - DingTalk机器人消息格式
                 if (message.has("text")) {
                     JSONObject textObj = message.getJSONObject("text");
                     content = textObj.optString("content", "");
                 } else if (message.has("content")) {
-                    // 有些情况下可能直接是 content 字段
+                    // 有些情况可能直接  content 字
                     JSONObject contentObj = message.getJSONObject("content");
                     if (contentObj.has("text")) {
                         content = contentObj.optString("text", "");
                     }
                 }
 
-                // 解析会话ID、会话类型和发送者ID
+                // 解析会话ID、会话类型 и Отправка者ID
                 conversationId = message.optString("conversationId", "");
                 if (conversationId.isEmpty()) {
                     conversationId = message.optString("openConversationId", "");
                 }
 
-                // 解析会话类型：1=单聊，2=群聊
+                // 解析会话类型：1=личный чат，2=групповой чат
                 conversationType = message.optString("conversationType", "");
 
                 senderId = message.optString("senderStaffId", "");
@@ -474,197 +474,197 @@ public class DingTalkStreamManager {
                     senderId = message.optString("senderId", "");
                 }
 
-                // 获取 sessionWebhook（用于回复消息）
+                // Получение sessionWebhook（用于回复消息)
                 sessionWebhook = message.optString("sessionWebhook", "");
 
-                // 如果消息为空，可能是其他类型的事件（如加入群聊等），直接返回成功
+                // Если 消息пусто，可能 Другое类型 事件（если加入групповой чат等)，直接返回Успешно
                 if (content == null || content.isEmpty()) {
-                    AppLog.d(TAG, "消息内容为空，可能是非文本消息或系统事件");
+                    AppLog.d(TAG, "消息内容пусто，可能 非文本消息илиСистема事件");
                     AppLog.d(TAG, "完整消息结构: " + message.toString(2));
                     return EventAckStatus.SUCCESS;
                 }
 
-                AppLog.d(TAG, "解析成功 - 内容: " + content);
-                AppLog.d(TAG, "解析成功 - 会话ID: " + conversationId);
-                AppLog.d(TAG, "解析成功 - 会话类型: " + conversationType);
-                AppLog.d(TAG, "解析成功 - 发送者ID: " + senderId);
-                AppLog.d(TAG, "解析成功 - SessionWebhook: " + sessionWebhook);
+                AppLog.d(TAG, "解析Успешно - 内容: " + content);
+                AppLog.d(TAG, "解析Успешно - 会话ID: " + conversationId);
+                AppLog.d(TAG, "解析Успешно - 会话类型: " + conversationType);
+                AppLog.d(TAG, "解析Успешно - Отправка者ID: " + senderId);
+                AppLog.d(TAG, "解析Успешно - SessionWebhook: " + sessionWebhook);
 
-                // 检查 sessionWebhook 是否有效
+                // проверка sessionWebhook  否действует
                 if (sessionWebhook.isEmpty()) {
-                    AppLog.w(TAG, "SessionWebhook 为空，无法回复");
+                    AppLog.w(TAG, "SessionWebhook пусто，无法回复");
                     return EventAckStatus.SUCCESS;
                 }
 
-                // 解析指令
+                // 解析команда
                 String command = parseCommand(content);
-                AppLog.d(TAG, "解析的指令: " + command);
+                AppLog.d(TAG, "解析 команда: " + command);
 
-                // 判断是否是录制指令，只有录制指令才解析时长
-                if (command.startsWith("录制") || command.toLowerCase().startsWith("record")) {
+                // 判断 否 Записькоманда，只有Записькоманда才解析时长
+                if (command.startsWith("Запись") || command.toLowerCase().startsWith("record")) {
                     int durationSeconds = parseRecordDuration(command);
-                    AppLog.d(TAG, "收到录制指令，时长: " + durationSeconds + " 秒");
+                    AppLog.d(TAG, "Получена команда: Записькоманда，时长: " + durationSeconds + "  сек.");
 
-                    // 发送确认消息，并在发送完成后执行录制命令
-                    String confirmMsg = String.format("收到录制指令，开始录制 %d 秒视频...", durationSeconds);
+                    // ОтправкаПодтвердить消息，并 Отправказавершение后выполнениеЗаписькоманда
+                    String confirmMsg = String.format("Получена команда записи, начинаю запись %d  сек. видео...", durationSeconds);
                     String finalConversationId = conversationId;
                     String finalConversationType = conversationType;
                     String finalSenderId = senderId;
                     int finalDuration = durationSeconds;
                     
                     sendResponseAndThen(sessionWebhook, confirmMsg, () -> {
-                        // 使用 WakeUpHelper 唤醒屏幕并启动 Activity
-                        // 这样可以确保在后台时也能正常录制
-                        AppLog.d(TAG, "使用 WakeUpHelper 启动录制...");
+                        // использование WakeUpHelper 唤醒屏幕并Запуск Activity
+                        // 这样可以确保 Фоновый режим时также能нормальноЗапись
+                        AppLog.d(TAG, "использование WakeUpHelper Начать запись...");
                         WakeUpHelper.launchForRecording(context, 
                             finalConversationId, finalConversationType, finalSenderId, finalDuration);
                     });
 
-                } else if ("拍照".equals(command) || "photo".equalsIgnoreCase(command)) {
-                    AppLog.d(TAG, "收到拍照指令");
+                } else if ("Фото".equals(command) || "photo".equalsIgnoreCase(command)) {
+                    AppLog.d(TAG, "Получена команда: Фотокоманда");
 
-                    // 发送确认消息，并在发送完成后执行拍照命令
+                    // ОтправкаПодтвердить消息，并 Отправказавершение后выполнениеФотокоманда
                     String finalConversationId = conversationId;
                     String finalConversationType = conversationType;
                     String finalSenderId = senderId;
                     
-                    sendResponseAndThen(sessionWebhook, "收到拍照指令，正在拍照...", () -> {
-                        // 使用 WakeUpHelper 唤醒屏幕并启动 Activity
-                        // 这样可以确保在后台时也能正常拍照
-                        AppLog.d(TAG, "使用 WakeUpHelper 启动拍照...");
+                    sendResponseAndThen(sessionWebhook, "Получена команда фото, делаю снимок...", () -> {
+                        // использование WakeUpHelper 唤醒屏幕并Запуск Activity
+                        // 这样可以确保 Фоновый режим时также能нормальноФото
+                        AppLog.d(TAG, "использование WakeUpHelper ЗапускФото...");
                         WakeUpHelper.launchForPhoto(context, 
                             finalConversationId, finalConversationType, finalSenderId);
                     });
 
-                } else if ("状态".equals(command) || "status".equalsIgnoreCase(command)) {
-                    // 状态指令：显示应用状态
-                    AppLog.d(TAG, "收到状态指令");
+                } else if ("Статус".equals(command) || "status".equalsIgnoreCase(command)) {
+                    // Статускоманда：显示ПриложениеСтатус
+                    AppLog.d(TAG, "Получена команда: Статускоманда");
                     String statusInfo = commandCallback != null ? 
-                            commandCallback.getStatusInfo() : "状态信息不可用";
+                            commandCallback.getStatusInfo() : "Информация о статусе недоступна";
                     sendResponse(sessionWebhook, statusInfo);
 
-                } else if ("启动录制".equals(command) || "开始录制".equals(command) || 
+                } else if ("Начать запись".equals(command) || "Начать запись".equals(command) || 
                            "start".equalsIgnoreCase(command)) {
-                    // 启动录制指令：唤醒到前台并开始持续录制
-                    AppLog.d(TAG, "收到启动录制指令");
+                    // Начать записькоманда：唤醒 до Передний план并Начать непрерывную запись
+                    AppLog.d(TAG, "Получена команда: Начать записькоманда");
                     if (commandCallback != null) {
                         String result = commandCallback.onStartRecordingCommand();
                         sendResponse(sessionWebhook, result);
                     } else {
-                        sendResponse(sessionWebhook, "❌ 功能不可用");
+                        sendResponse(sessionWebhook, "❌ Функция недоступна");
                     }
 
-                } else if ("结束录制".equals(command) || "停止录制".equals(command) || 
+                } else if ("Остановить запись".equals(command) || "Остановить запись".equals(command) || 
                            "stop".equalsIgnoreCase(command)) {
-                    // 结束录制指令：停止录制并退到后台
-                    AppLog.d(TAG, "收到结束录制指令");
+                    // Остановить записькоманда：Остановить запись并退 до Фоновый режим
+                    AppLog.d(TAG, "Получена команда: Остановить записькоманда");
                     if (commandCallback != null) {
                         String result = commandCallback.onStopRecordingCommand();
                         sendResponse(sessionWebhook, result);
                     } else {
-                        sendResponse(sessionWebhook, "❌ 功能不可用");
+                        sendResponse(sessionWebhook, "❌ Функция недоступна");
                     }
 
-                } else if ("退出".equals(command) || "exit".equalsIgnoreCase(command)) {
-                    // 退出指令：需要二次确认
-                    AppLog.d(TAG, "收到退出指令（需二次确认）");
+                } else if ("Выход".equals(command) || "exit".equalsIgnoreCase(command)) {
+                    // Выходкоманда：необходимо二 разПодтвердить
+                    AppLog.d(TAG, "Получена команда: Выходкоманда（需二 разПодтвердить)");
                     sendResponse(sessionWebhook, 
-                        "⚠️ 确认要退出 EVCam 吗？\n\n" +
-                        "退出后将停止所有录制和远程服务。\n" +
-                        "发送「确认退出」执行退出操作。");
+                        "⚠️ Подтвердите выход из EVCam?\n\n" +
+                        "После выхода все записи и удалённые сервисы будут остановлены。\n" +
+                        "Отправьте «Подтвердить выход» для подтверждения。");
 
-                } else if ("确认退出".equals(command)) {
-                    // 确认退出指令：执行退出
-                    AppLog.d(TAG, "收到确认退出指令");
+                } else if ("Подтвердить выход".equals(command)) {
+                    // Подтвердить выходкоманда：выполнениеВыход
+                    AppLog.d(TAG, "Получена команда: Подтвердить выходкоманда");
                     if (commandCallback != null) {
                         String result = commandCallback.onExitCommand(true);
                         sendResponse(sessionWebhook, result);
                     } else {
-                        sendResponse(sessionWebhook, "❌ 功能不可用");
+                        sendResponse(sessionWebhook, "❌ Функция недоступна");
                     }
 
-                } else if ("前台".equals(command) || "foreground".equalsIgnoreCase(command)) {
-                    // 前台指令：将应用切换到前台
-                    AppLog.d(TAG, "收到前台指令");
+                } else if ("Передний план".equals(command) || "foreground".equalsIgnoreCase(command)) {
+                    // Передний планкоманда：将Приложение переключено на передний план
+                    AppLog.d(TAG, "Получена команда: Передний планкоманда");
                     if (commandCallback != null) {
                         String result = commandCallback.onForegroundCommand();
                         sendResponse(sessionWebhook, result);
                     } else {
-                        sendResponse(sessionWebhook, "❌ 功能不可用");
+                        sendResponse(sessionWebhook, "❌ Функция недоступна");
                     }
 
-                } else if ("后台".equals(command) || "background".equalsIgnoreCase(command)) {
-                    // 后台指令：将应用切换到后台
-                    AppLog.d(TAG, "收到后台指令");
+                } else if ("Фоновый режим".equals(command) || "background".equalsIgnoreCase(command)) {
+                    // Фоновый режимкоманда：将Приложениепереключиться в фоновый режим
+                    AppLog.d(TAG, "Получена команда: Фоновый режимкоманда");
                     if (commandCallback != null) {
                         String result = commandCallback.onBackgroundCommand();
                         sendResponse(sessionWebhook, result);
                     } else {
-                        sendResponse(sessionWebhook, "❌ 功能不可用");
+                        sendResponse(sessionWebhook, "❌ Функция недоступна");
                     }
 
-                } else if ("帮助".equals(command) || "help".equalsIgnoreCase(command)) {
+                } else if ("Помощь".equals(command) || "help".equalsIgnoreCase(command)) {
                     sendResponse(sessionWebhook,
-                        "可用指令：\n" +
-                        "• 状态 - 查看应用状态\n" +
-                        "• 前台 - 将应用切换到前台\n" +
-                        "• 后台 - 将应用切换到后台\n" +
-                        "• 启动录制 - 开始持续录制\n" +
-                        "• 结束录制 - 停止录制并退到后台\n" +
-                        "• 录制 - 录制 60 秒视频\n" +
-                        "• 录制+数字 - 录制指定秒数（如：录制30）\n" +
-                        "• 拍照 - 拍摄照片\n" +
-                        "• 退出 - 退出应用（需确认）\n" +
-                        "• 帮助 - 显示此帮助");
+                        "Доступные команды:\n" +
+                        "• Статус — просмотр состояния приложения\n" +
+                        "• Передний план — переключить приложение на передний план\n" +
+                        "• Фоновый режим — переключить приложение в фоновый режим\n" +
+                        "• Начать запись — запуск непрерывной записи\n" +
+                        "• Остановить запись — остановка записи и переход в фон\n" +
+                        "• Запись — запись 60 секунд видео\n" +
+                        "• Запись+число — запись указанного кол-ва секунд (напр.: Запись30)\n" +
+                        "• Фото — сделать снимок\n" +
+                        "• Выход - Выход из приложения (с подтверждением)\n" +
+                        "• Помощь — показать справку");
 
                 } else {
-                    AppLog.d(TAG, "未识别的指令: " + command);
+                    AppLog.d(TAG, "Неизвестная команда: " + command);
                     sendResponse(sessionWebhook,
-                        "未识别的指令。发送「帮助」查看可用指令。");
+                        "Неизвестная команда。Отправка「Помощь」ПросмотрДоступные команды。");
                 }
 
                 return EventAckStatus.SUCCESS;
 
             } catch (Exception e) {
-                AppLog.e(TAG, "处理机器人消息失败", e);
+                AppLog.e(TAG, "处理机器人сообщения — ошибка", e);
                 return EventAckStatus.LATER;
             }
         }
 
         /**
-         * 解析指令文本
-         * 移除 @机器人 的部分，提取实际指令
+         * 解析команда文本
+         * 移除 @机器人  部分，提取实际команда
          */
         private String parseCommand(String text) {
             if (text == null) {
                 return "";
             }
 
-            // 移除 @xxx 部分和多余空格
+            // 移除 @xxx 部分 и 多余空格
             String command = text.replaceAll("@\\S+\\s*", "").trim();
             return command;
         }
 
         /**
-         * 解析录制时长（秒）
-         * 支持格式：录制、录制30、录制 30、record、record 30
-         * 默认返回 60 秒（1分钟）
+         * 解析Запись时长（ сек.)
+         * поддержка格式：Запись、Запись30、Запись 30、record、record 30
+         * По умолчанию返回 60  сек.（1 мин.)
          */
         private int parseRecordDuration(String command) {
             if (command == null || command.isEmpty()) {
                 return 60;
             }
 
-            // 移除"录制"或"record"关键字，提取数字
-            String durationStr = command.replaceAll("(?i)(录制|record)", "").trim();
+            // 移除"Запись"или"record"Выкл键字，提取数字
+            String durationStr = command.replaceAll("(?i)(Запись|record)", "").trim();
 
             if (durationStr.isEmpty()) {
-                return 60; // 默认 1 分钟
+                return 60; // По умолчанию 1  мин.
             }
 
             try {
                 int duration = Integer.parseInt(durationStr);
-                // 限制范围：最少 5 秒，最多 600 秒（10分钟）
+                // 限制范围：最少 5  сек.，最多 600  сек.（10 мин.)
                 if (duration < 5) {
                     return 5;
                 } else if (duration > 600) {
@@ -672,45 +672,45 @@ public class DingTalkStreamManager {
                 }
                 return duration;
             } catch (NumberFormatException e) {
-                AppLog.w(TAG, "无法解析录制时长: " + durationStr + "，使用默认值 60 秒");
+                AppLog.w(TAG, "无法解析Запись时长: " + durationStr + "，использованиеПо умолчанию值 60  сек.");
                 return 60;
             }
         }
 
         /**
-         * 发送响应消息到钉钉（使用 sessionWebhook）
+         * Отправка响应消息 до DingTalk（использование sessionWebhook)
          */
         private void sendResponse(String sessionWebhook, String message) {
             new Thread(() -> {
                 try {
                     apiClient.sendMessageViaWebhook(sessionWebhook, message);
-                    AppLog.d(TAG, "响应消息已发送: " + message);
+                    AppLog.d(TAG, "响应消息Отправка: " + message);
                 } catch (Exception e) {
-                    AppLog.e(TAG, "发送响应消息失败", e);
+                    AppLog.e(TAG, "Отправка响应сообщения — ошибка", e);
                 }
             }).start();
         }
 
         /**
-         * 发送响应消息到钉钉，并在发送完成后执行回调
+         * Отправка响应消息 до DingTalk，并 Отправказавершение后выполнение回调
          * @param sessionWebhook Webhook URL
          * @param message 消息内容
-         * @param callback 发送完成后的回调
+         * @param callback Отправказавершение后 回调
          */
         private void sendResponseAndThen(String sessionWebhook, String message, Runnable callback) {
             new Thread(() -> {
                 try {
-                    // 发送确认消息
+                    // ОтправкаПодтвердить消息
                     apiClient.sendMessageViaWebhook(sessionWebhook, message);
-                    AppLog.d(TAG, "响应消息已发送: " + message);
+                    AppLog.d(TAG, "响应消息Отправка: " + message);
                     
-                    // 发送成功后执行回调
+                    // ОтправкаУспешно后выполнение回调
                     if (callback != null) {
                         callback.run();
                     }
                 } catch (Exception e) {
-                    AppLog.e(TAG, "发送响应消息失败", e);
-                    // 即使发送失败，也执行回调（避免命令被阻塞）
+                    AppLog.e(TAG, "Отправка响应сообщения — ошибка", e);
+                    // т.е.使Ошибка отправки，такжевыполнение回调（避免команда 阻塞)
                     if (callback != null) {
                         callback.run();
                     }

@@ -8,29 +8,29 @@ import android.os.Looper;
 import java.lang.reflect.Method;
 
 /**
- * CarSignalManager 转向灯观察者（基于吉利L6/L7真实API）
+ * CarSignalManager 转 к 灯观察者（基于吉利L6/L7真实API)
  * 
  * 核心方法：getIndcrSts()
- * 返回值：0=关闭, 1=左转, 2=右转, 3=双闪
+ * 返回值：0=Закрыто, 1=左转, 2=右转, 3=双闪
  * 
- * 初始化方式：
+ * инициализация方式：
  * 1. ECARX API: ecarxcar_service → ECarXCar.createCar() → getCarManager("car_signal")
  * 2. CarSensor API: CarSensor.create() (备用)
  */
 public class CarSignalManagerObserver {
     
     private static final String TAG = "CarSignalManagerObserver";
-    private static final long POLL_INTERVAL_MS = 200; // 200ms轮询一次
-    private static final long INIT_RETRY_DELAY_MS = 5000; // 初始化失败重试间隔
+    private static final long POLL_INTERVAL_MS = 200; // 200ms轮询一 раз
+    private static final long INIT_RETRY_DELAY_MS = 5000; // инициализацияОшибка重试间隔
     private static final int MAX_INIT_RETRIES = 3;
     
     /**
-     * 转向灯信号回调接口
+     * 转 к 灯信号回调接口
      */
     public interface TurnSignalListener {
-        /** 转向灯状态变化 */
+        /** 转 к 灯Статус变化 */
         void onTurnSignal(String direction, boolean on);
-        /** 连接状态变化 */
+        /** ПодключениеСтатус变化 */
         void onConnectionStateChanged(boolean connected);
     }
     
@@ -39,12 +39,12 @@ public class CarSignalManagerObserver {
     private final Handler handler = new Handler(Looper.getMainLooper());
     
     private Object carSignalManager = null;
-    private Method getIndcrStsMethod = null;  // 获取转向灯状态的方法
+    private Method getIndcrStsMethod = null;  // Получение转 к 灯Статус 方法
     
     private volatile boolean running = false;
     private volatile boolean connected = false;
     
-    // 上一次的转向灯状态（0=关闭, 1=左转, 2=右转, 3=双闪）
+    // 一 раз 转 к 灯Статус（0=Закрыто, 1=左转, 2=右转, 3=双闪)
     private int lastTurnSignalState = 0;
     
     private final Runnable pollRunnable = new Runnable() {
@@ -70,7 +70,7 @@ public class CarSignalManagerObserver {
     }
     
     /**
-     * 启动监听
+     * Запуск监听
      */
     public void start() {
         if (running) return;
@@ -102,7 +102,7 @@ public class CarSignalManagerObserver {
     }
     
     /**
-     * 停止监听
+     * Остановка监听
      */
     public void stop() {
         running = false;
@@ -113,25 +113,25 @@ public class CarSignalManagerObserver {
     }
     
     /**
-     * 当前是否已连接
+     * Текущий 否Подключено
      */
     public boolean isConnected() {
         return connected;
     }
 
     /**
-     * 观察者是否存活（已初始化且轮询中）
+     * 观察者 否存活（инициализация且轮询)
      */
     public boolean isAlive() {
         return running && connected;
     }
     
     /**
-     * 一次性连接测试（用于 UI 状态检查）
+     * 一 раз性Подключениетестирование（用于 UI Статуспроверка)
      */
     public static boolean testConnection(Context context) {
         try {
-            // 方法1：尝试 ECARX API
+            // 方法1：попытка ECARX API
             try {
                 Class<?> serviceManagerClass = Class.forName("android.os.ServiceManager");
                 Method getServiceMethod = serviceManagerClass.getMethod("getService", String.class);
@@ -155,17 +155,17 @@ public class CarSignalManagerObserver {
                             if (carSignalManager != null) {
                                 Method method = carSignalManager.getClass().getMethod("getIndcrSts");
                                 Object result = method.invoke(carSignalManager);
-                                AppLog.d(TAG, "✅ ECARX CarSignalManager 可用，当前转向灯状态: " + result);
+                                AppLog.d(TAG, "✅ ECARX CarSignalManager Доступно，Текущий转 к 灯Статус: " + result);
                                 return true;
                             }
                         }
                     }
                 }
             } catch (Exception e) {
-                AppLog.d(TAG, "ECARX API 不可用: " + e.getMessage());
+                AppLog.d(TAG, "ECARX API 不Доступно: " + e.getMessage());
             }
             
-            // 方法2：尝试 CarSensor API (备用)
+            // 方法2：попытка CarSensor API (备用)
             try {
                 Class<?> clazz = Class.forName("com.ecarx.xui.adaptapi.car.sensor.CarSensor");
                 Method createMethod = clazz.getMethod("create", Context.class);
@@ -174,14 +174,14 @@ public class CarSignalManagerObserver {
                 if (carSensor != null) {
                     Method method = carSensor.getClass().getMethod("getIndcrSts");
                     Object result = method.invoke(carSensor);
-                    AppLog.d(TAG, "✅ CarSensor API 可用，当前转向灯状态: " + result);
+                    AppLog.d(TAG, "✅ CarSensor API Доступно，Текущий转 к 灯Статус: " + result);
                     return true;
                 }
             } catch (Exception e) {
-                AppLog.d(TAG, "CarSensor API 不可用: " + e.getMessage());
+                AppLog.d(TAG, "CarSensor API 不Доступно: " + e.getMessage());
             }
             
-            AppLog.e(TAG, "❌ 所有 Car API 均不可用");
+            AppLog.e(TAG, "❌ 所有 Car API 均不Доступно");
             return false;
         } catch (Exception e) {
             AppLog.e(TAG, "CarSignalManager test failed: " + e.getMessage());
@@ -192,20 +192,20 @@ public class CarSignalManagerObserver {
     // ==================== Internal ====================
     
     /**
-     * 初始化 CarSignalManager（参考 L7Test 项目的成功实现）
+     * инициализация CarSignalManager（参考 L7Test目 Успешно实现)
      */
     private boolean initCarSignalManager() {
         try {
-            AppLog.d(TAG, "🔍 开始初始化 CarSignalManager...");
+            AppLog.d(TAG, "🔍 Вкл始инициализация CarSignalManager...");
             
-            // 方法1：尝试通过 ServiceManager 获取 ecarxcar_service
+            // 方法1：попытка通过 ServiceManager Получение ecarxcar_service
             try {
                 Class<?> serviceManagerClass = Class.forName("android.os.ServiceManager");
                 Method getServiceMethod = serviceManagerClass.getMethod("getService", String.class);
                 Object binder = getServiceMethod.invoke(null, "ecarxcar_service");
                 
                 if (binder != null) {
-                    AppLog.d(TAG, "✅ ecarxcar_service Binder获取成功");
+                    AppLog.d(TAG, "✅ ecarxcar_service BinderПолучениеУспешно");
                     Class<?> stubClass = Class.forName("ecarx.car.IECarXCar$Stub");
                     Method asInterfaceMethod = stubClass.getMethod("asInterface", Class.forName("android.os.IBinder"));
                     Object eCarXCar = asInterfaceMethod.invoke(null, binder);
@@ -221,12 +221,12 @@ public class CarSignalManagerObserver {
                             carSignalManager = getCarManagerMethod.invoke(car, "car_signal", eCarXCar);
                             
                             if (carSignalManager != null) {
-                                AppLog.d(TAG, "✅ ECARX CarSignalManager 初始化成功");
+                                AppLog.d(TAG, "✅ ECARX CarSignalManager инициализацияУспешно");
                                 getIndcrStsMethod = carSignalManager.getClass().getMethod("getIndcrSts");
                                 
-                                // 测试调用
+                                // тестирование调用
                                 Object testResult = getIndcrStsMethod.invoke(carSignalManager);
-                                AppLog.d(TAG, "📊 当前转向灯状态: " + testResult);
+                                AppLog.d(TAG, "📊 Текущий转 к 灯Статус: " + testResult);
                                 
                                 connected = true;
                                 return true;
@@ -235,36 +235,36 @@ public class CarSignalManagerObserver {
                     }
                 }
             } catch (Exception e) {
-                AppLog.w(TAG, "ECARX API 初始化失败: " + e.getMessage());
+                AppLog.w(TAG, "ECARX API инициализацияОшибка: " + e.getMessage());
             }
             
-            // 方法2：尝试 CarSensor API (备用)
+            // 方法2：попытка CarSensor API (备用)
             try {
-                AppLog.d(TAG, "尝试备用 CarSensor API...");
+                AppLog.d(TAG, "попытка备用 CarSensor API...");
                 Class<?> clazz = Class.forName("com.ecarx.xui.adaptapi.car.sensor.CarSensor");
                 Method createMethod = clazz.getMethod("create", Context.class);
                 carSignalManager = createMethod.invoke(null, context);
                 
                 if (carSignalManager != null) {
-                    AppLog.d(TAG, "✅ CarSensor 初始化成功(备用API)");
+                    AppLog.d(TAG, "✅ CarSensor инициализацияУспешно(备用API)");
                     getIndcrStsMethod = carSignalManager.getClass().getMethod("getIndcrSts");
                     
-                    // 测试调用
+                    // тестирование调用
                     Object testResult = getIndcrStsMethod.invoke(carSignalManager);
-                    AppLog.d(TAG, "📊 当前转向灯状态: " + testResult);
+                    AppLog.d(TAG, "📊 Текущий转 к 灯Статус: " + testResult);
                     
                     connected = true;
                     return true;
                 }
             } catch (Exception e) {
-                AppLog.w(TAG, "CarSensor API 初始化失败: " + e.getMessage());
+                AppLog.w(TAG, "CarSensor API инициализацияОшибка: " + e.getMessage());
             }
             
-            AppLog.e(TAG, "❌ 所有 Car API 初始化失败");
+            AppLog.e(TAG, "❌ 所有 Car API инициализацияОшибка");
             return false;
             
         } catch (Exception e) {
-            AppLog.e(TAG, "❌ CarSignalManager 初始化异常", e);
+            AppLog.e(TAG, "❌ CarSignalManager инициализацияаномалия", e);
             carSignalManager = null;
             getIndcrStsMethod = null;
             connected = false;
@@ -273,7 +273,7 @@ public class CarSignalManagerObserver {
     }
     
     /**
-     * 轮询转向灯状态（200ms间隔）
+     * 轮询转 к 灯Статус（200ms间隔)
      */
     private void pollTurnSignalState() {
         if (carSignalManager == null || getIndcrStsMethod == null) {
@@ -281,45 +281,45 @@ public class CarSignalManagerObserver {
         }
         
         try {
-            // 调用 getIndcrSts() 获取转向灯状态
-            // 返回值：0=关闭, 1=左转, 2=右转, 3=双闪
+            // 调用 getIndcrSts() Получение转 к 灯Статус
+            // 返回值：0=Закрыто, 1=左转, 2=右转, 3=双闪
             Object result = getIndcrStsMethod.invoke(carSignalManager);
             
             if (result != null) {
                 int currentState = Integer.parseInt(result.toString());
                 checkTurnSignalChange(currentState);
             } else {
-                AppLog.w(TAG, "⚠️ getIndcrSts() 返回 null");
+                AppLog.w(TAG, "⚠️ getIndcrSts() Возвращает null");
             }
         } catch (Exception e) {
-            AppLog.e(TAG, "❌ 转向灯状态读取失败: " + e.getMessage());
+            AppLog.e(TAG, "❌ 转 к 灯СтатусОшибка чтения: " + e.getMessage());
         }
     }
     
     /**
-     * 检测转向灯状态变化并通知监听器
-     * @param currentState 当前状态: 0=关闭, 1=左转, 2=右转, 3=双闪
+     * 检测转 к 灯Статус变化并Уведомление监听器
+     * @param currentState ТекущийСтатус: 0=Закрыто, 1=左转, 2=右转, 3=双闪
      */
     private void checkTurnSignalChange(int currentState) {
         if (lastTurnSignalState != currentState) {
             String statusDesc = getTurnSignalDesc(currentState);
-            AppLog.d(TAG, "🔄 转向灯状态变化: " + lastTurnSignalState + " → " + currentState + " (" + statusDesc + ")");
+            AppLog.d(TAG, "🔄 转 к 灯Статус变化: " + lastTurnSignalState + " → " + currentState + " (" + statusDesc + ")");
             
-            // 通知监听器
+            // Уведомление监听器
             if (listener != null) {
-                // 根据状态转换为方向和开关信息
+                // 根据Статус转换为方 к  и ВклВыклИнформация
                 switch (currentState) {
-                    case 0: // 关闭
-                        // 只在从非关闭状态切换到关闭状态时，才通知关闭
+                    case 0: // Закрыто
+                        // 只  от 非ЗакрытоСтатус切换 до ЗакрытоСтатус时，才УведомлениеЗакрыто
                         // 避免重复触发 startHideTimer()
                         if (lastTurnSignalState == 1) {
-                            // 从左转切换到关闭
+                            //  от 左转切换 до Закрыто
                             handler.post(() -> listener.onTurnSignal("left", false));
                         } else if (lastTurnSignalState == 2) {
-                            // 从右转切换到关闭
+                            //  от 右转切换 до Закрыто
                             handler.post(() -> listener.onTurnSignal("right", false));
                         } else if (lastTurnSignalState == 3) {
-                            // 从双闪切换到关闭
+                            //  от 双闪切换 до Закрыто
                             handler.post(() -> {
                                 listener.onTurnSignal("left", false);
                                 listener.onTurnSignal("right", false);
@@ -349,15 +349,15 @@ public class CarSignalManagerObserver {
     }
     
     /**
-     * 获取转向灯状态描述
+     * Получение转 к 灯Статус描述
      */
     private String getTurnSignalDesc(int status) {
         switch (status) {
-            case 0: return "关闭";
-            case 1: return "左转";
-            case 2: return "右转";
-            case 3: return "双闪";
-            default: return "未知(" + status + ")";
+            case 0: return "Закрыть";
+            case 1: return "Левый поворот";
+            case 2: return "Правый поворот";
+            case 3: return "Аварийка";
+            default: return "Неизв.(" + status + ")";
         }
     }
 }

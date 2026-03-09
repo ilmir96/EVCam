@@ -35,8 +35,8 @@ import com.kooo.evcam.camera.MultiCameraManager;
 import com.kooo.evcam.camera.SingleCamera;
 
 /**
- * 补盲选项服务
- * 负责管理主屏悬浮窗和副屏显示
+ * 补盲选项Сервис
+ * 负责управление主屏悬浮窗 и 副屏显示
  */
 public class BlindSpotService extends Service {
     private static final String TAG = "BlindSpotService";
@@ -48,12 +48,12 @@ public class BlindSpotService extends Service {
     private Surface secondaryCachedSurface;
     private View secondaryBorderView;
     private SingleCamera secondaryCamera;
-    private String secondaryDesiredCameraPos = null; // 目标副屏摄像头位置
+    private String secondaryDesiredCameraPos = null; // 目标副屏КамераПозиция
 
     private MainFloatingWindowView mainFloatingWindowView;
     private BlindSpotFloatingWindowView dedicatedBlindSpotWindow;
     private BlindSpotFloatingWindowView previewBlindSpotWindow;
-    private boolean isMainTempShown = false; // 是否为主屏临时显示
+    private boolean isMainTempShown = false; //  否为主屏временно显示
     private boolean isSecondaryAdjustMode = false;
     private int secondaryAttachedDisplayId = -1;
 
@@ -63,9 +63,9 @@ public class BlindSpotService extends Service {
     private DoorSignalObserver doorSignalObserver; // 车门联动观察者
     private final Handler hideHandler = new Handler(Looper.getMainLooper());
     private Runnable hideRunnable;
-    private Runnable signalKeepAliveRunnable; // 信号保活计时器（debounce）
-    private static final long SIGNAL_KEEPALIVE_MS = 1200; // 1.2秒无信号视为转向灯已关闭（约3个闪烁周期）
-    private String currentSignalCamera = null; // 当前转向灯触发的摄像头
+    private Runnable signalKeepAliveRunnable; // 信号保活计时器（debounce)
+    private static final long SIGNAL_KEEPALIVE_MS = 1200; // 1.2 сек.无信号视为转 к 灯Закрыто（约3 шт.闪烁周期)
+    private String currentSignalCamera = null; // Текущий转 к 灯触发 Камера
     private Runnable secondaryRetryRunnable;
     private int secondaryRetryCount = 0;
     private String previewCameraPos = null;
@@ -75,11 +75,11 @@ public class BlindSpotService extends Service {
 
     // 全景影像避让
     private Runnable avmCheckRunnable;
-    private boolean isAvmAvoidanceActive = false; // 当前是否处于避让状态（AVM或自身前台）
-    private int avmDeactivateCount = 0; // 连续未检测到AVM前台的次数（去抖）
-    private static final int AVM_DEACTIVATE_THRESHOLD = 2; // 连续2次（2秒）未检测到才解除避让
-    private static final long AVM_CHECK_INTERVAL_MS = 1000; // 前台检测轮询间隔
-    private static volatile boolean isSelfInForeground = false; // EVCam自身Activity是否在前台（生命周期驱动）
+    private boolean isAvmAvoidanceActive = false; // Текущий 否处于避让Статус（AVMили自身Передний план)
+    private int avmDeactivateCount = 0; // 连续Не ОбнаруженоAVMПередний план  раз数（去抖)
+    private static final int AVM_DEACTIVATE_THRESHOLD = 2; // 连续2 раз（2 сек.)Не Обнаружено才解除避让
+    private static final long AVM_CHECK_INTERVAL_MS = 1000; // Передний план检测轮询间隔
+    private static volatile boolean isSelfInForeground = false; // EVCam自身Activity 否 Передний план（生命周期驱动)
 
     /** MainActivity.onResume 时调用 */
     public static void notifySelfForeground() {
@@ -92,8 +92,8 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 检查是否有活跃的摄像头悬浮窗（补盲悬浮窗、常驻悬浮窗、副屏）正在使用摄像头。
-     * 用于 MainActivity.onPause() 判断是否应该保持摄像头连接。
+     * проверка 否有活跃 Камера悬浮窗（补盲悬浮窗、常驻悬浮窗、副屏)Выполняется использованиеКамера。
+     * 用于 MainActivity.onPause() 判断 否应该保持КамераПодключение。
      */
     public static boolean hasActiveCameraWindows() {
         BlindSpotService inst = sInstance;
@@ -104,7 +104,7 @@ public class BlindSpotService extends Service {
     }
 
     // 定制键唤醒
-    private boolean isCustomKeyPreviewShown = false; // 定制键唤醒的预览是否已显示
+    private boolean isCustomKeyPreviewShown = false; // 定制键唤醒 预览 否显示
 
     private WindowManager mockControlWindowManager;
     private View mockControlView;
@@ -122,7 +122,7 @@ public class BlindSpotService extends Service {
     }
 
     private void initSignalObserver() {
-        // 停止旧的观察者
+        // Остановка旧 观察者
         stopSignalObservers();
 
         String mode = appConfig.getTurnSignalTriggerMode();
@@ -134,16 +134,16 @@ public class BlindSpotService extends Service {
             initLogcatSignalObserver();
         }
         
-        // 车门联动（独立于转向灯联动）
+        // 车门联动（独立于转 к 灯联动)
         if (appConfig.isDoorLinkageEnabled()) {
             initDoorSignalObserver();
         }
     }
 
     /**
-     * 检查信号观察者是否存活，若已死亡则重新初始化。
-     * 由 onStartCommand（即 update()）调用，修复观察者因连接断开、
-     * 初始化失败等原因静默死亡后无法自愈的问题。
+     * проверка信号观察者 否存活，若死亡则重新инициализация。
+     * 由 onStartCommand（т.е. update())调用，修复观察者因Подключениеотключено、
+     * инициализацияОшибка等原因静默死亡后无法自愈 问题。
      */
     private void ensureSignalObserversAlive() {
         if (!appConfig.isBlindSpotGlobalEnabled() && !appConfig.isCustomKeyWakeupEnabled()) return;
@@ -185,7 +185,7 @@ public class BlindSpotService extends Service {
                 if (on) {
                     handleTurnSignal(direction);
                 } else {
-                    // 转向灯关闭，启动隐藏计时器
+                    // 转 к 灯Закрыто，Запуск隐藏计时器
                     startHideTimer();
                 }
             }
@@ -209,12 +209,12 @@ public class BlindSpotService extends Service {
 
                 if (on) {
                     //handleTurnSignal(direction);
-                    // 转向灯打开，显示摄像头
+                    // 转 к 灯открыть，显示Камера
                     // 注意：不能调用 handleTurnSignal()，因为它会触发 resetSignalKeepAlive()
-                    // CarSignalManager API 通过轮询获取精确状态，不需要 debounce 机制
+                    // CarSignalManager API 通过轮询Получение精确Статус，不необходимо debounce 机制
                     showBlindSpotCamera(direction);
                 } else {
-                    // 转向灯关闭，启动隐藏计时器
+                    // 转 к 灯Закрыто，Запуск隐藏计时器
                     startHideTimer();
                 }
             }
@@ -228,55 +228,55 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 初始化车门联动观察者
-     * - 车辆API 模式（E5/星舰7）: 复用已有的信号观察者，设置 DoorSignalListener
-     * - CarSignalManager 模式（L6/L7/博越L）: 使用独立的 DoorSignalObserver
+     * инициализация车门联动观察者
+     * - 车辆API режим（E5/星舰7): 复用有 信号观察者，Настройки DoorSignalListener
+     * - CarSignalManager режим（L6/L7/博越L): использование独立  DoorSignalObserver
      */
     private void initDoorSignalObserver() {
-        AppLog.i(TAG, "🚪 ========== 开始初始化车门联动观察者 ==========");
-        AppLog.i(TAG, "🚪 补盲功能总开关: " + appConfig.isBlindSpotGlobalEnabled());
-        AppLog.i(TAG, "🚪 车门联动开关: " + appConfig.isDoorLinkageEnabled());
-        AppLog.i(TAG, "🚪 车门联动车型: " + appConfig.getTurnSignalPresetSelection() + " (复用转向联动配置)");
-        AppLog.i(TAG, "🚪 车门消失延迟: " + appConfig.getTurnSignalTimeout() + "秒 (复用转向联动配置)");
-        AppLog.i(TAG, "🚪 触发模式: " + appConfig.getTurnSignalTriggerMode());
+        AppLog.i(TAG, "🚪 ========== Вкл始инициализация车门联动观察者 ==========");
+        AppLog.i(TAG, "🚪 补盲функция总ВклВыкл: " + appConfig.isBlindSpotGlobalEnabled());
+        AppLog.i(TAG, "🚪 车门联动ВклВыкл: " + appConfig.isDoorLinkageEnabled());
+        AppLog.i(TAG, "🚪 车门联动Модель: " + appConfig.getTurnSignalPresetSelection() + " (复用转 к 联动конфигурация)");
+        AppLog.i(TAG, "🚪 车门消失延迟: " + appConfig.getTurnSignalTimeout() + " сек. (复用转 к 联动конфигурация)");
+        AppLog.i(TAG, "🚪 触发режим: " + appConfig.getTurnSignalTriggerMode());
 
         if (appConfig.isVhalGrpcTriggerMode()) {
-            // E5/星舰7: 通过车辆API 监听车门状态
+            // E5/星舰7: 通过车辆API 监听车门Статус
             initVhalDoorSignalObserver();
         } else if (appConfig.isCarSignalManagerTriggerMode()) {
-            // L6/L7/博越L: 通过 CarSignalManager API 监听车门状态
+            // L6/L7/博越L: 通过 CarSignalManager API 监听车门Статус
             initCarSignalManagerDoorObserver();
         } else {
-            AppLog.w(TAG, "🚪 当前触发模式不支持车门联动: " + appConfig.getTurnSignalTriggerMode());
+            AppLog.w(TAG, "🚪 Текущий触发режимне поддерживается车门联动: " + appConfig.getTurnSignalTriggerMode());
         }
 
-        AppLog.i(TAG, "🚪 ========== 车门联动观察者初始化完成 ==========");
+        AppLog.i(TAG, "🚪 ========== 车门联动观察者инициализациязавершение ==========");
     }
 
     /**
-     * 车辆API 车门联动（E5/星舰7）
-     * 复用已有的信号观察者连接，附加 DoorSignalListener
+     * 车辆API 车门联动（E5/星舰7)
+     * 复用有 信号观察者Подключение，附加 DoorSignalListener
      */
     private void initVhalDoorSignalObserver() {
-        AppLog.i(TAG, "� 使用车辆API 车门联动 (E5/星舰7)");
+        AppLog.i(TAG, "� использование车辆API 车门联动 (E5/星舰7)");
 
         VhalSignalObserver.DoorSignalListener doorCallback = createDoorSignalCallback();
 
         if (vhalSignalObserver != null) {
-            // 转向联动已启动 VhalSignalObserver，直接附加车门监听
-            AppLog.i(TAG, "� 复用已有的信号观察者，附加车门监听");
+            // 转 к 联动Запущено VhalSignalObserver，直接附加车门监听
+            AppLog.i(TAG, "� 复用有 信号观察者，附加车门监听");
             vhalSignalObserver.setDoorSignalListener(doorCallback);
         } else {
-            // 转向联动未启动，需要单独创建 VhalSignalObserver（仅用于车门）
-            AppLog.i(TAG, "� 转向联动未启动，创建信号观察者用于车门联动");
+            // 转 к 联动Не Запуск，необходимо单独创建 VhalSignalObserver（только用于车门)
+            AppLog.i(TAG, "� 转 к 联动Не Запуск，创建信号观察者用于车门联动");
             vhalSignalObserver = new VhalSignalObserver(new VhalSignalObserver.TurnSignalListener() {
                 @Override
                 public void onTurnSignal(String direction, boolean on) {
-                    // 转向联动未启用，忽略转向灯事件
+                    // 转 к 联动Не Включить，忽略转 к 灯事件
                 }
                 @Override
                 public void onConnectionStateChanged(boolean connected) {
-                    AppLog.d(TAG, "车辆API连接 (door-only): " + (connected ? "connected" : "disconnected"));
+                    AppLog.d(TAG, "车辆APIПодключение (door-only): " + (connected ? "connected" : "disconnected"));
                 }
             });
             vhalSignalObserver.setDoorSignalListener(doorCallback);
@@ -285,10 +285,10 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * CarSignalManager 车门联动（L6/L7/博越L）
+     * CarSignalManager 车门联动（L6/L7/博越L)
      */
     private void initCarSignalManagerDoorObserver() {
-        AppLog.i(TAG, "🚪 使用 CarSignalManager API 车门联动 (L6/L7/博越L)");
+        AppLog.i(TAG, "🚪 использование CarSignalManager API 车门联动 (L6/L7/博越L)");
 
         doorSignalObserver = new DoorSignalObserver(this, new DoorSignalObserver.DoorSignalListener() {
             @Override
@@ -303,7 +303,7 @@ public class BlindSpotService extends Service {
 
             @Override
             public void onConnectionStateChanged(boolean connected) {
-                AppLog.i(TAG, "🚪 车门监听连接状态: " + (connected ? "✅ 已连接" : "❌ 未连接"));
+                AppLog.i(TAG, "🚪 车门监听ПодключениеСтатус: " + (connected ? "✅ Подключено" : "❌ Не подключено"));
             }
         });
 
@@ -311,7 +311,7 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 创建车辆API 车门信号回调（复用相同的车门处理逻辑）
+     * 创建车辆API 车门信号回调（复用相同 车门处理逻辑)
      */
     private VhalSignalObserver.DoorSignalListener createDoorSignalCallback() {
         return new VhalSignalObserver.DoorSignalListener() {
@@ -327,80 +327,80 @@ public class BlindSpotService extends Service {
 
             @Override
             public void onConnectionStateChanged(boolean connected) {
-                AppLog.i(TAG, "� 车辆API车门监听连接状态: " + (connected ? "✅ 已连接" : "❌ 未连接"));
+                AppLog.i(TAG, "� 车辆API车门监听ПодключениеСтатус: " + (connected ? "✅ Подключено" : "❌ Не подключено"));
             }
         };
     }
 
     /**
-     * 处理车门打开事件（车辆API 和 CarSignalManager 共用）
+     * 处理车门открыть事件（车辆API  и  CarSignalManager Всего 用)
      */
     private void handleDoorOpen(String side) {
-        AppLog.i(TAG, "🚪🚪🚪 收到车门打开事件: " + side);
+        AppLog.i(TAG, "🚪🚪🚪 Получена команда: 车门открыть事件: " + side);
 
         if (!appConfig.isBlindSpotGlobalEnabled()) {
-            AppLog.w(TAG, "🚪 补盲功能未启用，跳过车门触发");
+            AppLog.w(TAG, "🚪 补盲функцияНе Включить，跳过车门触发");
             return;
         }
         if (!appConfig.isDoorLinkageEnabled()) {
-            AppLog.w(TAG, "🚪 车门联动未启用，跳过车门触发");
+            AppLog.w(TAG, "🚪 车门联动Не Включить，跳过车门触发");
             return;
         }
 
-        // 如果当前有转向灯激活，车门联动让路（转向灯优先级更高）
+        // Если Текущий有转 к 灯激活，车门联动让 кам.（转 к 灯优先级更Высокий)
         if (currentSignalCamera != null && !currentSignalCamera.isEmpty()) {
-            AppLog.w(TAG, "🚪 转向灯正在使用(" + currentSignalCamera + ")，车门联动让路");
+            AppLog.w(TAG, "🚪 转 к 灯Выполняется использование(" + currentSignalCamera + ")，车门联动让 кам.");
             return;
         }
 
-        // 如果同侧摄像头已经在显示（车门联动触发的），跳过重复显示
+        // Если 同侧Камера经 显示（车门联动触发 )，跳过重复显示
         if (isMainTempShown && mainFloatingWindowView != null) {
-            AppLog.i(TAG, "🚪 车门联动摄像头已在显示，跳过重复创建");
-            // 但需要取消隐藏计时器（门重新打开了）
+            AppLog.i(TAG, "🚪 车门联动Камера 显示，跳过重复创建");
+            // 但необходимоОтмена隐藏计时器（门重新открыть)
             if (hideRunnable != null) {
                 hideHandler.removeCallbacks(hideRunnable);
                 hideRunnable = null;
-                AppLog.i(TAG, "🚪 取消隐藏计时器（门重新打开）");
+                AppLog.i(TAG, "🚪 Отмена隐藏计时器（门重新открыть)");
             }
             return;
         }
 
-        AppLog.i(TAG, "🚪 ✅ 车门打开: " + side + "，准备显示摄像头");
+        AppLog.i(TAG, "🚪 ✅ 车门открыть: " + side + "，准备显示Камера");
         showDoorCamera(side);
     }
 
     /**
-     * 处理车门关闭事件（车辆API 和 CarSignalManager 共用）
+     * 处理车门Закрыто事件（车辆API  и  CarSignalManager Всего 用)
      */
     private void handleDoorClose(String side) {
-        AppLog.i(TAG, "🚪🚪🚪 收到车门关闭事件: " + side);
+        AppLog.i(TAG, "🚪🚪🚪 Получена команда: 车门Закрыто事件: " + side);
 
         if (!appConfig.isDoorLinkageEnabled()) {
-            AppLog.w(TAG, "🚪 车门联动未启用，跳过关闭逻辑");
+            AppLog.w(TAG, "🚪 车门联动Не Включить，跳过Закрыто逻辑");
             return;
         }
 
-        // 只有在没有转向灯激活时才关闭车门摄像头
+        // 只有 没有转 к 灯激活时才Закрыто车门Камера
         if (currentSignalCamera != null && !currentSignalCamera.isEmpty()) {
-            AppLog.w(TAG, "🚪 转向灯正在使用(" + currentSignalCamera + ")，不关闭车门摄像头");
+            AppLog.w(TAG, "🚪 转 к 灯Выполняется использование(" + currentSignalCamera + ")，不Закрыто车门Камера");
             return;
         }
 
-        // 检查是否有车门联动触发的窗口在显示
+        // проверка 否有车门联动触发 窗口 显示
         if (!isMainTempShown && dedicatedBlindSpotWindow == null) {
-            AppLog.i(TAG, "🚪 没有车门联动窗口在显示，跳过关闭逻辑");
+            AppLog.i(TAG, "🚪 没有车门联动窗口 显示，跳过Закрыто逻辑");
             return;
         }
 
-        AppLog.i(TAG, "🚪 ✅ 车门关闭: " + side + "，准备延迟关闭摄像头");
+        AppLog.i(TAG, "🚪 ✅ 车门Закрыто: " + side + "，准备延迟ЗакрытоКамера");
         startDoorHideTimer();
     }
 
     private void initLogcatSignalObserver() {
         AppLog.d(TAG, "Using Logcat trigger mode");
 
-        // 安全兜底：即使 logcat -T 已从源头跳过历史缓冲，
-        // 仍保留 500ms 预热期以防极端情况（如系统时间跳变）
+        // 安全兜底：т.е.使 logcat -T  от 源头跳过历史缓冲，
+        // 仍保留 500ms 预热期以防极端情况（еслиСистема时间跳变)
         final long observerStartTime = System.currentTimeMillis();
         final long WARMUP_MS = 500;
 
@@ -434,8 +434,8 @@ public class BlindSpotService extends Service {
                 return;
             }
         });
-        // 将用户配置的触发关键字传入，用于构建 logcat -e 原生过滤正则。
-        // 行驶中车机日志量暴增，不做原生过滤会导致转向灯信号被"淹没"而延迟。
+        // 将用户конфигурация 触发Выкл键字传入，用于构建 logcat -e 原生过滤正则。
+        // 行驶车机 д.志量暴增，不做原生过滤会导致转 к 灯信号 "淹没"而延迟。
         logcatSignalObserver.setFilterKeywords(
                 appConfig.getTurnSignalLeftTriggerLog(),
                 appConfig.getTurnSignalRightTriggerLog()
@@ -449,8 +449,8 @@ public class BlindSpotService extends Service {
             logcatSignalObserver = null;
         }
         if (vhalSignalObserver != null) {
-            vhalSignalObserver.setDoorSignalListener(null); // 清除车门监听
-            vhalSignalObserver.setCustomKeyListener(null); // 清除定制键监听
+            vhalSignalObserver.setDoorSignalListener(null); // очистка车门监听
+            vhalSignalObserver.setCustomKeyListener(null); // очистка定制键监听
             vhalSignalObserver.stop();
             vhalSignalObserver = null;
         }
@@ -465,45 +465,45 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 显示盲区摄像头（用于 CarSignalManager API，不使用 debounce）
+     * 显示盲区Камера（用于 CarSignalManager API，不использование debounce)
      */
     private void showBlindSpotCamera(String cameraPos) {
-        // 全景影像避让：目标Activity在前台时不弹出补盲窗口
+        // 全景影像避让：目标Activity Передний план时不弹出补盲窗口
         if (isAvmAvoidanceActive) {
-            AppLog.d(TAG, "全景影像避让中，忽略CarSignalManager转向灯信号: " + cameraPos);
+            AppLog.d(TAG, "全景影像避让，忽略CarSignalManager转 к 灯信号: " + cameraPos);
             return;
         }
 
-        AppLog.i(TAG, "🚦 转向灯触发摄像头: " + cameraPos);
+        AppLog.i(TAG, "🚦 转 к 灯触发Камера: " + cameraPos);
         
-        // 如果车门联动窗口在显示，先关闭（转向灯优先级更高）
+        // Если 车门联动窗口 显示，先Закрыто（转 к 灯优先级更Высокий)
         if (isMainTempShown) {
-            AppLog.i(TAG, "🚦 检测到车门联动窗口，转向灯接管（优先级更高）");
+            AppLog.i(TAG, "🚦 Обнаружено车门联动窗口，转 к 灯接管（优先级更Высокий)");
             isMainTempShown = false;
         }
         
-        // 取消隐藏计时器
+        // Отмена隐藏计时器
         if (hideRunnable != null) {
             hideHandler.removeCallbacks(hideRunnable);
             hideRunnable = null;
-            AppLog.d(TAG, "🚦 已取消隐藏计时器");
+            AppLog.d(TAG, "🚦 Отмена隐藏计时器");
         }
 
-        // 取消信号保活计时器（如果之前从其他模式切换过来）
+        // Отмена信号保活计时器（Если до от Другоережим切换过来)
         if (signalKeepAliveRunnable != null) {
             hideHandler.removeCallbacks(signalKeepAliveRunnable);
             signalKeepAliveRunnable = null;
         }
 
         if (cameraPos.equals(currentSignalCamera)) {
-            AppLog.d(TAG, "转向灯相同，不重复切换: " + cameraPos);
+            AppLog.d(TAG, "转 к 灯相同，不重复切换: " + cameraPos);
             return;
         }
 
         currentSignalCamera = cameraPos;
-        AppLog.i(TAG, "🚦 转向灯激活，设置 currentSignalCamera = " + cameraPos);
+        AppLog.i(TAG, "🚦 转 к 灯激活，Настройки currentSignalCamera = " + cameraPos);
 
-        // --- 1. 尽早创建窗口 UI（addView 触发布局，与后续 IPC 并行，Surface 就绪更快） ---
+        // --- 1. 尽早创建窗口 UI（addView 触发布局， и 后续 IPC 并行，Surface 绪更快) ---
         boolean reuseMain = appConfig.isTurnSignalReuseMainFloating();
 
         if (reuseMain) {
@@ -518,10 +518,10 @@ public class BlindSpotService extends Service {
                 mainFloatingWindowView.show();
                 mainFloatingWindowView.updateStatusLabel(cameraPos);
                 isMainTempShown = true;
-                AppLog.d(TAG, "主屏开启临时补盲悬浮窗");
+                AppLog.d(TAG, "主屏Вкл启временно补盲悬浮窗");
             }
         } else {
-            // 使用独立补盲悬浮窗
+            // использование独立补盲悬浮窗
             if (mainFloatingWindowView != null) {
                 mainFloatingWindowView.dismiss();
                 mainFloatingWindowView = null;
@@ -535,21 +535,21 @@ public class BlindSpotService extends Service {
             dedicatedBlindSpotWindow.setCameraPos(cameraPos);
             dedicatedBlindSpotWindow.show();
             dedicatedBlindSpotWindow.updateStatusLabel(cameraPos);
-            // setCamera 需要 CameraManager，延后到初始化之后调用
+            // setCamera необходимо CameraManager，延后 до инициализацияпосле调用
         }
 
-        // 副屏窗口预创建（addView 触发布局）
+        // 副屏窗口预创建（addView 触发布局)
         if (appConfig.isSecondaryDisplayEnabled()) {
             if (secondaryFloatingView == null) {
                 showSecondaryDisplay();
             }
         }
 
-        // --- 2. 异步启动前台服务和初始化相机（与 UI 布局并行） ---
-        CameraForegroundService.start(this, "补盲运行中", "正在显示补盲画面");
+        // --- 2. 异步ЗапускПередний планСервис и инициализация相机（ и  UI 布局并行) ---
+        CameraForegroundService.start(this, "Слепые зоны активны", "Отображение мониторинга слепых зон");
         com.kooo.evcam.camera.CameraManagerHolder.getInstance().getOrInit(this);
 
-        // --- 3. 提前打开相机（与 Surface 创建并行，节省 ~20-60ms） ---
+        // --- 3. 提前открыть相机（ и  Surface 创建并行，节省 ~20-60ms) ---
         {
             MultiCameraManager cm = com.kooo.evcam.camera.CameraManagerHolder.getInstance().getCameraManager();
             if (cm != null) {
@@ -560,45 +560,45 @@ public class BlindSpotService extends Service {
             }
         }
 
-        // --- 4. 需要 CameraManager 的操作 ---
+        // --- 4. необходимо CameraManager  операция ---
         if (!reuseMain && dedicatedBlindSpotWindow != null) {
             dedicatedBlindSpotWindow.setCamera(cameraPos);
         }
 
-        // 副屏摄像头预览
+        // 副屏Камера预览
         if (appConfig.isSecondaryDisplayEnabled()) {
             startSecondaryCameraPreviewDirectly(cameraPos);
         }
     }
 
     private void handleTurnSignal(String cameraPos) {
-        // 取消隐藏计时器
+        // Отмена隐藏计时器
         if (hideRunnable != null) {
             hideHandler.removeCallbacks(hideRunnable);
             hideRunnable = null;
         }
 
-        // 重置信号保活计时器（debounce）
-        // 每次收到有效信号（value:1）都重置，超过 1.2 秒无新信号则认为转向灯已关闭
+        // Сброс信号保活计时器（debounce)
+        // 每 разПолучена команда: действует信号（value:1)всеСброс，超过 1.2  сек.无新信号则认为转 к 灯Закрыто
         resetSignalKeepAlive();
 
         if (cameraPos.equals(currentSignalCamera)) {
-            AppLog.d(TAG, "转向灯相同，不重复切换: " + cameraPos);
+            AppLog.d(TAG, "转 к 灯相同，不重复切换: " + cameraPos);
             return;
         }
 
         currentSignalCamera = cameraPos;
-        AppLog.d(TAG, "转向灯触发摄像头: " + cameraPos);
+        AppLog.d(TAG, "转 к 灯触发Камера: " + cameraPos);
 
-        // --- 1. 尽早创建窗口 UI（addView 触发布局，与后续 IPC 并行，Surface 就绪更快） ---
+        // --- 1. 尽早创建窗口 UI（addView 触发布局， и 后续 IPC 并行，Surface 绪更快) ---
         boolean reuseMain = false;
-        // 全景影像避让：目标Activity在前台时只跳过主屏窗口，副屏仍正常工作
+        // 全景影像避让：目标Activity Передний план时只跳过主屏窗口，副屏仍нормально工作
         if (!isAvmAvoidanceActive) {
             reuseMain = appConfig.isTurnSignalReuseMainFloating();
 
             if (reuseMain) {
                 // --- 复用主屏悬浮窗逻辑 ---
-                // 切换方向时重建悬浮窗，确保窗口尺寸/旋转参数与新摄像头匹配
+                // 切换方 к 时重建悬浮窗，确保窗口尺寸/Поворот 参数 и 新Камера匹配
                 if (mainFloatingWindowView != null) {
                     mainFloatingWindowView.dismiss();
                     mainFloatingWindowView = null;
@@ -609,11 +609,11 @@ public class BlindSpotService extends Service {
                     mainFloatingWindowView.show();
                     mainFloatingWindowView.updateStatusLabel(cameraPos);
                     isMainTempShown = true;
-                    AppLog.d(TAG, "主屏开启临时补盲悬浮窗");
+                    AppLog.d(TAG, "主屏Вкл启временно补盲悬浮窗");
                 }
             } else {
-                // --- 使用独立补盲悬浮窗逻辑 ---
-                // 切换方向时重建悬浮窗
+                // --- использование独立补盲悬浮窗逻辑 ---
+                // 切换方 к 时重建悬浮窗
                 if (mainFloatingWindowView != null) {
                     mainFloatingWindowView.dismiss();
                     mainFloatingWindowView = null;
@@ -624,31 +624,31 @@ public class BlindSpotService extends Service {
                     dedicatedBlindSpotWindow = null;
                 }
                 dedicatedBlindSpotWindow = new BlindSpotFloatingWindowView(this, false);
-                dedicatedBlindSpotWindow.setCameraPos(cameraPos); // 先设置摄像头位置，再 show
+                dedicatedBlindSpotWindow.setCameraPos(cameraPos); // 先НастройкиКамераПозиция，再 show
                 dedicatedBlindSpotWindow.show();
                 dedicatedBlindSpotWindow.updateStatusLabel(cameraPos);
-                // setCamera 需要 CameraManager，延后到初始化之后调用
+                // setCamera необходимо CameraManager，延后 до инициализацияпосле调用
             }
         } else {
-            AppLog.d(TAG, "全景影像避让中，跳过主屏窗口创建，副屏正常处理: " + cameraPos);
+            AppLog.d(TAG, "全景影像避让，跳过主屏窗口创建，副屏нормально处理: " + cameraPos);
         }
 
-        // --- 副屏窗口预创建（addView 触发布局） ---
+        // --- 副屏窗口预创建（addView 触发布局) ---
         if (appConfig.isSecondaryDisplayEnabled()) {
             if (secondaryFloatingView == null) {
                 showSecondaryDisplay();
             }
         }
 
-        // --- 2. 异步启动前台服务和初始化相机（与 UI 布局并行） ---
-        // 前台服务是后台访问摄像头的前提条件，但 addView 不需要它
-        // 冷启动时 CameraForegroundService 可能还未启动，导致摄像头被系统 CAMERA_DISABLED 拦截
-        CameraForegroundService.start(this, "补盲运行中", "正在显示补盲画面");
+        // --- 2. 异步ЗапускПередний планСервис и инициализация相机（ и  UI 布局并行) ---
+        // Передний планСервис Фоновый режимдоступКамера 前提条件，但 addView 不необходимо它
+        // 冷Запуск时 CameraForegroundService 可能还Не Запуск，导致Камера Система CAMERA_DISABLED 拦截
+        CameraForegroundService.start(this, "Слепые зоны активны", "Отображение мониторинга слепых зон");
 
-        // 确保摄像头已初始化（通过全局 Holder，不依赖 MainActivity）
+        // 确保Камераинициализация（通过全局 Holder，不依赖 MainActivity)
         com.kooo.evcam.camera.CameraManagerHolder.getInstance().getOrInit(this);
 
-        // --- 3. 提前打开相机（与 Surface 创建并行，节省 ~20-60ms） ---
+        // --- 3. 提前открыть相机（ и  Surface 创建并行，节省 ~20-60ms) ---
         {
             MultiCameraManager cm = com.kooo.evcam.camera.CameraManagerHolder.getInstance().getCameraManager();
             if (cm != null) {
@@ -659,13 +659,13 @@ public class BlindSpotService extends Service {
             }
         }
 
-        // --- 4. 需要 CameraManager 的操作 ---
-        // dedicatedBlindSpotWindow.setCamera() 需要 CameraManager 获取 previewSize
+        // --- 4. необходимо CameraManager  операция ---
+        // dedicatedBlindSpotWindow.setCamera() необходимо CameraManager Получение previewSize
         if (!isAvmAvoidanceActive && !reuseMain && dedicatedBlindSpotWindow != null) {
             dedicatedBlindSpotWindow.setCamera(cameraPos);
         }
 
-        // --- 副屏摄像头预览 ---
+        // --- 副屏Камера预览 ---
         if (appConfig.isSecondaryDisplayEnabled()) {
             startSecondaryCameraPreviewDirectly(cameraPos);
         }
@@ -690,7 +690,7 @@ public class BlindSpotService extends Service {
             && secondaryCachedSurface != null && secondaryCachedSurface.isValid();
         if (newCamera == secondaryCamera && surfaceReady && newCamera.isSecondaryDisplaySurfaceBound(secondaryCachedSurface)) {
             cancelSecondaryRetry();
-            AppLog.d(TAG, "副屏摄像头未变化且 Surface 已绑定，跳过 Session 重建: " + cameraPos);
+            AppLog.d(TAG, "副屏КамераНе 变化且 Surface 绑定，跳过 Session 重建: " + cameraPos);
             return;
         }
 
@@ -705,10 +705,10 @@ public class BlindSpotService extends Service {
             if (secondaryCachedSurface == null || !secondaryCachedSurface.isValid()) {
                 Size previewSize = secondaryCamera.getPreviewSize();
                 if (previewSize == null || !secondaryCamera.isCameraOpened()) {
-                    // 相机未打开：注册一次性回调，相机打开时立即绑定（无需轮询）
-                    // 回调在 onOpened 的 backgroundHandler 线程中同步执行，
-                    // 在 createCameraPreviewSession 之前完成，确保副屏 Surface 被第一次 Session 包含
-                    AppLog.d(TAG, "副屏注册 onCameraOpened 回调等待绑定: " + cameraPos);
+                    // 相机Не открыть：注册一 раз性回调，相机открыть时立т.е.绑定（无需轮询)
+                    // 回调  onOpened   backgroundHandler 线程同步выполнение，
+                    //   createCameraPreviewSession дозавершение，确保副屏 Surface  Первый раз Session содержит
+                    AppLog.d(TAG, "副屏注册 onCameraOpened 回调ожидание绑定: " + cameraPos);
                     cancelSecondaryRetry();
                     final SingleCamera cam = secondaryCamera;
                     final TextureView tv = secondaryTextureView;
@@ -721,20 +721,20 @@ public class BlindSpotService extends Service {
                                 if (secondaryCachedSurface != null) secondaryCachedSurface.release();
                                 secondaryCachedSurface = new Surface(st);
                                 cam.setSecondaryDisplaySurface(secondaryCachedSurface, st);
-                                AppLog.d(TAG, "副屏通过 onCameraOpened 回调立即绑定 Surface: " + cameraPos);
+                                AppLog.d(TAG, "副屏通过 onCameraOpened 回调立т.е.绑定 Surface: " + cameraPos);
                             }
                         }
                     });
-                    // 如果相机未打开，判断是否需要副屏主动打开
-                    // 当主屏悬浮窗正在创建时，由主屏的 updateCamera() 打开相机，
-                    // 这样 onCameraOpened 回调中副屏 Surface 已就绪，session 一次建成无需重建
+                    // Если 相机Не открыть，判断 否необходимо副屏主动открыть
+                    // 当主屏悬浮窗Выполняется 创建时，由主屏  updateCamera() открыть相机，
+                    // 这样 onCameraOpened 回调副屏 Surface 绪，session 一 раз建成无需重建
                     if (!cam.isCameraOpened()) {
                         boolean mainWindowWillOpenCamera = mainFloatingWindowView != null || dedicatedBlindSpotWindow != null;
                         if (!mainWindowWillOpenCamera) {
-                            AppLog.d(TAG, "副屏主动打开相机（无主屏窗口触发）: " + cameraPos);
+                            AppLog.d(TAG, "副屏主动открыть相机（无主屏窗口触发): " + cameraPos);
                             CameraForegroundService.whenReady(BlindSpotService.this, cam::openCamera);
                         } else {
-                            AppLog.d(TAG, "副屏等待主屏窗口打开相机（避免过早创建session）: " + cameraPos);
+                            AppLog.d(TAG, "副屏ожидание主屏窗口открыть相机（避免过早创建session): " + cameraPos);
                         }
                     }
                     return;
@@ -748,13 +748,13 @@ public class BlindSpotService extends Service {
             }
             
             if (isSwitchingCamera) {
-                // 切换摄像头：延迟绑定副屏 Surface，等旧 session 完全关闭释放 Surface
-                // 主悬浮窗会先显示（不含副屏 Surface），副屏稍后加入，避免 "connect: already connected"
-                AppLog.d(TAG, "副屏延迟绑定 Surface（等待旧 session 关闭）: " + cameraPos);
+                // 切换Камера：延迟绑定副屏 Surface，等旧 session 完全Закрыто释放 Surface
+                // 主悬浮窗会先显示（不含副屏 Surface)，副屏稍后加入，避免 "connect: already connected"
+                AppLog.d(TAG, "副屏延迟绑定 Surface（ожидание旧 session Закрыто): " + cameraPos);
                 final SingleCamera delayedCamera = secondaryCamera;
                 final Surface delayedSurface = secondaryCachedSurface;
                 hideHandler.postDelayed(() -> {
-                    // 确认仍然是同一个摄像头和 Surface（防止快速切换导致的过期回调）
+                    // Подтвердить仍然 同一 шт.Камера и  Surface（防止快速切换导致 истекло回调)
                     if (delayedCamera == secondaryCamera && delayedSurface == secondaryCachedSurface
                             && delayedSurface != null && delayedSurface.isValid()) {
                         AppLog.d(TAG, "副屏绑定 Surface 并重建 Session: " + cameraPos);
@@ -764,12 +764,12 @@ public class BlindSpotService extends Service {
                     }
                 }, 300);
             } else {
-                // 同一个摄像头或首次绑定：立即设置
-                // 首次绑定：始终使用紧急模式
+                // 同一 шт.Камераили首 раз绑定：立т.е.Настройки
+                // 首 раз绑定：始终использование紧急режим
                 // - 主屏通过 createCameraPreviewSession() 直接创建 session，不走 recreateSession，
-                //   因此不存在双 urgent 冲突
-                // - urgent=true 时 isConfiguring=true 的 delay=50ms（vs 非紧急的 500ms），
-                //   足够等主屏 session 完成配置后立即重建
+                //   поэтомуне существует双 urgent 冲突
+                // - urgent=true 时 isConfiguring=true   delay=50ms（vs 非紧急  500ms)，
+                //   足够等主屏 session завершениеконфигурация后立т.е.重建
                 AppLog.d(TAG, "副屏绑定新 Surface 并重建 Session: " + cameraPos + " (urgent=true)");
                 android.graphics.SurfaceTexture secSt = (secondaryTextureView != null && secondaryTextureView.isAvailable()) ? secondaryTextureView.getSurfaceTexture() : null;
                 secondaryCamera.setSecondaryDisplaySurface(secondaryCachedSurface, secSt);
@@ -777,7 +777,7 @@ public class BlindSpotService extends Service {
             }
             BlindSpotCorrection.apply(secondaryTextureView, appConfig, cameraPos, appConfig.getSecondaryDisplayRotation());
         } else {
-            AppLog.d(TAG, "副屏 TextureView 尚未就绪，暂不绑定 Surface: " + cameraPos);
+            AppLog.d(TAG, "副屏 TextureView 尚Не 绪，暂不绑定 Surface: " + cameraPos);
             scheduleSecondaryRetry(cameraPos);
         }
     }
@@ -787,7 +787,7 @@ public class BlindSpotService extends Service {
         secondaryRetryCount++;
         long delayMs;
         if (secondaryRetryCount <= 5) {
-            // 前5次快速重试（50ms），覆盖冷启动等待 previewSize 就位的场景
+            // 前5 раз快速重试（50ms)，覆盖冷Запускожидание previewSize 位 场景
             delayMs = 50;
         } else if (secondaryRetryCount <= 15) {
             delayMs = 500;
@@ -809,33 +809,33 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 预触发相机打开（与 UI 创建并行执行）。
-     * 在创建悬浮窗之前调用，使 openCamera 的异步操作与窗口创建/布局同时进行，
-     * 避免等 TextureView 就绪后才串行触发 openCamera 的延迟。
-     * openCamera 内部有 isOpening/isCameraOpened 防护，不会重复打开。
+     * 预触发相机открыть（ и  UI 创建并行выполнение)。
+     *  创建悬浮窗до调用，使 openCamera  异步операция и 窗口创建/布局同时进行，
+     * 避免等 TextureView 绪后才串行触发 openCamera  延迟。
+     * openCamera Внутреннее有 isOpening/isCameraOpened 防护，不会重复открыть。
      */
     private void preOpenCamera(String cameraPos) {
         MultiCameraManager cameraManager = com.kooo.evcam.camera.CameraManagerHolder.getInstance().getCameraManager();
         if (cameraManager == null) return;
         SingleCamera cam = cameraManager.getCamera(cameraPos);
         if (cam != null && !cam.isCameraOpened()) {
-            AppLog.d(TAG, "预触发相机打开（与UI并行）: " + cameraPos);
+            AppLog.d(TAG, "预触发相机открыть（ и UI并行): " + cameraPos);
             CameraForegroundService.whenReady(this, cam::openCamera);
         }
     }
 
     /**
-     * 重置信号保活计时器（debounce 机制）
-     * 转向灯闪烁时，每 ~400ms 会产生一次 value:1 的日志。
-     * 如果超过 1.2 秒没有收到新的 value:1 信号，说明转向灯已关闭，
-     * 此时启动隐藏计时器（用户配置的延迟时间）。
+     * Сброс信号保活计时器（debounce 机制)
+     * 转 к 灯闪烁时，每 ~400ms 会产生一 раз value:1   д.志。
+     * Если 超过 1.2  сек.没有Получена команда: 新  value:1 信号，说明转 к 灯Закрыто，
+     * 此时Запуск隐藏计时器（用户конфигурация 延迟时间)。
      */
     private void resetSignalKeepAlive() {
         if (signalKeepAliveRunnable != null) {
             hideHandler.removeCallbacks(signalKeepAliveRunnable);
         }
         signalKeepAliveRunnable = () -> {
-            AppLog.d(TAG, "转向灯信号超时（" + SIGNAL_KEEPALIVE_MS + "ms 无新信号），启动隐藏计时器");
+            AppLog.d(TAG, "转 к 灯信号таймаут（" + SIGNAL_KEEPALIVE_MS + "ms 无新信号)，Запуск隐藏计时器");
             signalKeepAliveRunnable = null;
             startHideTimer();
         };
@@ -848,14 +848,14 @@ public class BlindSpotService extends Service {
         }
 
         int timeout = appConfig.getTurnSignalTimeout();
-        AppLog.i(TAG, "🚦 转向灯熄灭，启动隐藏计时器: " + timeout + "秒后关闭摄像头");
+        AppLog.i(TAG, "🚦 转 к 灯熄灭，Запуск隐藏计时器: " + timeout + " сек.后ЗакрытоКамера");
 
         hideRunnable = () -> {
-            AppLog.i(TAG, "🚦 ⏰ 转向灯超时(" + timeout + "秒)，隐藏补盲画面");
+            AppLog.i(TAG, "🚦 ⏰ 转 к 灯таймаут(" + timeout + " сек.)，隐藏补盲画面");
             currentSignalCamera = null;
-            AppLog.i(TAG, "🚦 清除 currentSignalCamera，车门联动恢复可用");
+            AppLog.i(TAG, "🚦 очистка currentSignalCamera，车门联动ВосстановлениеДоступно");
             
-            // 恢复主屏悬浮窗状态
+            // Восстановление主屏悬浮窗Статус
             if (isMainTempShown && mainFloatingWindowView != null) {
                 mainFloatingWindowView.dismiss();
                 mainFloatingWindowView = null;
@@ -869,96 +869,96 @@ public class BlindSpotService extends Service {
                 dedicatedBlindSpotWindow.dismiss();
                 dedicatedBlindSpotWindow = null;
                 
-                // 如果原本主屏悬浮窗就是开启的，补盲结束后需要恢复它
+                // Если 原本主屏悬浮窗 Вкл启 ，补盲завершить后необходимоВосстановление它
                 if (appConfig.isMainFloatingEnabled()) {
                     updateMainFloatingWindow();
                 }
             }
 
-            // --- 副屏显示恢复 ---
+            // --- 副屏显示Восстановление ---
             updateSecondaryDisplay();
             hideRunnable = null;
             
-            // 补盲结束，如果没有持久 Surface 在用且 Activity 在后台，释放相机
+            // 补盲завершить，Если 没有持久 Surface  用且 Activity  Фоновый режим，释放相机
             closeCamerasIfIdle();
         };
 
         hideHandler.postDelayed(hideRunnable, timeout * 1000L);
     }
 
-    // ==================== 车门联动相关方法 ====================
+    // ==================== 车门联动相Выкл方法 ====================
     
     /**
-     * 显示车门摄像头（专用于车门联动）
+     * 显示车门Камера（专用于车门联动)
      */
     private void showDoorCamera(String side) {
-        // 全景影像避让：目标Activity在前台时不弹出补盲窗口
+        // 全景影像避让：目标Activity Передний план时不弹出补盲窗口
         if (isAvmAvoidanceActive) {
-            AppLog.d(TAG, "全景影像避让中，忽略车门信号: " + side);
+            AppLog.d(TAG, "全景影像避让，忽略车门信号: " + side);
             return;
         }
 
-        AppLog.i(TAG, "🚪 ========== showDoorCamera 开始执行 ==========");
+        AppLog.i(TAG, "🚪 ========== showDoorCamera Вкл始выполнение ==========");
         AppLog.i(TAG, "🚪 触发侧: " + side);
         
-        // 取消车门隐藏计时器
+        // Отмена车门隐藏计时器
         if (hideRunnable != null) {
             hideHandler.removeCallbacks(hideRunnable);
             hideRunnable = null;
-            AppLog.d(TAG, "🚪 已取消隐藏计时器");
+            AppLog.d(TAG, "🚪 Отмена隐藏计时器");
         }
         
-        // 取消信号保活计时器
+        // Отмена信号保活计时器
         if (signalKeepAliveRunnable != null) {
             hideHandler.removeCallbacks(signalKeepAliveRunnable);
             signalKeepAliveRunnable = null;
-            AppLog.d(TAG, "🚪 已取消信号保活计时器");
+            AppLog.d(TAG, "🚪 Отмена信号保活计时器");
         }
         
-        // --- 1. 尽早创建窗口 UI（addView 触发布局，与后续 IPC 并行，Surface 就绪更快） ---
+        // --- 1. 尽早创建窗口 UI（addView 触发布局， и 后续 IPC 并行，Surface 绪更快) ---
         boolean reuseMain = appConfig.isTurnSignalReuseMainFloating();
-        AppLog.i(TAG, "🚪 复用主屏悬浮窗: " + reuseMain + " (复用转向联动配置)");
+        AppLog.i(TAG, "🚪 复用主屏悬浮窗: " + reuseMain + " (复用转 к 联动конфигурация)");
         
         if (reuseMain) {
             // 复用主屏悬浮窗
             if (mainFloatingWindowView != null) {
                 mainFloatingWindowView.dismiss();
                 mainFloatingWindowView = null;
-                AppLog.d(TAG, "🚪 已关闭旧的主屏悬浮窗");
+                AppLog.d(TAG, "🚪 Закрыто旧 主屏悬浮窗");
             }
             if (WakeUpHelper.hasOverlayPermission(this)) {
-                AppLog.i(TAG, "🚪 创建主屏悬浮窗，显示 " + side + " 侧摄像头");
+                AppLog.i(TAG, "🚪 创建主屏悬浮窗，显示 " + side + " 侧Камера");
                 mainFloatingWindowView = new MainFloatingWindowView(this, appConfig);
                 mainFloatingWindowView.setDesiredCamera(side, true);
                 mainFloatingWindowView.show();
                 mainFloatingWindowView.updateStatusLabel(side);
                 isMainTempShown = true;
-                AppLog.i(TAG, "🚪 ✅ 主屏车门临时补盲悬浮窗已显示");
+                AppLog.i(TAG, "🚪 ✅ 主屏车门временно补盲悬浮窗显示");
             } else {
-                AppLog.e(TAG, "🚪 ❌ 没有悬浮窗权限！");
+                AppLog.e(TAG, "🚪 ❌ 没有Разрешение плавающего окна！");
             }
         } else {
-            // 使用独立补盲悬浮窗
+            // использование独立补盲悬浮窗
             if (mainFloatingWindowView != null) {
                 mainFloatingWindowView.dismiss();
                 mainFloatingWindowView = null;
                 isMainTempShown = false;
-                AppLog.d(TAG, "🚪 已关闭主屏悬浮窗");
+                AppLog.d(TAG, "🚪 Закрыто主屏悬浮窗");
             }
             if (dedicatedBlindSpotWindow != null) {
                 dedicatedBlindSpotWindow.dismiss();
                 dedicatedBlindSpotWindow = null;
-                AppLog.d(TAG, "🚪 已关闭旧的独立补盲窗");
+                AppLog.d(TAG, "🚪 Закрыто旧 独立补盲窗");
             }
-            AppLog.i(TAG, "🚪 创建独立补盲窗，显示 " + side + " 侧摄像头");
+            AppLog.i(TAG, "🚪 创建独立补盲窗，显示 " + side + " 侧Камера");
             dedicatedBlindSpotWindow = new BlindSpotFloatingWindowView(this, false);
             dedicatedBlindSpotWindow.setCameraPos(side);
             dedicatedBlindSpotWindow.show();
             dedicatedBlindSpotWindow.updateStatusLabel(side);
-            // setCamera 需要 CameraManager，延后到初始化之后调用
+            // setCamera необходимо CameraManager，延后 до инициализацияпосле调用
         }
         
-        // 副屏窗口预创建（addView 触发布局）
+        // 副屏窗口预创建（addView 触发布局)
         if (appConfig.isSecondaryDisplayEnabled()) {
             if (secondaryFloatingView == null) {
                 AppLog.d(TAG, "🚪 显示副屏");
@@ -966,13 +966,13 @@ public class BlindSpotService extends Service {
             }
         }
         
-        // --- 2. 异步启动前台服务和初始化相机（与 UI 布局并行） ---
-        AppLog.d(TAG, "🚪 启动前台服务");
-        CameraForegroundService.start(this, "补盲运行中", "正在显示补盲画面");
-        AppLog.d(TAG, "🚪 初始化摄像头管理器");
+        // --- 2. 异步ЗапускПередний планСервис и инициализация相机（ и  UI 布局并行) ---
+        AppLog.d(TAG, "🚪 ЗапускПередний планСервис");
+        CameraForegroundService.start(this, "Слепые зоны активны", "Отображение мониторинга слепых зон");
+        AppLog.d(TAG, "🚪 инициализацияКамерауправление器");
         com.kooo.evcam.camera.CameraManagerHolder.getInstance().getOrInit(this);
         
-        // --- 3. 提前打开相机（与 Surface 创建并行） ---
+        // --- 3. 提前открыть相机（ и  Surface 创建并行) ---
         {
             MultiCameraManager cm = com.kooo.evcam.camera.CameraManagerHolder.getInstance().getCameraManager();
             if (cm != null) {
@@ -983,23 +983,23 @@ public class BlindSpotService extends Service {
             }
         }
         
-        // --- 4. 需要 CameraManager 的操作 ---
+        // --- 4. необходимо CameraManager  операция ---
         if (!reuseMain && dedicatedBlindSpotWindow != null) {
             dedicatedBlindSpotWindow.setCamera(side);
-            AppLog.i(TAG, "🚪 ✅ 独立补盲窗已显示");
+            AppLog.i(TAG, "🚪 ✅ 独立补盲窗显示");
         }
         
-        // 副屏摄像头预览（复用转向联动的配置）
+        // 副屏Камера预览（复用转 к 联动 конфигурация)
         if (appConfig.isSecondaryDisplayEnabled()) {
-            AppLog.d(TAG, "🚪 启动副屏摄像头预览: " + side);
+            AppLog.d(TAG, "🚪 Запуск副屏Камера预览: " + side);
             startSecondaryCameraPreviewDirectly(side);
         }
         
-        AppLog.i(TAG, "🚪 ========== showDoorCamera 执行完成 ==========");
+        AppLog.i(TAG, "🚪 ========== showDoorCamera выполнениезавершение ==========");
     }
     
     /**
-     * 启动车门隐藏计时器（复用转向联动的延迟配置）
+     * Запуск车门隐藏计时器（复用转 к 联动 延迟конфигурация)
      */
     private void startDoorHideTimer() {
         if (hideRunnable != null) {
@@ -1007,17 +1007,17 @@ public class BlindSpotService extends Service {
         }
         
         int timeout = appConfig.getTurnSignalTimeout();
-        AppLog.i(TAG, "🚪 车门关闭，启动隐藏计时器: " + timeout + "秒后关闭摄像头 (复用转向联动配置)");
+        AppLog.i(TAG, "🚪 车门Закрыто，Запуск隐藏计时器: " + timeout + " сек.后ЗакрытоКамера (复用转 к 联动конфигурация)");
         
         hideRunnable = () -> {
-            AppLog.i(TAG, "🚪 ⏰ 车门超时(" + timeout + "秒)，隐藏补盲画面");
+            AppLog.i(TAG, "🚪 ⏰ 车门таймаут(" + timeout + " сек.)，隐藏补盲画面");
             
-            // 恢复主屏悬浮窗状态
+            // Восстановление主屏悬浮窗Статус
             if (isMainTempShown && mainFloatingWindowView != null) {
                 mainFloatingWindowView.dismiss();
                 mainFloatingWindowView = null;
                 isMainTempShown = false;
-                AppLog.i(TAG, "🚪 ✅ 主屏车门临时悬浮窗已关闭");
+                AppLog.i(TAG, "🚪 ✅ 主屏车门временно悬浮窗Закрыто");
             } else if (mainFloatingWindowView != null) {
                 mainFloatingWindowView.updateCamera(appConfig.getMainFloatingCamera());
             }
@@ -1026,19 +1026,19 @@ public class BlindSpotService extends Service {
             if (dedicatedBlindSpotWindow != null) {
                 dedicatedBlindSpotWindow.dismiss();
                 dedicatedBlindSpotWindow = null;
-                AppLog.i(TAG, "🚪 ✅ 独立补盲窗已关闭");
+                AppLog.i(TAG, "🚪 ✅ 独立补盲窗Закрыто");
                 
-                // 如果原本主屏悬浮窗就是开启的，补盲结束后需要恢复它
+                // Если 原本主屏悬浮窗 Вкл启 ，补盲завершить后необходимоВосстановление它
                 if (appConfig.isMainFloatingEnabled()) {
                     updateMainFloatingWindow();
                 }
             }
             
-            // 副屏显示恢复
+            // 副屏显示Восстановление
             updateSecondaryDisplay();
             hideRunnable = null;
             
-            // 补盲结束，如果没有持久 Surface 在用且 Activity 在后台，释放相机
+            // 补盲завершить，Если 没有持久 Surface  用且 Activity  Фоновый режим，释放相机
             closeCamerasIfIdle();
         };
         
@@ -1046,23 +1046,23 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 补盲结束后，检查是否可以释放相机资源。
-     * 条件：Activity 在后台 且 没有持久悬浮窗/副屏在使用相机。
+     * 补盲завершить后，проверка 否可以释放相机资源。
+     * 条件：Activity  Фоновый режим 且 没有持久悬浮窗/副屏 использование相机。
      */
     private void closeCamerasIfIdle() {
         if (isSelfInForeground) {
-            return; // Activity 在前台，由 Activity 管理相机
+            return; // Activity  Передний план，由 Activity управление相机
         }
         if (mainFloatingWindowView != null || secondaryFloatingView != null) {
-            return; // 仍有持久 Surface 在使用相机
+            return; // 仍有持久 Surface  использование相机
         }
         MultiCameraManager cameraManager = com.kooo.evcam.camera.CameraManagerHolder.getInstance().getCameraManager();
         if (cameraManager != null) {
             if (cameraManager.isRecording()) {
-                AppLog.d(TAG, "补盲结束但正在录制中，保持相机连接");
+                AppLog.d(TAG, "补盲завершить但Выполняется Запись，保持相机Подключение");
                 return;
             }
-            AppLog.d(TAG, "补盲结束且无持久 Surface，释放相机资源");
+            AppLog.d(TAG, "补盲завершить且无持久 Surface，释放相机资源");
             cameraManager.closeAllCameras();
         }
     }
@@ -1109,7 +1109,7 @@ public class BlindSpotService extends Service {
                 return START_STICKY;
             }
         }
-        // 重新初始化新功能（设置变更时通过 update() 触发）
+        // 重新инициализация新функция（Настройки变更时通过 update() 触发)
         appConfig = new AppConfig(this);
         ensureSignalObserversAlive();
         initAvmAvoidance();
@@ -1124,7 +1124,7 @@ public class BlindSpotService extends Service {
         if (previewBlindSpotWindow == null) {
             previewBlindSpotWindow = new BlindSpotFloatingWindowView(this, false);
             previewBlindSpotWindow.enableAdjustPreviewMode();
-            previewBlindSpotWindow.setCameraPos(cameraPos); // 先设置摄像头位置，再 show
+            previewBlindSpotWindow.setCameraPos(cameraPos); // 先НастройкиКамераПозиция，再 show
             previewBlindSpotWindow.show();
         }
         previewBlindSpotWindow.setCamera(cameraPos);
@@ -1146,7 +1146,7 @@ public class BlindSpotService extends Service {
     }
 
     private void updateWindows() {
-        // 全局开关关闭时，清理所有补盲窗口（调整模式和预览模式除外）
+        // 全局ВклВыклЗакрыто时，Очистка 所有补盲窗口（调整режим и 预览режим除外)
         if (!appConfig.isBlindSpotGlobalEnabled() && !isSecondaryAdjustMode && previewCameraPos == null) {
             removeSecondaryView();
             if (mainFloatingWindowView != null) {
@@ -1160,7 +1160,7 @@ public class BlindSpotService extends Service {
             removeMockControlWindow();
             currentSignalCamera = null;
             isMainTempShown = false;
-            // 定制键唤醒独立于补盲全局开关，仅当它也关闭时才停止服务
+            // 定制键唤醒独立于补盲全局ВклВыкл，только当它такжеЗакрыто时才ОстановкаСервис
             if (!appConfig.isCustomKeyWakeupEnabled()) {
                 stopSelf();
             }
@@ -1173,28 +1173,28 @@ public class BlindSpotService extends Service {
         applyTransforms();
         
         if (isSecondaryAdjustMode
-                || appConfig.isMainFloatingEnabled() // 加入主屏悬浮窗检查
-                || appConfig.isTurnSignalLinkageEnabled() // 加入转向灯联动检查
-                || appConfig.isDoorLinkageEnabled()  // 加入车门联动检查
-                || appConfig.isMockTurnSignalFloatingEnabled() // 加入模拟转向灯检查
+                || appConfig.isMainFloatingEnabled() // 加入主屏悬浮窗проверка
+                || appConfig.isTurnSignalLinkageEnabled() // 加入转 к 灯联动проверка
+                || appConfig.isDoorLinkageEnabled()  // 加入车门联动проверка
+                || appConfig.isMockTurnSignalFloatingEnabled() // 加入模拟转 к 灯проверка
                 || appConfig.isAvmAvoidanceEnabled() // 全景影像避让
                 || appConfig.isCustomKeyWakeupEnabled() // 定制键唤醒
-                || currentSignalCamera != null // 加入转向灯联动检查
+                || currentSignalCamera != null // 加入转 к 灯联动проверка
                 || previewCameraPos != null) {
-            CameraForegroundService.start(this, "补盲运行中", "正在显示补盲画面");
+            CameraForegroundService.start(this, "Слепые зоны активны", "Отображение мониторинга слепых зон");
         }
         
-        // 如果两个功能都关闭了，可以考虑停止服务
-        // 但若转向灯联动或车门联动开启，仍需要服务常驻以便触发补盲窗口
+        // Если 两 шт.функциявсеЗакрыто，可以考虑ОстановкаСервис
+        // 但若转 к 灯联动или车门联动Вкл启，仍необходимоСервис常驻以便触发补盲窗口
         if (!isSecondaryAdjustMode
                 && !appConfig.isMainFloatingEnabled()
                 && !appConfig.isTurnSignalLinkageEnabled()
-                && !appConfig.isDoorLinkageEnabled()  // 加入车门联动检查
+                && !appConfig.isDoorLinkageEnabled()  // 加入车门联动проверка
                 && !appConfig.isMockTurnSignalFloatingEnabled()
                 && !appConfig.isAvmAvoidanceEnabled() // 全景影像避让
                 && !appConfig.isCustomKeyWakeupEnabled() // 定制键唤醒
                 && previewCameraPos == null) {
-            AppLog.i(TAG, "🚪 所有功能都关闭，停止服务");
+            AppLog.i(TAG, "🚪 所有функциявсеЗакрыто，ОстановкаСервис");
             stopSelf();
         }
     }
@@ -1218,11 +1218,11 @@ public class BlindSpotService extends Service {
     }
 
     private void triggerMockSignal(String mockSignal) {
-        AppLog.d(TAG, "收到模拟转向灯信号: " + mockSignal);
+        AppLog.d(TAG, "Получена команда: 模拟转 к 灯信号: " + mockSignal);
         handleTurnSignal(mockSignal);
 
         hideHandler.postDelayed(() -> {
-            AppLog.d(TAG, "模拟转向灯结束，执行熄灭");
+            AppLog.d(TAG, "模拟转 к 灯завершить，выполнение熄灭");
             startHideTimer();
         }, 3000);
     }
@@ -1267,7 +1267,7 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 更新副屏悬浮窗的布局参数和旋转
+     * обновление副屏悬浮窗 布局参数 и Поворот 
      */
     private void updateSecondaryDisplayLayout() {
         if (secondaryFloatingView == null || secondaryWindowManager == null) return;
@@ -1279,9 +1279,9 @@ public class BlindSpotService extends Service {
         int orientation = appConfig.getSecondaryDisplayOrientation();
         int rotation = appConfig.getSecondaryDisplayRotation();
 
-        AppLog.d(TAG, "更新副屏布局: x=" + x + ", y=" + y + ", w=" + width + ", h=" + height + ", orientation=" + orientation);
+        AppLog.d(TAG, "обновление副屏布局: x=" + x + ", y=" + y + ", w=" + width + ", h=" + height + ", orientation=" + orientation);
 
-        // 如果方向是 90 或 270 度，交换宽高
+        // Если 方 к   90 или 270 度，交换宽Высокий
         int finalWidth = width;
         int finalHeight = height;
         if (orientation == 90 || orientation == 270) {
@@ -1298,14 +1298,14 @@ public class BlindSpotService extends Service {
         secondaryWindowManager.updateViewLayout(secondaryFloatingView, params);
         secondaryFloatingView.setRotation(orientation);
 
-        // 应用透明度
+        // Приложение透明度
         float alpha = appConfig.getSecondaryDisplayAlpha() / 100f;
         secondaryFloatingView.setAlpha(alpha);
 
         String cameraPos = currentSignalCamera != null ? currentSignalCamera : (previewCameraPos != null ? previewCameraPos : secondaryDesiredCameraPos);
         BlindSpotCorrection.apply(secondaryTextureView, appConfig, cameraPos, rotation);
         
-        // 设置边框
+        // Настройки边框
         if (secondaryBorderView != null) {
             if (isSecondaryAdjustMode) {
                 secondaryBorderView.setVisibility(View.VISIBLE);
@@ -1316,40 +1316,40 @@ public class BlindSpotService extends Service {
     }
 
     private void showSecondaryDisplay() {
-        if (secondaryFloatingView != null) return; // 已经显示了
+        if (secondaryFloatingView != null) return; // 经显示
 
         int displayId = appConfig.getSecondaryDisplayId();
         Display display = displayManager.getDisplay(displayId);
         if (display == null) {
-            AppLog.e(TAG, "找不到指定的副屏 Display ID: " + displayId);
+            AppLog.e(TAG, "找不 до 指定 副屏 Display ID: " + displayId);
             return;
         }
         secondaryAttachedDisplayId = displayId;
 
-        // 创建对应显示器的 Context
+        // 创建 应显示器  Context
         Context displayContext;
         try {
             displayContext = createDisplayContext(display);
         } catch (Exception e) {
-            AppLog.e(TAG, "创建副屏 Context 失败（APK 资源可能不可用）: " + e.getMessage());
+            AppLog.e(TAG, "创建副屏 Context Ошибка（APK 资源可能不Доступно): " + e.getMessage());
             return;
         }
         if (displayContext.getResources() == null) {
-            AppLog.e(TAG, "副屏 Context 资源为空，跳过显示");
+            AppLog.e(TAG, "副屏 Context 资源пусто，跳过显示");
             return;
         }
         secondaryWindowManager = (WindowManager) displayContext.getSystemService(Context.WINDOW_SERVICE);
 
-        // 加载布局
+        // загрузка布局
         secondaryFloatingView = LayoutInflater.from(displayContext).inflate(R.layout.presentation_secondary_display, null);
         secondaryTextureView = secondaryFloatingView.findViewById(R.id.secondary_texture_view);
         secondaryBorderView = secondaryFloatingView.findViewById(R.id.secondary_border);
 
-        // 设置边框
+        // Настройки边框
         secondaryBorderView.setVisibility(isSecondaryAdjustMode ? View.VISIBLE :
                 (appConfig.isSecondaryDisplayBorderEnabled() ? View.VISIBLE : View.GONE));
 
-        // 设置悬浮窗参数
+        // Настройки悬浮窗参数
         int type = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
                 WindowManager.LayoutParams.TYPE_PHONE;
@@ -1363,7 +1363,7 @@ public class BlindSpotService extends Service {
 
         AppLog.d(TAG, "显示副屏: x=" + x + ", y=" + y + ", w=" + width + ", h=" + height + ", orientation=" + orientation + ", rotation=" + rotation);
 
-        // 如果方向是 90 或 270 度，交换宽高
+        // Если 方 к   90 или 270 度，交换宽Высокий
         int finalWidth = width;
         int finalHeight = height;
         if (orientation == 90 || orientation == 270) {
@@ -1385,13 +1385,13 @@ public class BlindSpotService extends Service {
         params.x = x;
         params.y = y;
 
-        // 设置屏幕方向 (旋转整个容器)
-        // 注意：某些车机系统对 WindowManager 根视图的 setRotation 支持有限
-        // 我们尝试同时设置旋转和内部视图的变换
+        // Настройки屏幕方 к  (Поворот 整 шт.容器)
+        // 注意：某些车机Система  WindowManager 根视图  setRotation поддержка有限
+        // 我们попытка同时НастройкиПоворот  и Внутреннее视图 变换
         secondaryFloatingView.setRotation(orientation);
 
-        // 设置内容旋转 (将 orientation 和 rotation 结合处理)
-        // 最终旋转角度 = 摄像头内容旋转 + 屏幕方向补偿
+        // Настройки内容Поворот  (将 orientation  и  rotation 结合处理)
+        // 最终Поворот 角度 = Камера内容Поворот  + 屏幕方 к 补偿
         String cameraPos = currentSignalCamera != null ? currentSignalCamera : (previewCameraPos != null ? previewCameraPos : secondaryDesiredCameraPos);
         BlindSpotCorrection.apply(secondaryTextureView, appConfig, cameraPos, rotation);
 
@@ -1409,10 +1409,10 @@ public class BlindSpotService extends Service {
                     }
                 }
                 if (cameraPos == null) {
-                    AppLog.d(TAG, "副屏 Surface 就绪，但未启用视频输出");
+                    AppLog.d(TAG, "副屏 Surface 绪，但Не ВключитьВидео输出");
                     return;
                 }
-                AppLog.d(TAG, "副屏 Surface 就绪，启动预览: " + cameraPos);
+                AppLog.d(TAG, "副屏 Surface 绪，Запуск预览: " + cameraPos);
                 startSecondaryCameraPreviewDirectly(cameraPos);
             }
 
@@ -1421,11 +1421,11 @@ public class BlindSpotService extends Service {
 
             @Override
             public boolean onSurfaceTextureDestroyed(android.graphics.SurfaceTexture surface) {
-                // 保存当前 TextureView 的引用，用于判断回调是否来自旧的已替换的 TextureView
+                // СохранитьТекущий TextureView  引用，用于判断回调 否来自旧 替换  TextureView
                 final TextureView currentTv = secondaryTextureView;
                 if (currentTv != null) {
                     android.graphics.SurfaceTexture currentSt = currentTv.getSurfaceTexture();
-                    // 如果当前副屏的 SurfaceTexture 不是被销毁的那个，说明是旧的 TextureView
+                    // Если Текущий副屏  SurfaceTexture 不  销毁 那 шт.，说明 旧  TextureView
                     if (currentSt != null && currentSt != surface) {
                         AppLog.d(TAG, "Ignoring old secondary TextureView destroy callback");
                         return true;
@@ -1443,7 +1443,7 @@ public class BlindSpotService extends Service {
             public void onSurfaceTextureUpdated(android.graphics.SurfaceTexture surface) {}
         });
 
-        // 应用透明度
+        // Приложение透明度
         float alpha = appConfig.getSecondaryDisplayAlpha() / 100f;
         secondaryFloatingView.setAlpha(alpha);
 
@@ -1455,14 +1455,14 @@ public class BlindSpotService extends Service {
     }
 
     private void updateMainFloatingWindow() {
-        // 全景影像避让：目标Activity在前台时不显示主屏补盲窗口
+        // 全景影像避让：目标Activity Передний план时不显示主屏补盲窗口
         if (isAvmAvoidanceActive) {
-            AppLog.d(TAG, "全景影像避让中，跳过主屏悬浮窗更新");
+            AppLog.d(TAG, "全景影像避让，跳过主屏悬浮窗обновление");
             return;
         }
 
         if (appConfig.isMainFloatingEnabled()) {
-            isMainTempShown = false; // 用户开启
+            isMainTempShown = false; // 用户Вкл启
             if (mainFloatingWindowView == null) {
                 if (WakeUpHelper.hasOverlayPermission(this)) {
                     mainFloatingWindowView = new MainFloatingWindowView(this, appConfig);
@@ -1485,8 +1485,8 @@ public class BlindSpotService extends Service {
 
     private void stopSecondaryCameraPreview() {
         if (secondaryCamera != null) {
-            // 立即停止推帧并关闭 session，确保 Surface 被释放
-            // 这样新摄像头才能使用同一个 Surface，避免 "connect: already connected"
+            // 立т.е.Остановка推帧并Закрыто session，确保 Surface  释放
+            // 这样新Камера才能использование同一 шт. Surface，避免 "connect: already connected"
             secondaryCamera.stopRepeatingNow();
             secondaryCamera.setSecondaryDisplaySurface(null);
             secondaryCamera.recreateSession();
@@ -1589,7 +1589,7 @@ public class BlindSpotService extends Service {
                         try {
                             mockControlWindowManager.updateViewLayout(mockControlView, mockControlParams);
                         } catch (Exception e) {
-                            AppLog.e(TAG, "更新模拟悬浮窗位置失败: " + e.getMessage());
+                            AppLog.e(TAG, "обновление模拟悬浮窗ПозицияОшибка: " + e.getMessage());
                         }
                         return true;
                     case MotionEvent.ACTION_UP:
@@ -1628,19 +1628,19 @@ public class BlindSpotService extends Service {
     // ==================== 全景影像避让 ====================
 
     /**
-     * 初始化全景影像避让（前台Activity检测轮询）
+     * инициализация全景影像避让（Передний планActivity检测轮询)
      */
     private void initAvmAvoidance() {
         stopAvmAvoidance();
         if (!appConfig.isAvmAvoidanceEnabled()) return;
 
         String target = appConfig.getAvmAvoidanceActivity();
-        AppLog.d(TAG, "启动全景影像避让检测，目标Activity: " + target);
+        AppLog.d(TAG, "Запуск全景影像避让检测，目标Activity: " + target);
 
-        // "all" 模式：始终避让，不需要轮询检测前台应用
+        // "all" режим：始终避让，不необходимо轮询检测Передний планПриложение
         if ("all".equalsIgnoreCase(target)) {
             isAvmAvoidanceActive = true;
-            AppLog.i(TAG, "全景影像避让：all 模式，主屏补盲窗口始终隐藏");
+            AppLog.i(TAG, "全景影像避让：all режим，主屏补盲窗口始终隐藏");
             if (mainFloatingWindowView != null) {
                 mainFloatingWindowView.dismiss();
                 mainFloatingWindowView = null;
@@ -1667,7 +1667,7 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 停止全景影像避让检测
+     * Остановка全景影像避让检测
      */
     private void stopAvmAvoidance() {
         if (avmCheckRunnable != null) {
@@ -1676,32 +1676,32 @@ public class BlindSpotService extends Service {
         }
         if (isAvmAvoidanceActive) {
             isAvmAvoidanceActive = false;
-            // 恢复窗口显示
+            // Восстановление窗口显示
             updateMainFloatingWindow();
         }
     }
 
     /**
-     * 检测目标Activity是否在前台，并相应隐藏/恢复主屏补盲窗口
+     * 检测目标Activity 否 Передний план，并相应隐藏/Восстановление主屏补盲窗口
      */
     private void checkAvmForeground() {
         String targetActivity = appConfig.getAvmAvoidanceActivity();
         if (targetActivity == null || targetActivity.isEmpty()) return;
 
-        // "all" 模式始终视为前台，主屏补盲永不显示
+        // "all" режим始终视为Передний план，主屏补盲永不显示
         boolean isAvmForeground = "all".equalsIgnoreCase(targetActivity)
                 || isActivityInForeground(targetActivity);
 
-        // EVCam 自身前台检测（基于 Activity 生命周期，即时准确，不依赖 UsageEvents）
+        // EVCam 自身Передний план检测（基于 Activity 生命周期，т.е.时准确，不依赖 UsageEvents)
         boolean selfFg = isSelfInForeground;
 
         if (isAvmForeground || selfFg) {
             if (isAvmForeground) {
-                avmDeactivateCount = 0; // AVM 确实在前台，重置去抖
+                avmDeactivateCount = 0; // AVM 确实 Передний план，Сброс去抖
             }
             if (!isAvmAvoidanceActive) {
                 isAvmAvoidanceActive = true;
-                AppLog.i(TAG, "全景影像避让：隐藏主屏补盲窗口（AVM=" + isAvmForeground + ", 自身前台=" + selfFg + "）");
+                AppLog.i(TAG, "全景影像避让：隐藏主屏补盲窗口（AVM=" + isAvmForeground + ", 自身Передний план=" + selfFg + ")");
                 if (mainFloatingWindowView != null) {
                     mainFloatingWindowView.dismiss();
                     mainFloatingWindowView = null;
@@ -1712,22 +1712,22 @@ public class BlindSpotService extends Service {
                 }
             }
         } else if (isAvmAvoidanceActive) {
-            // 两个条件都不满足：AVM 不在前台，EVCam 也不在前台
+            // 两 шт.条件все不满足：AVM 不 Передний план，EVCam также不 Передний план
             avmDeactivateCount++;
-            AppLog.d(TAG, "全景影像避让：未检测到前台 (" + avmDeactivateCount + "/" + AVM_DEACTIVATE_THRESHOLD + ")");
+            AppLog.d(TAG, "全景影像避让：Не ОбнаруженоПередний план (" + avmDeactivateCount + "/" + AVM_DEACTIVATE_THRESHOLD + ")");
             if (avmDeactivateCount >= AVM_DEACTIVATE_THRESHOLD) {
                 isAvmAvoidanceActive = false;
                 avmDeactivateCount = 0;
-                AppLog.i(TAG, "全景影像避让：" + targetActivity + " 已离开前台，恢复主屏补盲窗口");
+                AppLog.i(TAG, "全景影像避让：" + targetActivity + " 离ВклПередний план，Восстановление主屏补盲窗口");
                 updateMainFloatingWindow();
             }
         }
     }
 
     /**
-     * 检测指定Activity（完整类名）是否在前台
-     * 使用 UsageEvents 精确到 Activity 级别（需 PACKAGE_USAGE_STATS 权限）
-     * 查询最近5分钟的事件，追踪最后一次前台/后台切换来判断当前状态
+     * 检测指定Activity（完整类名) 否 Передний план
+     * использование UsageEvents 精确 до  Activity 级别（需 PACKAGE_USAGE_STATS Разрешение)
+     * 查询最近5 мин. 事件，追踪最后一 разПередний план/Фоновый режим切换来判断ТекущийСтатус
      */
     private boolean isActivityInForeground(String activityClassName) {
         try {
@@ -1755,14 +1755,14 @@ public class BlindSpotService extends Service {
 
             return targetLastState != null && targetLastState;
         } catch (Exception e) {
-            AppLog.e(TAG, "检测前台Activity失败: " + e.getMessage());
+            AppLog.e(TAG, "检测Передний планActivityОшибка: " + e.getMessage());
         }
         return false;
     }
 
     /**
-     * 检测指定包名的应用是否在前台
-     * 使用 UsageEvents 查询最近5分钟的事件，追踪该包名下任意Activity的最后前台/后台状态
+     * 检测指定包名 Приложение 否 Передний план
+     * использование UsageEvents 查询最近5 мин. 事件，追踪该包名任意Activity 最后Передний план/Фоновый режимСтатус
      */
     private boolean isPackageInForeground(String packageName) {
         try {
@@ -1789,7 +1789,7 @@ public class BlindSpotService extends Service {
 
             return lastState != null && lastState;
         } catch (Exception e) {
-            AppLog.e(TAG, "检测前台包名失败: " + e.getMessage());
+            AppLog.e(TAG, "检测Передний план包名Ошибка: " + e.getMessage());
         }
         return false;
     }
@@ -1797,21 +1797,21 @@ public class BlindSpotService extends Service {
     // ==================== 定制键唤醒 ====================
 
     /**
-     * 初始化定制键唤醒（配置信号观察者的 CustomKeyListener）
+     * инициализация定制键唤醒（конфигурация信号观察者  CustomKeyListener)
      */
     private void initCustomKeyWakeup() {
         if (!appConfig.isCustomKeyWakeupEnabled()) return;
 
-        AppLog.d(TAG, "启动定制键唤醒，速度属性=" + appConfig.getCustomKeySpeedPropId()
-                + "，按钮属性=" + appConfig.getCustomKeyButtonPropId()
-                + "，速度阈值=" + appConfig.getCustomKeySpeedThreshold());
+        AppLog.d(TAG, "Запуск定制键唤醒，速度属性=" + appConfig.getCustomKeySpeedPropId()
+                + ", св-во кнопки=" + appConfig.getCustomKeyButtonPropId()
+                + ", порог скорости=" + appConfig.getCustomKeySpeedThreshold());
 
-        // 如果信号观察者还未创建，先创建一个
+        // Если 信号观察者还Не 创建，先创建一 шт.
         if (vhalSignalObserver == null) {
             vhalSignalObserver = new VhalSignalObserver(new VhalSignalObserver.TurnSignalListener() {
                 @Override
                 public void onTurnSignal(String direction, boolean on) {
-                    // 转向联动未启用，忽略
+                    // 转 к 联动Не Включить，忽略
                 }
                 @Override
                 public void onConnectionStateChanged(boolean connected) {
@@ -1834,19 +1834,19 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 切换定制键唤醒的预览状态
+     * 切换定制键唤醒 预览Статус
      */
     private void toggleCustomKeyPreview() {
         if (isCustomKeyPreviewShown) {
-            // 当前已显示，退出到后台
-            AppLog.d(TAG, "定制键唤醒：退出预览到后台");
+            // Текущий显示，Выход до Фоновый режим
+            AppLog.d(TAG, "定制键唤醒：Выход预览 до Фоновый режим");
             isCustomKeyPreviewShown = false;
             WakeUpHelper.sendBackgroundBroadcast(this);
         } else {
-            // 检查速度条件
+            // проверка速度条件
             float speedThreshold = appConfig.getCustomKeySpeedThreshold();
             if (vhalSignalObserver != null && vhalSignalObserver.getCurrentSpeed() < speedThreshold) {
-                AppLog.d(TAG, "定制键唤醒：速度未达到阈值，忽略");
+                AppLog.d(TAG, "定制键唤醒：速度Не 达 до 阈值，忽略");
                 return;
             }
             // 唤醒预览界面
@@ -1889,7 +1889,7 @@ public class BlindSpotService extends Service {
     }
 
     /**
-     * 更新服务状态
+     * обновлениеСервисСтатус
      */
     public static void update(Context context) {
         Intent intent = new Intent(context, BlindSpotService.class);

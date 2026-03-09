@@ -17,9 +17,9 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
 /**
- * 补盲悬浮窗状态栏 — 纯动效方向指示视图（无文字），半透明叠加在摄像头画面上方。
+ * 补盲悬浮窗Статус栏 — 纯动效方 к 指示视图（无文字)，半透明叠加 Камера画面方。
  * <p>
- * 5 种扁平化动效 + 关闭模式。设计原则：简洁、明亮、一目了然。
+ * 5 вариантов扁平化动效 + Закрыторежим。设计原则：简洁、明亮、一目然。
  */
 public class BlindSpotStatusBarView extends View {
 

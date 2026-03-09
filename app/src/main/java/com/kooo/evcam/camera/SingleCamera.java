@@ -41,7 +41,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * 单个摄像头管理类
+ * 单 шт.Камерауправление类
  */
 public class SingleCamera {
     private static final String TAG = "SingleCamera";
@@ -50,8 +50,8 @@ public class SingleCamera {
     private final String cameraId;
     private TextureView textureView;
     private CameraCallback callback;
-    private String cameraPosition;  // 摄像头位置（front/back/left/right）
-    private int customRotation = 0;  // 自定义旋转角度（仅用于自定义车型）
+    private String cameraPosition;  // КамераПозиция（front/back/left/right)
+    private int customRotation = 0;  // 自定义Поворот 角度（только用于Своя модель)
 
     private CameraManager cameraManager;
     private CameraDevice cameraDevice;
@@ -60,39 +60,39 @@ public class SingleCamera {
     private Handler backgroundHandler;
 
     private Size previewSize;
-    private Surface recordSurface;  // 录制Surface
+    private Surface recordSurface;  // ЗаписьSurface
     private Surface mainFloatingSurface; // 主屏悬浮窗Surface
-    private android.graphics.SurfaceTexture mainFloatingSurfaceTexture; // 主屏悬浮窗SurfaceTexture（用于设置buffer尺寸）
+    private android.graphics.SurfaceTexture mainFloatingSurfaceTexture; // 主屏悬浮窗SurfaceTexture（用于Настройкиbuffer尺寸)
     private Surface secondaryDisplaySurface; // 副屏预览Surface
-    private android.graphics.SurfaceTexture secondaryDisplaySurfaceTexture; // 副屏SurfaceTexture（用于设置buffer尺寸）
-    private OutputConfiguration activePreviewConfig; // 共享预览配置，用于动态 Surface 增减
-    private Surface previewSurface;  // 预览Surface（缓存以避免重复创建）
-    private ImageReader imageReader;  // 用于拍照的ImageReader
-    private boolean singleOutputMode = false;  // 单一输出模式（用于不支持多路输出的车机平台）
+    private android.graphics.SurfaceTexture secondaryDisplaySurfaceTexture; // 副屏SurfaceTexture（用于Настройкиbuffer尺寸)
+    private OutputConfiguration activePreviewConfig; // Всего 享预览конфигурация，用于动态 Surface 增减
+    private Surface previewSurface;  // 预览Surface（缓存以避免重复创建)
+    private ImageReader imageReader;  // 用于Фото ImageReader
+    private boolean singleOutputMode = false;  // 单一输出режим（用于не поддерживается多 кам.输出 车机平台)
     
     // 鱼眼矫正
     private FisheyeCorrector fisheyeCorrector;
     
-    // 亮度/降噪调节相关
-    private CaptureRequest.Builder currentRequestBuilder;  // 当前的请求构建器（用于实时更新参数）
-    private CameraCharacteristics cameraCharacteristics;  // 摄像头特性（缓存）
-    private boolean imageAdjustEnabled = false;  // 是否启用亮度/降噪调节
+    // 亮度/Шумоподавление调节相Выкл
+    private CaptureRequest.Builder currentRequestBuilder;  // Текущий 求构建器（用于实时обновление参数)
+    private CameraCharacteristics cameraCharacteristics;  // Камера特性（缓存)
+    private boolean imageAdjustEnabled = false;  //  否Включить亮度/Шумоподавление调节
     
-    // 当前相机实际使用的参数（从 CaptureResult 读取）
+    // Текущий相机实际использование 参数（ от  CaptureResult 读取)
     private int actualExposureCompensation = 0;
     private int actualAwbMode = CameraMetadata.CONTROL_AWB_MODE_AUTO;
     private int actualEdgeMode = CameraMetadata.EDGE_MODE_OFF;
     private int actualNoiseReductionMode = CameraMetadata.NOISE_REDUCTION_MODE_OFF;
     private int actualEffectMode = CameraMetadata.CONTROL_EFFECT_MODE_OFF;
     private int actualTonemapMode = CameraMetadata.TONEMAP_MODE_FAST;
-    private boolean hasReadActualParams = false;  // 是否已读取过实际参数
+    private boolean hasReadActualParams = false;  //  否读取过实际参数
 
-    // 调试：帧捕获监控
+    // отладка：帧捕获监控
     private long frameCount = 0;  // 总帧数
-    private long lastFrameLogTime = 0;  // 上次输出帧计数的时间
-    private static final long FRAME_LOG_INTERVAL_MS = 5000;  // 每5秒输出一次帧计数
+    private long lastFrameLogTime = 0;  //  раз输出帧计数 时间
+    private static final long FRAME_LOG_INTERVAL_MS = 5000;  // 每5 сек.输出一 раз帧计数
 
-    // 实时 FPS（1秒滚动窗口，供调试信息展示）
+    // 实时 FPS（1 сек.滚动窗口，供отладкаИнформация展示)
     private float currentFps = 0f;
     private long fpsWindowFrameCount = 0;
     private long fpsWindowStartTime = 0;
@@ -105,26 +105,26 @@ public class SingleCamera {
     private static final long STALL_TIMEOUT_MS = 2500;
     private static final long MIN_RECOVERY_INTERVAL_MS = 2000;
 
-    private boolean shouldReconnect = false;  // 是否应该重连
-    private int reconnectAttempts = 0;  // 重连尝试次数
-    private static final int MAX_RECONNECT_ATTEMPTS = 90;  // 最大重连次数（90次 × 2秒 = 3分钟）
-    private static final long RECONNECT_DELAY_MS = 2000;  // 重连延迟（毫秒）
+    private boolean shouldReconnect = false;  //  否应该重连
+    private int reconnectAttempts = 0;  // 重连попытка раз数
+    private static final int MAX_RECONNECT_ATTEMPTS = 90;  // максимум重连 раз数（90 раз × 2 сек. = 3 мин.)
+    private static final long RECONNECT_DELAY_MS = 2000;  // 重连延迟（毫 сек.)
     private long reconnectDelayFloorMs = 0;
-    private Runnable reconnectRunnable;  // 重连任务
-    private boolean isPausedByLifecycle = false;  // 是否因生命周期暂停（用于区分主动关闭和系统剥夺）
-    private boolean isReconnecting = false;  // 是否正在重连中（防止多个重连任务同时运行）
-    private volatile boolean isOpening = false;  // 是否正在打开中（防止并行触发时重复调用 openCamera）
-    private volatile boolean deferSessionCreation = false;  // 延迟 Session 创建（与 Surface 并行打开相机时使用）
+    private Runnable reconnectRunnable;  // 重连задача
+    private boolean isPausedByLifecycle = false;  //  否因生命周期Пауза（用于区分主动Закрыто и Система剥夺)
+    private boolean isReconnecting = false;  //  否Выполняется 重连（防止多 шт.重连задача同时Работа)
+    private volatile boolean isOpening = false;  //  否Выполняется открыть（防止并行触发时重复调用 openCamera)
+    private volatile boolean deferSessionCreation = false;  // 延迟 Session 创建（ и  Surface 并行открыть相机时использование)
     private final Object reconnectLock = new Object();  // 重连锁
-    private boolean isPrimaryInstance = true;  // 是否是主实例（用于多实例共享同一个cameraId时，只有主实例负责重连）
-    private boolean isConfiguring = false; // 新增：标记是否正在配置中
-    private boolean isPendingReconfiguration = false; // 新增：标记是否有待处理的配置请求
-    private boolean isSessionClosing = false; // 新增：标记 Session 是否正在关闭中
-    private int configFailRetryCount = 0; // session 配置失败重试计数
-    private static final int MAX_CONFIG_FAIL_RETRIES = 3; // 最大重试次数
-    private final Object sessionLock = new Object(); // 新增：用于同步 Session 操作
+    private boolean isPrimaryInstance = true;  //  否 主实例（用于多实例Всего 享同一 шт.cameraId时，只有主实例负责重连)
+    private boolean isConfiguring = false; // 新增：标记 否Выполняется конфигурация
+    private boolean isPendingReconfiguration = false; // 新增：标记 否有待处理 конфигурация求
+    private boolean isSessionClosing = false; // 新增：标记 Session  否Выполняется Закрыто
+    private int configFailRetryCount = 0; // session конфигурацияОшибка重试计数
+    private static final int MAX_CONFIG_FAIL_RETRIES = 3; // максимум重试 раз数
+    private final Object sessionLock = new Object(); // 新增：用于同步 Session операция
 
-    // 相机打开后的一次性回调（用于副屏等待相机就绪后立即绑定 Surface）
+    // 相机открыть后 一 раз性回调（用于副屏ожидание相机绪后立т.е.绑定 Surface)
     private final java.util.List<Runnable> onCameraOpenedCallbacks = new java.util.ArrayList<>();
 
     public SingleCamera(Context context, String cameraId, TextureView textureView) {
@@ -141,7 +141,7 @@ public class SingleCamera {
     public void setCameraPosition(String position) {
         this.cameraPosition = position;
 
-        // 如果是后摄像头，应用左右镜像变换
+        // Если  Задняя камера，Приложение左右镜像变换
         if ("back".equals(position) && textureView != null) {
             applyMirrorTransform();
         }
@@ -170,27 +170,27 @@ public class SingleCamera {
     }
 
     /**
-     * 设置自定义旋转角度（仅用于自定义车型）
-     * @param rotation 旋转角度（0/90/180/270）
+     * Настройки自定义Поворот 角度（только用于Своя модель)
+     * @param rotation Поворот 角度（0/90/180/270)
      */
     public void setCustomRotation(int rotation) {
         this.customRotation = rotation;
         AppLog.d(TAG, "Camera " + cameraId + " (" + cameraPosition + ") custom rotation set to " + rotation + "°");
 
-        // 如果TextureView已经可用，立即应用旋转
+        // Если TextureView经Доступно，立т.е.ПриложениеПоворот 
         if (textureView != null && textureView.isAvailable()) {
             applyCustomRotation();
         }
     }
 
     /**
-     * 设置是否为主实例（用于多实例共享同一个cameraId时）
-     * 只有主实例负责打开摄像头和重连，从属实例只负责显示
+     * Настройки 否为主实例（用于多实例Всего 享同一 шт.cameraId时)
+     * 只有主实例负责открытьКамера и 重连， от 属实例只负责显示
      */
     public void setPrimaryInstance(boolean isPrimary) {
         this.isPrimaryInstance = isPrimary;
         if (!isPrimary) {
-            // 从属实例不需要重连
+            //  от 属实例不необходимо重连
             synchronized (reconnectLock) {
                 shouldReconnect = false;
             }
@@ -199,29 +199,29 @@ public class SingleCamera {
     }
 
     /**
-     * 检查是否是主实例
+     * проверка 否 主实例
      */
     public boolean isPrimaryInstance() {
         return isPrimaryInstance;
     }
 
     /**
-     * 应用左右镜像变换到TextureView
+     * Приложение左右镜像变换 до TextureView
      */
     private void applyMirrorTransform() {
         if (textureView == null) {
             return;
         }
 
-        // 在主线程中执行UI操作
+        //  主线程выполнениеUIоперация
         textureView.post(() -> {
             android.graphics.Matrix matrix = new android.graphics.Matrix();
 
-            // 获取TextureView的中心点
+            // ПолучениеTextureView 心点
             float centerX = textureView.getWidth() / 2f;
             float centerY = textureView.getHeight() / 2f;
 
-            // 应用水平镜像：scaleX = -1
+            // Приложение水平镜像：scaleX = -1
             matrix.setScale(-1f, 1f, centerX, centerY);
 
             textureView.setTransform(matrix);
@@ -230,25 +230,25 @@ public class SingleCamera {
     }
 
     /**
-     * 应用自定义旋转角度（仅用于自定义车型）
+     * Приложение自定义Поворот 角度（только用于Своя модель)
      */
     private void applyCustomRotation() {
         if (textureView == null || customRotation == 0) {
             return;
         }
 
-        // 在主线程中执行UI操作
+        //  主线程выполнениеUIоперация
         textureView.post(() -> {
             android.graphics.Matrix matrix = new android.graphics.Matrix();
 
-            // 获取TextureView的中心点
+            // ПолучениеTextureView 心点
             float centerX = textureView.getWidth() / 2f;
             float centerY = textureView.getHeight() / 2f;
 
-            // 应用旋转
+            // ПриложениеПоворот 
             matrix.setRotate(customRotation, centerX, centerY);
 
-            // 如果是后摄像头，还需要应用镜像
+            // Если  Задняя камера，还необходимоПриложение镜像
             if ("back".equals(cameraPosition)) {
                 matrix.postScale(-1f, 1f, centerX, centerY);
             }
@@ -263,15 +263,15 @@ public class SingleCamera {
     }
 
     /**
-     * 摄像头硬件是否已打开
+     * Камера硬件 否открыть
      */
     public boolean isCameraOpened() {
         return cameraDevice != null;
     }
 
     /**
-     * 注册一次性回调：相机打开后立即执行（在 createCameraPreviewSession 之前）。
-     * 如果相机已经打开，立即执行。
+     * 注册一 раз性回调：相机открыть后立т.е.выполнение（  createCameraPreviewSession до)。
+     * Если 相机经открыть，立т.е.выполнение。
      */
     public void addOnCameraOpenedCallback(Runnable callback) {
         if (cameraDevice != null) {
@@ -300,7 +300,7 @@ public class SingleCamera {
     }
 
     /**
-     * 获取预览分辨率
+     * Получение预览Разрешение
      */
     public Size getPreviewSize() {
         return previewSize;
@@ -311,9 +311,9 @@ public class SingleCamera {
     }
 
     /**
-     * 设置单一输出模式（用于不支持多路输出的车机平台，如 L6/L7）
-     * 在此模式下，录制时只使用 MediaRecorder Surface，不使用 TextureView Surface
-     * 这会导致录制期间预览冻结，但能确保录制正常工作
+     * Настройки单一输出режим（用于не поддерживается多 кам.输出 车机平台，если L6/L7)
+     *  此режим，Запись时只использование MediaRecorder Surface，不использование TextureView Surface
+     * 这会导致Запись期间预览冻结，但能确保Записьнормально工作
      */
     public void setSingleOutputMode(boolean enabled) {
         this.singleOutputMode = enabled;
@@ -321,17 +321,17 @@ public class SingleCamera {
     }
 
     /**
-     * 检查是否启用了单一输出模式
+     * проверка 否Включить单一输出режим
      */
     public boolean isSingleOutputMode() {
         return singleOutputMode;
     }
 
-    // 当前录制模式（用于调试模式区分）
+    // ТекущийЗаписьрежим（用于отладкарежим区分)
     private boolean isCodecRecording = false;
 
     /**
-     * 设置录制Surface
+     * НастройкиЗаписьSurface
      */
     public void setRecordSurface(Surface surface) {
         this.recordSurface = surface;
@@ -343,9 +343,9 @@ public class SingleCamera {
     }
 
     /**
-     * 设置录制Surface（带模式标识）
-     * @param surface 录制Surface
-     * @param isCodec true 表示 Codec 模式，false 表示 MediaRecorder 模式
+     * НастройкиЗаписьSurface（带режим标识)
+     * @param surface ЗаписьSurface
+     * @param isCodec true 表示 Codec режим，false 表示 MediaRecorder режим
      */
     public void setRecordSurface(Surface surface, boolean isCodec) {
         this.recordSurface = surface;
@@ -359,20 +359,20 @@ public class SingleCamera {
     }
 
     /**
-     * 设置主屏悬浮窗Surface
+     * Настройки主屏悬浮窗Surface
      */
     public void setMainFloatingSurface(Surface surface) {
         setMainFloatingSurface(surface, null);
     }
 
     /**
-     * 设置主屏悬浮窗Surface（带SurfaceTexture引用，用于在创建Session时统一设置buffer尺寸）
+     * Настройки主屏悬浮窗Surface（带SurfaceTexture引用，用于 创建Session时统一Настройкиbuffer尺寸)
      */
     public void setMainFloatingSurface(Surface surface, android.graphics.SurfaceTexture surfaceTexture) {
         this.mainFloatingSurface = surface;
         this.mainFloatingSurfaceTexture = surfaceTexture;
-        // 鱼眼模式：清除时立即从 FisheyeCorrector 移除 EGL 输出，
-        // 释放 native window 连接，确保新摄像头的 FisheyeCorrector 能成功连接
+        // 鱼眼режим：очистка时立т.е. от  FisheyeCorrector 移除 EGL 输出，
+        // 释放 native window Подключение，确保新Камера  FisheyeCorrector 能УспешноПодключение
         if (surface == null && fisheyeCorrector != null && fisheyeCorrector.isInitialized()) {
             if (backgroundHandler != null) {
                 backgroundHandler.post(() -> {
@@ -388,20 +388,20 @@ public class SingleCamera {
     }
 
     /**
-     * 设置副屏显示Surface
+     * Настройки副屏显示Surface
      */
     public void setSecondaryDisplaySurface(Surface surface) {
         setSecondaryDisplaySurface(surface, null);
     }
 
     /**
-     * 设置副屏显示Surface（带SurfaceTexture引用，用于在创建Session时统一设置buffer尺寸）
+     * Настройки副屏显示Surface（带SurfaceTexture引用，用于 创建Session时统一Настройкиbuffer尺寸)
      */
     public void setSecondaryDisplaySurface(Surface surface, android.graphics.SurfaceTexture surfaceTexture) {
         this.secondaryDisplaySurface = surface;
         this.secondaryDisplaySurfaceTexture = surfaceTexture;
-        // 鱼眼模式：清除时立即从 FisheyeCorrector 移除 EGL 输出，
-        // 释放 native window 连接，确保新摄像头的 FisheyeCorrector 能成功连接
+        // 鱼眼режим：очистка时立т.е. от  FisheyeCorrector 移除 EGL 输出，
+        // 释放 native window Подключение，确保新Камера  FisheyeCorrector 能УспешноПодключение
         if (surface == null && fisheyeCorrector != null && fisheyeCorrector.isInitialized()) {
             if (backgroundHandler != null) {
                 backgroundHandler.post(() -> {
@@ -417,9 +417,9 @@ public class SingleCamera {
     }
 
     /**
-     * 设置副屏预览Surface (保留兼容性)
+     * Настройки副屏预览Surface (保留совместимость性)
      * @param surface 副屏预览Surface
-     * @deprecated 请使用 setMainFloatingSurface 或 setSecondaryDisplaySurface
+     * @deprecated использование setMainFloatingSurface или setSecondaryDisplaySurface
      */
     @Deprecated
     public void setSecondarySurface(Surface surface) {
@@ -427,7 +427,7 @@ public class SingleCamera {
     }
 
     /**
-     * 清除录制Surface
+     * очисткаЗаписьSurface
      */
     public void clearRecordSurface() {
         this.recordSurface = null;
@@ -435,19 +435,19 @@ public class SingleCamera {
     }
 
     /**
-     * 暂停向录制 Surface 发送帧（旧方法，保留兼容性）
-     * 注意：此方法会停止整个预览，导致画面卡顿，建议使用 switchToPreviewOnlyMode() 代替
+     * Пауза к Запись Surface Отправка帧（旧方法，保留совместимость性)
+     * 注意：此方法会Остановка整 шт.预览，导致画面卡顿，建议использование switchToPreviewOnlyMode() 代替
      */
     public void pauseRecordSurface() {
         if (captureSession != null) {
             try {
-                // 停止向所有 Surface（包括 recordSurface）发送帧
+                // Остановка к 所有 Surface（包括 recordSurface)Отправка帧
                 captureSession.stopRepeating();
                 AppLog.d(TAG, "Camera " + cameraId + " paused recording surface (stopped repeating request)");
             } catch (CameraAccessException e) {
                 AppLog.e(TAG, "Camera " + cameraId + " failed to pause recording surface", e);
             } catch (IllegalStateException e) {
-                // Session 可能已经关闭
+                // Session 可能经Закрыто
                 AppLog.w(TAG, "Camera " + cameraId + " session already closed when trying to pause");
             }
         } else {
@@ -456,31 +456,31 @@ public class SingleCamera {
     }
 
     /**
-     * 切换到仅预览模式（优化的分段切换方法）
+     * 切换 до только预览режим（优化 分切换方法)
      * 
-     * 与 pauseRecordSurface() 不同，此方法不会停止预览，而是：
-     * 1. 创建一个只包含预览 Surface 的新请求
-     * 2. 继续向预览 Surface 发送帧（预览不卡顿）
-     * 3. 停止向录制 Surface 发送帧（安全停止 MediaRecorder）
+     *  и  pauseRecordSurface() 不同，此方法不会Остановка预览，而 ：
+     * 1. 创建一 шт.只содержит预览 Surface  新求
+     * 2. продолжить к 预览 Surface Отправка帧（预览不卡顿)
+     * 3. Остановка к Запись Surface Отправка帧（安全Остановка MediaRecorder)
      * 
-     * @return true 如果成功切换，false 如果失败（将回退到 pauseRecordSurface）
+     * @return true Если Успешно切换，false Если Ошибка（将回退 до  pauseRecordSurface)
      */
     public boolean switchToPreviewOnlyMode() {
         if (captureSession == null || cameraDevice == null || previewSurface == null) {
             AppLog.w(TAG, "Camera " + cameraId + " cannot switch to preview-only mode: session/device/surface not ready");
-            // 回退到旧方法
+            // 回退 до 旧方法
             pauseRecordSurface();
             return false;
         }
 
         try {
-            // 创建一个只包含预览 Surface 的请求
+            // 创建一 шт.只содержит预览 Surface  求
             CaptureRequest.Builder previewOnlyBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             previewOnlyBuilder.addTarget(previewSurface);
             
-            // 应用当前的图像调节参数（如果启用）
+            // ПриложениеТекущий 图像调节参数（Если Включить)
             if (imageAdjustEnabled && currentRequestBuilder != null) {
-                // 复制关键参数
+                // 复制Выкл键参数
                 try {
                     Integer exposure = currentRequestBuilder.get(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION);
                     if (exposure != null) {
@@ -491,25 +491,25 @@ public class SingleCamera {
                         previewOnlyBuilder.set(CaptureRequest.CONTROL_AWB_MODE, awbMode);
                     }
                 } catch (Exception e) {
-                    // 忽略参数复制错误
+                    // 忽略参数复制Ошибка
                 }
             }
             
-            // 替换当前的重复请求（预览继续，但不再向录制 Surface 发送帧）
+            // 替换Текущий 重复求（预览продолжить，但不再 к Запись Surface Отправка帧)
             captureSession.setRepeatingRequest(previewOnlyBuilder.build(), null, backgroundHandler);
             AppLog.d(TAG, "Camera " + cameraId + " switched to preview-only mode (preview continues, recording paused)");
             return true;
             
         } catch (CameraAccessException e) {
             AppLog.e(TAG, "Camera " + cameraId + " failed to switch to preview-only mode", e);
-            // 回退到旧方法
+            // 回退 до 旧方法
             pauseRecordSurface();
             return false;
         } catch (IllegalStateException e) {
             AppLog.w(TAG, "Camera " + cameraId + " session closed when switching to preview-only mode");
             return false;
         } catch (IllegalArgumentException e) {
-            // 某些设备可能不支持动态切换请求目标
+            // 某些设备可能не поддерживается动态切换求目标
             AppLog.w(TAG, "Camera " + cameraId + " device may not support dynamic request change: " + e.getMessage());
             pauseRecordSurface();
             return false;
@@ -520,7 +520,7 @@ public class SingleCamera {
         if (textureView != null && textureView.isAvailable()) {
             SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
             if (surfaceTexture != null) {
-                // 缓存 Surface 以避免重复创建和资源泄漏
+                // 缓存 Surface 以避免重复创建 и 资源泄漏
                 if (previewSurface == null) {
                     previewSurface = new Surface(surfaceTexture);
                     AppLog.d(TAG, "Camera " + cameraId + " created new preview surface");
@@ -532,13 +532,13 @@ public class SingleCamera {
     }
 
     /**
-     * 选择最优分辨率
-     * 根据用户配置的目标分辨率进行匹配：
-     * - 默认：优先1280x800，否则最接近的
-     * - 指定分辨率：优先精确匹配，否则最接近的
+     * Выбрать最优Разрешение
+     * 根据用户конфигурация 目标Разрешение进行匹配：
+     * - По умолчанию：优先1280x800，否则最接近 
+     * - 指定Разрешение：优先精确匹配，否则最接近 
      */
     private Size chooseOptimalSize(Size[] sizes) {
-        // 从配置获取目标分辨率
+        //  от конфигурацияПолучение目标Разрешение
         AppConfig appConfig = new AppConfig(context);
         String targetResolution = appConfig.getTargetResolution();
         
@@ -546,26 +546,26 @@ public class SingleCamera {
         int targetHeight;
         
         if (AppConfig.RESOLUTION_DEFAULT.equals(targetResolution)) {
-            // 默认：1280x800 (guardapp使用的分辨率)
+            // По умолчанию：1280x800 (guardappиспользование Разрешение)
             targetWidth = 1280;
             targetHeight = 800;
             AppLog.d(TAG, "Camera " + cameraId + " using default target resolution: " + targetWidth + "x" + targetHeight);
         } else {
-            // 用户指定的分辨率
+            // 用户指定 Разрешение
             int[] parsed = AppConfig.parseResolution(targetResolution);
             if (parsed != null) {
                 targetWidth = parsed[0];
                 targetHeight = parsed[1];
                 AppLog.d(TAG, "Camera " + cameraId + " using user-specified target resolution: " + targetWidth + "x" + targetHeight);
             } else {
-                // 解析失败，回退到默认
+                // 解析Ошибка，回退 до По умолчанию
                 targetWidth = 1280;
                 targetHeight = 800;
                 AppLog.w(TAG, "Camera " + cameraId + " failed to parse resolution '" + targetResolution + "', using default 1280x800");
             }
         }
 
-        // 首先尝试找到精确匹配
+        // 首先попытка找 до 精确匹配
         for (Size size : sizes) {
             if (size.getWidth() == targetWidth && size.getHeight() == targetHeight) {
                 AppLog.d(TAG, "Camera " + cameraId + " found exact match: " + targetWidth + "x" + targetHeight);
@@ -573,7 +573,7 @@ public class SingleCamera {
             }
         }
 
-        // 找到最接近目标分辨率的
+        // 找 до 最接近目标Разрешение 
         Size bestSize = null;
         int minDiff = Integer.MAX_VALUE;
 
@@ -581,7 +581,7 @@ public class SingleCamera {
             int width = size.getWidth();
             int height = size.getHeight();
 
-            // 计算与目标分辨率的差距
+            // 计算 и 目标Разрешение 差距
             int diff = Math.abs(targetWidth - width) + Math.abs(targetHeight - height);
             if (diff < minDiff) {
                 minDiff = diff;
@@ -590,7 +590,7 @@ public class SingleCamera {
         }
 
         if (bestSize == null) {
-            // 如果还是没找到，使用第一个可用分辨率
+            // Если 还 没找 до ，использованиеПервый шт.ДоступноРазрешение
             bestSize = sizes[0];
             AppLog.d(TAG, "Camera " + cameraId + " using first available size: " + bestSize.getWidth() + "x" + bestSize.getHeight());
         } else {
@@ -602,7 +602,7 @@ public class SingleCamera {
     }
 
     /**
-     * 启动后台线程
+     * ЗапускФоновый режим线程
      */
     private void startBackgroundThread() {
         backgroundThread = new HandlerThread("Camera-" + cameraId);
@@ -611,10 +611,10 @@ public class SingleCamera {
     }
 
     /**
-     * 停止后台线程
-     * 添加超时保护和完善的清理逻辑
+     * ОстановкаФоновый режим线程
+     * 添加таймаут保护 и 完善 Очистка 逻辑
      */
-    private static final long THREAD_JOIN_TIMEOUT_MS = 2000;  // 2秒超时
+    private static final long THREAD_JOIN_TIMEOUT_MS = 2000;  // 2 сек.таймаут
     
     private void stopBackgroundThread() {
         if (backgroundThread == null) {
@@ -624,14 +624,14 @@ public class SingleCamera {
         backgroundThread.quitSafely();
         
         try {
-            // 使用超时的 join，避免无限阻塞
+            // использованиетаймаут  join，避免无限阻塞
             backgroundThread.join(THREAD_JOIN_TIMEOUT_MS);
             
-            // 检查线程是否仍在运行
+            // проверка线程 否仍 Работа
             if (backgroundThread.isAlive()) {
                 AppLog.w(TAG, "Camera " + cameraId + " background thread did not terminate in time, interrupting");
                 backgroundThread.interrupt();
-                // 再给一次机会（短超时）
+                // 再 一 раз机会（短таймаут)
                 backgroundThread.join(500);
                 
                 if (backgroundThread.isAlive()) {
@@ -640,10 +640,10 @@ public class SingleCamera {
             }
         } catch (InterruptedException e) {
             AppLog.e(TAG, "Camera " + cameraId + " interrupted while stopping background thread", e);
-            // 恢复中断标志，让上层知道发生了中断
+            // Восстановление断标志，让层知道发生断
             Thread.currentThread().interrupt();
         } finally {
-            // 无论成功与否都清理引用，避免内存泄漏
+            // 无论Успешно и 否всеОчистка 引用，避免内存泄漏
             backgroundThread = null;
             backgroundHandler = null;
         }
@@ -719,29 +719,29 @@ public class SingleCamera {
     }
 
     /**
-     * 获取当前实时 FPS（1秒滚动窗口）
+     * ПолучениеТекущий实时 FPS（1 сек.滚动窗口)
      */
     public float getCurrentFps() {
         return currentFps;
     }
 
     /**
-     * 打开摄像头
+     * открытьКамера
      */
     public void openCamera() {
-        // 如果不是主实例，不执行打开操作
+        // Если 不 主实例，不выполнениеоткрытьоперация
         if (!isPrimaryInstance) {
             AppLog.d(TAG, "Camera " + cameraId + " (" + cameraPosition + ") is SECONDARY instance, skipping openCamera");
             return;
         }
 
-        // 已经打开，不重复打开
+        // 经открыть，不重复открыть
         if (cameraDevice != null) {
             AppLog.d(TAG, "Camera " + cameraId + " already opened, skipping openCamera");
             return;
         }
 
-        // 正在打开中，不重复触发
+        // Выполняется открыть，不重复触发
         if (isOpening) {
             AppLog.d(TAG, "Camera " + cameraId + " already opening, skipping duplicate openCamera");
             return;
@@ -749,14 +749,14 @@ public class SingleCamera {
         isOpening = true;
         
         synchronized (reconnectLock) {
-            // 安全措施：清理可能残留的录制 Surface 引用（防止 Surface abandoned 错误）
-            // 放在同步块内，避免与 setRecordSurface() 的竞态条件
+            // 安全措施：Очистка 可能残留 Запись Surface 引用（防止 Surface abandoned Ошибка)
+            // 放 同步块内，避免 и  setRecordSurface()  竞态条件
             if (recordSurface != null) {
                 AppLog.w(TAG, "Camera " + cameraId + " found stale recordSurface on open, clearing it");
                 recordSurface = null;
             }
             
-            // 如果已经在重连中，忽略新的打开请求
+            // Если 经 重连，忽略新 открыть求
             if (isReconnecting) {
                 AppLog.d(TAG, "Camera " + cameraId + " already reconnecting, ignoring openCamera call");
                 isOpening = false;
@@ -764,14 +764,14 @@ public class SingleCamera {
             }
             
             AppLog.d(TAG, "openCamera: Starting for camera " + cameraId + " (PRIMARY instance)");
-            shouldReconnect = true;  // 启用自动重连
-            reconnectAttempts = 0;  // 重置重连计数
+            shouldReconnect = true;  // Включитьавтоматически重连
+            reconnectAttempts = 0;  // Сброс重连计数
         }
         
         try {
             startBackgroundThread();
 
-            // 验证摄像头ID是否存在
+            // 验证КамераID 否существует
             String[] availableCameraIds = cameraManager.getCameraIdList();
             boolean cameraExists = false;
             for (String id : availableCameraIds) {
@@ -791,7 +791,7 @@ public class SingleCamera {
                 return;
             }
 
-            // 获取摄像头特性（验证摄像头是否真正可用）
+            // ПолучениеКамера特性（验证Камера 否真正Доступно)
             CameraCharacteristics characteristics;
             try {
                 characteristics = cameraManager.getCameraCharacteristics(cameraId);
@@ -801,7 +801,7 @@ public class SingleCamera {
                     callback.onCameraError(cameraId, CameraDevice.StateCallback.ERROR_CAMERA_DEVICE);
                 }
                 synchronized (reconnectLock) {
-                    shouldReconnect = false;  // 无效摄像头不应重连
+                    shouldReconnect = false;  // недействительноКамера不应重连
                 }
                 isOpening = false;
                 return;
@@ -809,7 +809,7 @@ public class SingleCamera {
             
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             if (map != null) {
-                // 优先使用 SurfaceTexture 的输出尺寸
+                // 优先использование SurfaceTexture  输出尺寸
                 Size[] sizes = map.getOutputSizes(ImageFormat.PRIVATE);
                 if (sizes == null || sizes.length == 0) {
                     sizes = map.getOutputSizes(SurfaceTexture.class);
@@ -823,27 +823,27 @@ public class SingleCamera {
                         callback.onCameraError(cameraId, CameraDevice.StateCallback.ERROR_CAMERA_DEVICE);
                     }
                     synchronized (reconnectLock) {
-                        shouldReconnect = false;  // 无效摄像头不应重连
+                        shouldReconnect = false;  // недействительноКамера不应重连
                     }
                     isOpening = false;
                     return;
                 }
 
-                // 打印所有可用分辨率
+                // 打印所有ДоступноРазрешение
                 AppLog.d(TAG, "Camera " + cameraId + " available sizes:");
                 for (int i = 0; i < Math.min(sizes.length, 10); i++) {
                     AppLog.d(TAG, "  [" + i + "] " + sizes[i].getWidth() + "x" + sizes[i].getHeight());
                 }
 
-                // 选择合适的分辨率
+                // Выбрать合适 Разрешение
                 previewSize = chooseOptimalSize(sizes);
                 AppLog.d(TAG, "Camera " + cameraId + " selected preview size: " + previewSize);
 
-                // 不在这里初始化ImageReader，改为拍照时按需创建
-                // 这样可以避免占用额外的缓冲区，防止超过系统限制(4个buffer)
+                // 不 这里инициализацияImageReader，改为Фото时按需创建
+                // 这样可以避免占用额外 缓冲区，防止超过Система限制(4 шт.buffer)
                 AppLog.d(TAG, "Camera " + cameraId + " ImageReader will be created on demand when taking picture");
 
-                // 通知回调预览尺寸已确定
+                // Уведомление回调预览尺寸确定
                 if (callback != null && previewSize != null) {
                     callback.onPreviewSizeChosen(cameraId, previewSize);
                 }
@@ -853,7 +853,7 @@ public class SingleCamera {
                     callback.onCameraError(cameraId, CameraDevice.StateCallback.ERROR_CAMERA_DEVICE);
                 }
                 synchronized (reconnectLock) {
-                    shouldReconnect = false;  // 无效摄像头不应重连
+                    shouldReconnect = false;  // недействительноКамера不应重连
                 }
                 isOpening = false;
                 return;
@@ -865,7 +865,7 @@ public class SingleCamera {
                 AppLog.d(TAG, "Camera " + cameraId + " SurfaceTexture exists");
             }
 
-            // 打开摄像头
+            // открытьКамера
             AppLog.d(TAG, "Camera " + cameraId + " calling openCamera...");
             cameraManager.openCamera(cameraId, stateCallback, backgroundHandler);
 
@@ -875,7 +875,7 @@ public class SingleCamera {
             if (callback != null) {
                 callback.onCameraError(cameraId, -1);
             }
-            // 尝试重连（检查是否已经在重连中）
+            // попытка重连（проверка 否经 重连)
             synchronized (reconnectLock) {
                 if (shouldReconnect && !isReconnecting) {
                     scheduleReconnect();
@@ -889,56 +889,56 @@ public class SingleCamera {
             }
         } catch (IllegalArgumentException e) {
             isOpening = false;
-            // 某些设备在打开无效摄像头时会抛出 IllegalArgumentException
+            // 某些设备 открытьнедействительноКамера时会抛出 IllegalArgumentException
             AppLog.e(TAG, "Camera " + cameraId + " invalid argument - camera may be virtual/invalid", e);
             if (callback != null) {
                 callback.onCameraError(cameraId, CameraDevice.StateCallback.ERROR_CAMERA_DEVICE);
             }
             synchronized (reconnectLock) {
-                shouldReconnect = false;  // 无效摄像头不应重连
+                shouldReconnect = false;  // недействительноКамера不应重连
             }
         } catch (RuntimeException e) {
             isOpening = false;
-            // 捕获所有其他运行时异常，防止应用崩溃
+            // 捕获所有ДругоеРабота时аномалия，防止Приложение崩溃
             AppLog.e(TAG, "Camera " + cameraId + " runtime exception - camera may be virtual/invalid", e);
             if (callback != null) {
                 callback.onCameraError(cameraId, CameraDevice.StateCallback.ERROR_CAMERA_DEVICE);
             }
             synchronized (reconnectLock) {
-                shouldReconnect = false;  // 异常情况下不应重连
+                shouldReconnect = false;  // аномалия情况不应重连
             }
         }
     }
 
     /**
-     * 打开相机，但延迟 Session 创建。
-     * 用于与 Surface 创建并行：camera 打开后不立即创建 Session，
-     * 等待 setMainFloatingSurface 后再创建，避免没有 floating Surface 的空 Session 需要重建。
+     * открыть相机，但延迟 Session 创建。
+     * 用于 и  Surface 创建并行：camera открыть后不立т.е.创建 Session，
+     * ожидание setMainFloatingSurface 后再创建，避免没有 floating Surface  空 Session необходимо重建。
      */
     public void openCameraDeferred() {
-        if (cameraDevice != null) return; // 已打开，无需延迟
+        if (cameraDevice != null) return; // открыть，无需延迟
         deferSessionCreation = true;
         openCamera();
     }
 
     /**
-     * 调度重连任务
+     * 调度重连задача
      */
     private void scheduleReconnect() {
-        // 如果不是主实例，不执行重连
+        // Если 不 主实例，不выполнение重连
         if (!isPrimaryInstance) {
             AppLog.d(TAG, "Camera " + cameraId + " (" + cameraPosition + ") is SECONDARY instance, skipping reconnect");
             return;
         }
         
         synchronized (reconnectLock) {
-            // 检查是否允许重连
+            // проверка 否разрешить重连
             if (!shouldReconnect) {
                 AppLog.d(TAG, "Camera " + cameraId + " reconnect disabled, skipping");
                 return;
             }
             
-            // 如果已经在重连中，忽略新的重连请求
+            // Если 经 重连，忽略新 重连求
             if (isReconnecting) {
                 AppLog.d(TAG, "Camera " + cameraId + " already reconnecting, skipping new request");
                 return;
@@ -949,23 +949,23 @@ public class SingleCamera {
             long delayMs = Math.max(getReconnectDelayMs(reconnectAttempts), reconnectDelayFloorMs);
             AppLog.d(TAG, "Camera " + cameraId + " scheduling reconnect attempt " + reconnectAttempts + " in " + delayMs + "ms");
 
-            // 取消之前的重连任务
+            // Отменадо 重连задача
             if (reconnectRunnable != null && backgroundHandler != null) {
                 backgroundHandler.removeCallbacks(reconnectRunnable);
             }
 
-            // 创建新的重连任务
+            // 创建新 重连задача
             reconnectRunnable = () -> {
                 synchronized (reconnectLock) {
                     try {
-                        // 确保之前的资源已清理（捕获并忽略异常）
+                        // 确保до 资源Очистка （捕获并忽略аномалия)
                         try {
                             if (captureSession != null) {
                                 captureSession.close();
                                 captureSession = null;
                             }
                         } catch (Exception e) {
-                            // 忽略关闭session时的异常（车机HAL可能不支持某些操作）
+                            // 忽略Закрытоsession时 аномалия（车机HAL可能не поддерживается某些операция)
                             AppLog.d(TAG, "Camera " + cameraId + " ignored exception while closing session: " + e.getMessage());
                         }
 
@@ -1018,7 +1018,7 @@ public class SingleCamera {
                 }
             };
 
-            // 延迟执行重连
+            // 延迟выполнение重连
             if (backgroundHandler != null) {
                 backgroundHandler.postDelayed(reconnectRunnable, delayMs);
             } else {
@@ -1038,7 +1038,7 @@ public class SingleCamera {
     }
 
     /**
-     * 摄像头状态回调
+     * КамераСтатус回调
      */
     private final CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -1046,24 +1046,24 @@ public class SingleCamera {
             isOpening = false;
             synchronized (reconnectLock) {
                 cameraDevice = camera;
-                reconnectAttempts = 0;  // 重置重连计数
-                isReconnecting = false;  // 重连成功，清除重连标志
+                reconnectAttempts = 0;  // Сброс重连计数
+                isReconnecting = false;  // 重连Успешно，очистка重连标志
                 reconnectDelayFloorMs = 0;
                 AppLog.d(TAG, "Camera " + cameraId + " opened");
                 if (callback != null) {
                     callback.onCameraOpened(cameraId);
                 }
             }
-            // 触发一次性回调（副屏绑定等），在 createCameraPreviewSession 之前执行
-            // 这样回调中设置的 Surface 能被第一次 Session 包含，避免重建
+            // 触发一 раз性回调（副屏绑定等)，  createCameraPreviewSession довыполнение
+            // 这样回调Настройки  Surface 能 Первый раз Session содержит，避免重建
             fireOnCameraOpenedCallbacks();
             if (deferSessionCreation) {
                 deferSessionCreation = false;
                 if (mainFloatingSurface != null && mainFloatingSurface.isValid()) {
-                    // Surface 已先于相机打开就绪，立即创建 Session
+                    // Surface 先于相机открыть绪，立т.е.创建 Session
                     createCameraPreviewSession();
                 } else {
-                    // 相机先于 Surface 打开，等 Surface 到达后由调用方触发 Session 创建
+                    // 相机先于 Surface открыть，等 Surface  до 达后由调用方触发 Session 创建
                     AppLog.d(TAG, "Camera " + cameraId + " opened (deferred), waiting for surface");
                 }
             } else {
@@ -1078,23 +1078,23 @@ public class SingleCamera {
                 try {
                     camera.close();
                 } catch (Exception e) {
-                    // 忽略关闭异常
+                    // 忽略Закрытоаномалия
                     AppLog.d(TAG, "Camera " + cameraId + " ignored exception while closing on disconnect: " + e.getMessage());
                 }
                 cameraDevice = null;
                 AppLog.w(TAG, "Camera " + cameraId + " DISCONNECTED - will attempt to reconnect...");
                 if (callback != null) {
-                    callback.onCameraError(cameraId, -4); // 自定义错误码：断开连接
+                    callback.onCameraError(cameraId, -4); // 自定义Ошибка码：отключеноПодключение
                 }
 
-                // 断开连接可能发生在重连过程中（openCamera 后但配置 session 前）
-                // 需要重置 isReconnecting 标志以允许继续重试
+                // отключеноПодключение可能发生 重连过程（openCamera 后但конфигурация session 前)
+                // необходимоСброс isReconnecting 标志以разрешитьпродолжить重试
                 if (isReconnecting) {
                     AppLog.d(TAG, "Camera " + cameraId + " disconnected during reconnect, resetting flag");
                     isReconnecting = false;
                 }
                 
-                // 启动自动重连
+                // Запускавтоматически重连
                 if (shouldReconnect) {
                     scheduleReconnect();
                 }
@@ -1108,7 +1108,7 @@ public class SingleCamera {
                 try {
                     camera.close();
                 } catch (Exception e) {
-                    // 忽略关闭异常
+                    // 忽略Закрытоаномалия
                     AppLog.d(TAG, "Camera " + cameraId + " ignored exception while closing on error: " + e.getMessage());
                 }
                 cameraDevice = null;
@@ -1119,18 +1119,18 @@ public class SingleCamera {
                 switch (error) {
                     case CameraDevice.StateCallback.ERROR_CAMERA_IN_USE:
                         errorMsg = "ERROR_CAMERA_IN_USE (1) - Camera is being used by another app";
-                        shouldRetry = true;  // 摄像头被占用，可以重试
+                        shouldRetry = true;  // Камера 占用，可以重试
                         reconnectDelayFloorMs = 500;
                         break;
                     case CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE:
                         errorMsg = "ERROR_MAX_CAMERAS_IN_USE (2) - Too many cameras open";
-                        shouldRetry = true;  // 摄像头数量超限，可以重试
+                        shouldRetry = true;  // Камера数量超限，可以重试
                         reconnectDelayFloorMs = 1000;
                         break;
                     case CameraDevice.StateCallback.ERROR_CAMERA_DISABLED:
                         errorMsg = "ERROR_CAMERA_DISABLED (3) - Camera disabled by policy (likely background restriction)";
                         shouldRetry = true;
-                        // 冷启动时前台服务可能刚启动还未完全建立，1.5秒后重试通常已就绪
+                        // 冷Запуск时Передний планСервис可能刚Запуск还Не 完全建立，1.5 сек.后重试通常绪
                         reconnectDelayFloorMs = 1500;
                         break;
                     case CameraDevice.StateCallback.ERROR_CAMERA_DEVICE:
@@ -1141,7 +1141,7 @@ public class SingleCamera {
                         break;
                     case CameraDevice.StateCallback.ERROR_CAMERA_SERVICE:
                         errorMsg = "ERROR_CAMERA_SERVICE (5) - Camera service error";
-                        shouldRetry = true;  // 服务错误，可以重试
+                        shouldRetry = true;  // СервисОшибка，可以重试
                         reconnectDelayFloorMs = 2000;
                         break;
                 }
@@ -1161,14 +1161,14 @@ public class SingleCamera {
                     return;
                 }
 
-                // 重连过程中收到错误，说明 openCamera 已经执行完毕（通过回调返回了错误）
-                // 需要重置 isReconnecting 标志，以便可以继续下一次重连尝试
+                // 重连过程Получена команда: Ошибка，说明 openCamera 经выполнение完毕（通过回调返回Ошибка)
+                // необходимоСброс isReconnecting 标志，以便可以продолжить一 раз重连попытка
                 if (isReconnecting) {
                     AppLog.d(TAG, "Camera " + cameraId + " reconnect attempt completed with error, resetting flag");
                     isReconnecting = false;
                 }
                 
-                // 如果应该重试且允许重连，则启动自动重连
+                // Если 应该重试且разрешить重连，则Запускавтоматически重连
                 if (shouldRetry && shouldReconnect) {
                     scheduleReconnect();
                 }
@@ -1206,8 +1206,8 @@ public class SingleCamera {
         try {
             AppLog.d(TAG, "createCameraPreviewSession: Starting for camera " + cameraId);
 
-            // 【关键】如果旧会话仍在运行，必须先关闭它再创建新 session。
-            // HAL 不允许 Surface 同时绑定到多个 stream（"Surface already has a stream created for it"）
+            // 【Выкл键】Если 旧会话仍 Работа，必须先Закрыто它再创建新 session。
+            // HAL 不разрешить Surface 同时绑定 до 多 шт. stream（"Surface already has a stream created for it")
             if (captureSession != null) {
                 final CameraCaptureSession oldSession = captureSession;
                 captureSession = null;
@@ -1225,7 +1225,7 @@ public class SingleCamera {
                     }
                 }
 
-                // 通过 onClosed 回调触发重建；设置 300ms 安全兜底
+                // 通过 onClosed 回调触发重建；Настройки 300ms 安全兜底
                 if (backgroundHandler != null) {
                     backgroundHandler.postDelayed(sessionCloseFallbackRunnable, 300);
                 }
@@ -1261,7 +1261,7 @@ public class SingleCamera {
                         previewSurface = null;
                     }
 
-                    // 鱼眼矫正：通过 GL 中间层渲染到 TextureView
+                    // 鱼眼矫正：通过 GL 间层渲染 до  TextureView
                     AppConfig fisheyeConfig = new AppConfig(context);
                     if (fisheyeConfig.isFisheyeCorrectionEnabled()) {
                         try {
@@ -1300,14 +1300,14 @@ public class SingleCamera {
                 }
             }
             
-            // 检查是否有可用的输出 Surface（后台初始化时可能全部为 null）
+            // проверка 否有Доступно 输出 Surface（Фоновый режиминициализация时可能Все为 null)
             boolean hasAnySurface = (surface != null && surface.isValid())
                     || (mainFloatingSurface != null && mainFloatingSurface.isValid())
                     || (secondaryDisplaySurface != null && secondaryDisplaySurface.isValid())
                     || (recordSurface != null && recordSurface.isValid());
             if (!hasAnySurface) {
                 AppLog.d(TAG, "Camera " + cameraId + " no available surfaces, skipping session creation (waiting for surface)");
-                // 关闭旧 session，防止继续推帧到已销毁的 Surface（queueBuffer abandoned）
+                // Закрыто旧 session，防止продолжить推帧 до 销毁  Surface（queueBuffer abandoned)
                 if (captureSession != null) {
                     try {
                         captureSession.close();
@@ -1327,10 +1327,10 @@ public class SingleCamera {
             int template = (recordSurface != null) ? CameraDevice.TEMPLATE_RECORD : CameraDevice.TEMPLATE_PREVIEW;
             final CaptureRequest.Builder previewRequestBuilder = cameraDevice.createCaptureRequest(template);
             
-            // 保存请求构建器引用（用于实时更新亮度/降噪参数）
+            // Сохранить求构建器引用（用于实时обновление亮度/Шумоподавление参数)
             currentRequestBuilder = previewRequestBuilder;
             
-            // 如果启用了亮度/降噪调节，应用配置中保存的参数
+            // Если Включить亮度/Шумоподавление调节，ПриложениеконфигурацияСохранить 参数
             if (imageAdjustEnabled) {
                 applyImageAdjustParamsFromConfig(previewRequestBuilder);
             }
@@ -1339,20 +1339,20 @@ public class SingleCamera {
             java.util.List<Surface> surfaces = new java.util.ArrayList<>();
             java.util.List<OutputConfiguration> outputConfigs = new java.util.ArrayList<>();
 
-            // 单一输出模式处理（用于 L6/L7 等不支持多路输出的车机平台）
+            // 单一输出режим处理（用于 L6/L7 等не поддерживается多 кам.输出 车机平台)
             if (singleOutputMode && recordSurface != null && recordSurface.isValid()) {
                 AppLog.d(TAG, "Camera " + cameraId + " SINGLE OUTPUT MODE: Using ONLY record surface");
                 surfaces.add(recordSurface);
                 previewRequestBuilder.addTarget(recordSurface);
                 outputConfigs.add(new OutputConfiguration(recordSurface));
             } else {
-                // 正常模式：使用 OutputConfiguration 实现 Surface Sharing (API 28+)
-                // 将所有预览性质的 Surface (主预览、主悬浮、副悬浮) 组合成一个硬件流
+                // нормальнорежим：использование OutputConfiguration 实现 Surface Sharing (API 28+)
+                // 将所有预览性质  Surface (主预览、主悬浮、副悬浮)  групп合成一 шт.硬件流
                 boolean fisheyeActive = (fisheyeCorrector != null && fisheyeCorrector.isInitialized());
 
                 if (fisheyeActive) {
-                    // 鱼眼矫正模式：Camera2 只输出到 FisheyeCorrector 的中间 Surface（单路）
-                    // 悬浮窗/副屏由 FisheyeCorrector GL 管线统一输出（矫正后画面）
+                    // 鱼眼矫正режим：Camera2 只输出 до  FisheyeCorrector  间 Surface（单 кам.)
+                    // 悬浮窗/副屏由 FisheyeCorrector GL 管线统一输出（矫正后画面)
                     AppLog.d(TAG, "Camera " + cameraId + " FISHEYE MODE: single output to GL pipeline");
 
                     if (surface != null && surface.isValid()) {
@@ -1363,8 +1363,8 @@ public class SingleCamera {
                         outputConfigs.add(previewConfig);
                     }
 
-                    // 同步 FisheyeCorrector 的附加输出与当前 Surface 状态
-                    // 确保已清除的 Surface 被移除（防止 EGL "already connected" 竞争）
+                    // 同步 FisheyeCorrector  附加输出 и Текущий Surface Статус
+                    // 确保очистка  Surface  移除（防止 EGL "already connected" 竞争)
                     if (mainFloatingSurface != null && mainFloatingSurface.isValid()) {
                         fisheyeCorrector.addOutputSurface("mainFloating", mainFloatingSurface);
                         AppLog.d(TAG, "Registered main floating surface to fisheye GL pipeline");
@@ -1378,11 +1378,11 @@ public class SingleCamera {
                         fisheyeCorrector.removeOutputSurface("secondaryDisplay");
                     }
                 } else {
-                    // 非鱼眼模式：使用 Surface Sharing
+                    // 非鱼眼режим：использование Surface Sharing
                     AppLog.d(TAG, "Camera " + cameraId + " Using Surface Sharing for preview streams");
 
-                    // 统一设置所有共享 Surface 的 buffer 尺寸，确保与相机输出一致
-                    // 避免悬浮窗/副屏 TextureView 使用物理布局尺寸导致 OutputConfiguration 尺寸不匹配
+                    // 统一Настройки所有Всего 享 Surface   buffer 尺寸，确保 и 相机输出一致
+                    // 避免悬浮窗/副屏 TextureView использование物理布局尺寸导致 OutputConfiguration 尺寸不匹配
                     if (previewSize != null) {
                         if (mainFloatingSurfaceTexture != null) {
                             mainFloatingSurfaceTexture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
@@ -1426,7 +1426,7 @@ public class SingleCamera {
                     }
                 }
 
-                // 录制 Surface 作为一个独立的硬件流
+                // Запись Surface 作为一 шт.独立 硬件流
                 if (recordSurface != null && recordSurface.isValid()) {
                     outputConfigs.add(new OutputConfiguration(recordSurface));
                     surfaces.add(recordSurface);
@@ -1456,16 +1456,16 @@ public class SingleCamera {
                 AppLog.d(TAG, "Camera " + cameraId + " Surface[" + i + "]: " + s + ", isValid=" + s.isValid());
             }
 
-            // 注：旧会话关闭已提前到方法开头处理（确保 SurfaceTexture 断开连接后再创建 EGL Surface）
+            // 注：旧会话Закрыто提前 до 方法Вкл头处理（确保 SurfaceTexture отключеноПодключение后再创建 EGL Surface)
 
-            // 创建会话 (使用 OutputConfiguration)
+            // 创建会话 (использование OutputConfiguration)
             AppLog.d(TAG, "Camera " + cameraId + " Creating capture session with " + outputConfigs.size() + " streams...");
             
             CameraCaptureSession.StateCallback sessionCallback = new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     AppLog.d(TAG, "Camera " + cameraId + " Session configured!");
-                    configFailRetryCount = 0; // 成功，重置重试计数
+                    configFailRetryCount = 0; // Успешно，Сброс重试计数
                     
                     boolean pending;
                     synchronized (sessionLock) {
@@ -1514,7 +1514,7 @@ public class SingleCamera {
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession session) {
                     AppLog.e(TAG, "Failed to configure camera " + cameraId + " session!");
-                    // 关闭失败的 session，释放 Surface 绑定（否则重试会遇到 "Surface already has a stream"）
+                    // ЗакрытоОшибка  session, освобождено Surface 绑定（否则重试会遇 до  "Surface already has a stream")
                     try {
                         session.close();
                     } catch (Exception ignored) {}
@@ -1534,9 +1534,9 @@ public class SingleCamera {
                     // 重试逻辑
                     boolean fisheyeActive = (fisheyeCorrector != null && fisheyeCorrector.isInitialized());
                     if (recordSurface != null) {
-                        // 录制中：丢弃可选 Surface 后重试
-                        // 注意：鱼眼模式下 floating/secondary 由 FisheyeCorrector 管理，
-                        // 不在 Camera2 session 中，清除它们对恢复无帮助
+                        // Запись：丢弃可选 Surface 后重试
+                        // 注意：鱼眼режим floating/secondary 由 FisheyeCorrector управление，
+                        // 不  Camera2 session ，очистка它们 Восстановление无Помощь
                         boolean droppedOptionalSurface = false;
                         if (!fisheyeActive && secondaryDisplaySurface != null) {
                             secondaryDisplaySurface = null;
@@ -1560,8 +1560,8 @@ public class SingleCamera {
                     } else {
                         configFailRetryCount++;
                         if (configFailRetryCount <= MAX_CONFIG_FAIL_RETRIES) {
-                            // 可能是 Surface 正在从其他摄像头转移（connect: already connected），
-                            // 短暂延迟后重试，等待旧 session 释放 Surface
+                            // 可能  Surface Выполняется  от ДругоеКамера转移（connect: already connected)，
+                            // 短暂延迟后重试，ожидание旧 session 释放 Surface
                             AppLog.w(TAG, "Camera " + cameraId + " session config failed, retry " + configFailRetryCount + "/" + MAX_CONFIG_FAIL_RETRIES + " in 200ms...");
                             if (backgroundHandler != null) {
                                 backgroundHandler.postDelayed(() -> {
@@ -1572,8 +1572,8 @@ public class SingleCamera {
                                 }, 200);
                             }
                         } else {
-                            // 重试耗尽，丢弃副屏 Surface 后尝试只用主 Surface
-                            // 鱼眼模式下 secondary 不在 Camera2 session 中，不需要丢弃
+                            // 重试耗尽，丢弃副屏 Surface 后попытка只用主 Surface
+                            // 鱼眼режим secondary 不  Camera2 session ，不необходимо丢弃
                             AppLog.e(TAG, "Camera " + cameraId + " config retries exhausted (" + configFailRetryCount + "), dropping secondary display surface");
                             configFailRetryCount = 0;
                             if (!fisheyeActive && secondaryDisplaySurface != null) {
@@ -1599,9 +1599,9 @@ public class SingleCamera {
                         isSessionClosing = false;
                     }
                     // CLOSED 回调后 HAL 仍需少量时间释放 Surface 绑定
-                    // 延迟 50ms 重建（0ms 会触发 "Surface already has a stream" 错误）
+                    // 延迟 50ms 重建（0ms 会触发 "Surface already has a stream" Ошибка)
                     if (wasClosing && backgroundHandler != null) {
-                        // 移除所有待执行的重建任务，避免重复重建
+                        // 移除所有待выполнение 重建задача，避免重复重建
                         backgroundHandler.removeCallbacks(sessionCloseFallbackRunnable);
                         backgroundHandler.removeCallbacks(recreateSessionRunnable);
                         backgroundHandler.postDelayed(recreateSessionRunnable, 50);
@@ -1609,11 +1609,11 @@ public class SingleCamera {
                 }
             };
 
-            // 使用 API 28 的 createCaptureSession (通过 OutputConfiguration)
+            // использование API 28   createCaptureSession (通过 OutputConfiguration)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 cameraDevice.createCaptureSessionByOutputConfigurations(outputConfigs, sessionCallback, backgroundHandler);
             } else {
-                // 降级处理 (虽然 minSdk 是 28，但为了健壮性保留)
+                // 降级处理 (虽然 minSdk   28，但为健壮性保留)
                 cameraDevice.createCaptureSession(surfaces, sessionCallback, backgroundHandler);
             }
 
@@ -1624,11 +1624,11 @@ public class SingleCamera {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
             synchronized (sessionLock) { isConfiguring = false; isSessionClosing = false; }
-            // 特殊处理 "Surface was abandoned" 错误
+            // 特殊处理 "Surface was abandoned" Ошибка
             String message = e.getMessage();
             if (message != null && message.contains("abandoned")) {
                 AppLog.e(TAG, "Camera " + cameraId + " detected abandoned Surface, attempting recovery...");
-                // 鱼眼模式下 floating/secondary 由 FisheyeCorrector 管理，不在 Camera2 session 中
+                // 鱼眼режим floating/secondary 由 FisheyeCorrector управление，不  Camera2 session 
                 boolean fisheyeActive = (fisheyeCorrector != null && fisheyeCorrector.isInitialized());
                 boolean cleared = false;
                 if (!fisheyeActive && secondaryDisplaySurface != null) {
@@ -1667,16 +1667,16 @@ public class SingleCamera {
     }
 
     /**
-     * 安全兜底：如果 CLOSED 回调未触发，300ms 后检查并重建
+     * 安全兜底：Если  CLOSED 回调Не 触发，300ms 后проверка并重建
      */
     private void createCameraPreviewSessionIfClosePending() {
         synchronized (sessionLock) {
             if (isSessionClosing) {
-                // 回调还没来，继续等
+                // 回调还没来，продолжить等
                 return;
             }
         }
-        // CLOSED 回调已经来过但没触发重建（理论上不该到这），或回调丢失，兜底重建
+        // CLOSED 回调经来过但没触发重建（理论不该 до 这)，или回调丢失，兜底重建
         if (cameraDevice != null && captureSession == null) {
             AppLog.d(TAG, "Camera " + cameraId + " session close fallback triggered");
             createCameraPreviewSession();
@@ -1684,13 +1684,13 @@ public class SingleCamera {
     }
 
     /**
-     * 重新创建会话（用于开始/停止录制时，或者悬浮窗切换时）
+     * 重新创建会话（用于Вкл始/Остановить запись时，или者悬浮窗切换时)
      * 增加防抖处理，避免频繁重建导致黑屏
      */
     private final Runnable recreateSessionRunnable = this::createCameraPreviewSession;
     private final Runnable sessionCloseFallbackRunnable = this::createCameraPreviewSessionIfClosePending;
 
-    /** 帧捕获回调（复用实例，供动态 Surface 更新时 setRepeatingRequest 使用） */
+    /** 帧捕获回调（复用实例，供动态 Surface обновление时 setRepeatingRequest использование) */
     private final CameraCaptureSession.CaptureCallback activeCaptureCallback = new CameraCaptureSession.CaptureCallback() {
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureSession session,
@@ -1722,7 +1722,7 @@ public class SingleCamera {
     };
 
     /**
-     * 立即停止当前会话的 repeating request，防止帧继续推到即将销毁的 Surface。
+     * 立т.е.ОстановкаТекущий会话  repeating request，防止帧продолжить推 до т.е.将销毁  Surface。
      * 用于悬浮窗 dismiss 前调用，避免 queueBuffer: BufferQueue has been abandoned 刷屏。
      */
     public void stopRepeatingNow() {
@@ -1736,19 +1736,19 @@ public class SingleCamera {
         }
     }
 
-    // ===== 动态 Surface 管理（补盲优化：避免 ~300ms Session 关闭等待） =====
+    // ===== 动态 Surface управление（补盲优化：避免 ~300ms Session Закрытоожидание) =====
 
     /**
-     * 动态添加 Surface 到当前预览 Session。
+     * 动态添加 Surface  до Текущий预览 Session。
      * 利用 OutputConfiguration.addSurface() + finalizeOutputConfigurations() 实现
-     * 在不关闭旧 Session 的情况下添加新输出，跳过 ~300ms 的 HAL 关闭等待。
-     * 失败时自动降级到 recreateSession。
+     *  不Закрыто旧 Session  情况添加新输出，跳过 ~300ms   HAL Закрытоожидание。
+     * Ошибка时автоматически降级 до  recreateSession。
      *
-     * @param surface 要添加的 Surface
+     * @param surface 要添加  Surface
      * @param isMainFloating true=主屏悬浮窗, false=副屏
      */
     public void addDynamicSurface(Surface surface, boolean isMainFloating) {
-        // 1. 存储引用（无论动态是否成功，后续 createCameraPreviewSession 都能拿到）
+        // 1. Хранилище引用（无论动态 否Успешно，后续 createCameraPreviewSession все能拿 до )
         if (isMainFloating) {
             this.mainFloatingSurface = surface;
             AppLog.d(TAG, "Main floating surface set for camera " + cameraId +
@@ -1761,7 +1761,7 @@ public class SingleCamera {
 
         if (surface == null || !surface.isValid()) return;
 
-        // 鱼眼矫正模式：通过 FisheyeCorrector GL 管线输出，无需重建 Camera2 session
+        // 鱼眼矫正режим：通过 FisheyeCorrector GL 管线输出，无需重建 Camera2 session
         if (fisheyeCorrector != null && fisheyeCorrector.isInitialized()) {
             String tag = isMainFloating ? "mainFloating" : "secondaryDisplay";
             if (backgroundHandler != null) {
@@ -1774,7 +1774,7 @@ public class SingleCamera {
             return;
         }
 
-        // 2. 如果 Session 正忙，新 Surface 会被进行中的 createCameraPreviewSession 自动包含
+        // 2. Если  Session 正忙，新 Surface 会 выполняется  createCameraPreviewSession автоматическисодержит
         synchronized (sessionLock) {
             if (isConfiguring || isSessionClosing) {
                 AppLog.d(TAG, "Camera " + cameraId + " session busy, dynamic surface will be included in pending session");
@@ -1782,7 +1782,7 @@ public class SingleCamera {
             }
         }
 
-        // 3. 尝试动态添加（在后台线程执行）
+        // 3. попытка动态添加（ Фоновый режим线程выполнение)
         if (backgroundHandler != null && captureSession != null && activePreviewConfig != null) {
             backgroundHandler.removeCallbacks(recreateSessionRunnable);
             backgroundHandler.post(() -> {
@@ -1792,21 +1792,21 @@ public class SingleCamera {
                 }
             });
         } else {
-            // 没有现有 Session（如摄像头刚打开），走正常创建路径
+            // 没有现有 Session（еслиКамера刚открыть)，走нормально创建Путь
             recreateSession(true);
         }
     }
 
     /**
-     * 动态移除 Surface（补盲隐藏优化）。
+     * 动态移除 Surface（补盲隐藏优化)。
      * 利用 OutputConfiguration.removeSurface() + finalizeOutputConfigurations() 实现
-     * 在不关闭 Session 的情况下移除输出。
-     * 失败时自动降级到 recreateSession。
+     *  不Закрыто Session  情况移除输出。
+     * Ошибка时автоматически降级 до  recreateSession。
      *
      * @param isMainFloating true=主屏悬浮窗, false=副屏
      */
     public void removeDynamicSurface(boolean isMainFloating) {
-        // 1. 取出并清除引用
+        // 1. 取出并очистка引用
         final Surface surfaceToRemove;
         if (isMainFloating) {
             surfaceToRemove = this.mainFloatingSurface;
@@ -1818,7 +1818,7 @@ public class SingleCamera {
             AppLog.d(TAG, "Secondary display surface cleared for camera " + cameraId);
         }
 
-        // 鱼眼矫正模式：从 GL 管线移除，无需碰 Camera2 session
+        // 鱼眼矫正режим： от  GL 管线移除，无需碰 Camera2 session
         if (fisheyeCorrector != null && fisheyeCorrector.isInitialized()) {
             String tag = isMainFloating ? "mainFloating" : "secondaryDisplay";
             if (backgroundHandler != null) {
@@ -1831,10 +1831,10 @@ public class SingleCamera {
             return;
         }
 
-        // 2. 立即停止推帧，防止 Surface 销毁后 queueBuffer abandoned
+        // 2. 立т.е.Остановка推帧，防止 Surface 销毁后 queueBuffer abandoned
         stopRepeatingNow();
 
-        // 3. 尝试动态移除（在后台线程执行）
+        // 3. попытка动态移除（ Фоновый режим线程выполнение)
         if (surfaceToRemove != null && backgroundHandler != null
                 && captureSession != null && activePreviewConfig != null) {
             backgroundHandler.removeCallbacks(recreateSessionRunnable);
@@ -1859,17 +1859,17 @@ public class SingleCamera {
         if (surface == null || !surface.isValid()) return false;
 
         try {
-            // 1. 添加到共享 OutputConfiguration
+            // 1. 添加 до Всего 享 OutputConfiguration
             activePreviewConfig.addSurface(surface);
 
-            // 2. 通知 Session 配置变更
+            // 2. Уведомление Session конфигурация变更
             captureSession.finalizeOutputConfigurations(
                     java.util.Collections.singletonList(activePreviewConfig));
 
             // 3. 将新 Surface 加入 CaptureRequest 目标
             currentRequestBuilder.addTarget(surface);
 
-            // 4. 更新 repeating request
+            // 4. обновление repeating request
             captureSession.setRepeatingRequest(
                     currentRequestBuilder.build(), activeCaptureCallback, backgroundHandler);
 
@@ -1878,7 +1878,7 @@ public class SingleCamera {
             return true;
         } catch (Exception e) {
             AppLog.w(TAG, "Camera " + cameraId + " dynamic surface add failed: " + e.getMessage());
-            // 回滚：尽力恢复状态
+            // 回滚：尽力ВосстановлениеСтатус
             try { activePreviewConfig.removeSurface(surface); } catch (Exception ignored) {}
             try { currentRequestBuilder.removeTarget(surface); } catch (Exception ignored) {}
             return false;
@@ -1895,17 +1895,17 @@ public class SingleCamera {
         if (surface == null) return false;
 
         try {
-            // 1. 从 CaptureRequest 移除目标（停止向该 Surface 推帧）
+            // 1.  от  CaptureRequest 移除目标（Остановка к 该 Surface 推帧)
             currentRequestBuilder.removeTarget(surface);
 
-            // 2. 从共享 OutputConfiguration 移除
+            // 2.  от Всего 享 OutputConfiguration 移除
             activePreviewConfig.removeSurface(surface);
 
-            // 3. 通知 Session 配置变更
+            // 3. Уведомление Session конфигурация变更
             captureSession.finalizeOutputConfigurations(
                     java.util.Collections.singletonList(activePreviewConfig));
 
-            // 4. 恢复 repeating request（仅包含剩余 Surface）
+            // 4. Восстановление repeating request（толькосодержит剩余 Surface)
             captureSession.setRepeatingRequest(
                     currentRequestBuilder.build(), activeCaptureCallback, backgroundHandler);
 
@@ -1923,20 +1923,20 @@ public class SingleCamera {
 
     /**
      * 重新创建会话
-     * @param urgent 紧急模式（如补盲悬浮窗），跳过防抖延迟以最快速度重建
+     * @param urgent 紧急режим（если补盲悬浮窗)，跳过防抖延迟以最快速度重建
      */
     public void recreateSession(boolean urgent) {
         if (cameraDevice != null) {
             if (backgroundHandler != null) {
-                // 移除待执行的任务，实现防抖
+                // 移除待выполнение задача，实现防抖
                 backgroundHandler.removeCallbacks(recreateSessionRunnable);
                 
                 int delay;
                 if (urgent) {
-                    // 紧急模式：最小延迟，用于补盲悬浮窗等需要快速响应的场景
+                    // 紧急режим：минимум延迟，用于补盲悬浮窗等необходимо快速响应 场景
                     delay = isConfiguring ? 50 : 0;
                 } else {
-                    // 普通模式：保持防抖延迟
+                    // 普通режим：保持防抖延迟
                     delay = isConfiguring ? 500 : 100;
                 }
 
@@ -1953,18 +1953,18 @@ public class SingleCamera {
     }
 
     /**
-     * 获取当前 TextureView（用于心跳推图等功能）
+     * ПолучениеТекущий TextureView（用于Мониторинг等функция)
      */
     public TextureView getTextureView() {
         return textureView;
     }
 
     /**
-     * 实时捕获当前画面（不保存文件）
-     * 用于心跳推图等需要实时获取图片的功能
-     * 注意：必须在主线程调用
+     * 实时捕获Текущий画面（不СохранитьФайл)
+     * 用于Мониторинг等необходимо实时ПолучениеИзображение функция
+     * 注意：必须 主线程调用
      * 
-     * @return 当前画面的 Bitmap，失败返回 null（调用方负责回收）
+     * @return Текущий画面  Bitmap，ОшибкаВозвращает null（调用方负责回收)
      */
     public android.graphics.Bitmap captureBitmap() {
         if (textureView == null || !textureView.isAvailable()) {
@@ -1995,7 +1995,7 @@ public class SingleCamera {
     }
 
     /**
-     * 拍照（自动生成时间戳）
+     * Фото（автоматически生成时间戳)
      */
     public void takePicture() {
         // 生成时间戳
@@ -2004,17 +2004,17 @@ public class SingleCamera {
     }
 
     /**
-     * 拍照（使用指定的时间戳）
-     * @param timestamp 文件命名用的时间戳
+     * Фото（использование指定 时间戳)
+     * @param timestamp Файл命名用 时间戳
      */
     public void takePicture(String timestamp) {
-        takePicture(timestamp, 0);  // 默认无延迟
+        takePicture(timestamp, 0);  // По умолчанию无延迟
     }
 
     /**
-     * 拍照（使用指定的时间戳和保存延迟）
-     * @param timestamp 文件命名用的时间戳
-     * @param saveDelayMs 保存文件前的延迟时间（毫秒）
+     * Фото（использование指定 时间戳 и Сохранить延迟)
+     * @param timestamp Файл命名用 时间戳
+     * @param saveDelayMs СохранитьФайл前 延迟时间（毫 сек.)
      */
     public void takePicture(String timestamp, int saveDelayMs) {
         if (textureView == null || !textureView.isAvailable()) {
@@ -2027,11 +2027,11 @@ public class SingleCamera {
             return;
         }
 
-        // 在后台线程中处理截图和保存
+        //  Фоновый режим线程处理截图 и Сохранить
         if (backgroundHandler != null) {
             backgroundHandler.post(() -> {
                 try {
-                    // 1. 立即从TextureView获取Bitmap（快速抓拍）
+                    // 1. 立т.е. от TextureViewПолучениеBitmap（快速抓拍)
                     android.graphics.Bitmap bitmap = textureView.getBitmap(
                             previewSize.getWidth(),
                             previewSize.getHeight()
@@ -2041,7 +2041,7 @@ public class SingleCamera {
                         AppLog.d(TAG, "Camera " + cameraId + " picture captured (" +
                               bitmap.getWidth() + "x" + bitmap.getHeight() + "), will save in " + saveDelayMs + "ms");
                         
-                        // 2. 延迟后再保存到磁盘（分散I/O压力）
+                        // 2. 延迟后再Сохранить до 磁 диск（分散I/O压力)
                         if (saveDelayMs > 0) {
                             try {
                                 Thread.sleep(saveDelayMs);
@@ -2050,7 +2050,7 @@ public class SingleCamera {
                             }
                         }
                         
-                        // 3. 保存文件
+                        // 3. СохранитьФайл
                         saveBitmapAsJPEG(bitmap, timestamp);
                         bitmap.recycle();
                         AppLog.d(TAG, "Camera " + cameraId + " picture saved");
@@ -2065,7 +2065,7 @@ public class SingleCamera {
     }
 
     /**
-     * 将Bitmap保存为JPEG文件
+     * 将BitmapСохранить为JPEGФайл
      */
     private void saveBitmapAsJPEG(android.graphics.Bitmap bitmap) {
         // 生成时间戳
@@ -2074,7 +2074,7 @@ public class SingleCamera {
     }
 
     /**
-     * 将Bitmap保存为JPEG文件（使用指定的时间戳）
+     * 将BitmapСохранить为JPEGФайл（использование指定 时间戳)
      */
     private void saveBitmapAsJPEG(android.graphics.Bitmap bitmap, String timestamp) {
         File photoDir = StorageHelper.getPhotoDir(context);
@@ -2082,18 +2082,18 @@ public class SingleCamera {
             photoDir.mkdirs();
         }
 
-        // 检查存储空间是否充足（至少需要 5MB）
+        // проверкаХранилище空间 否充足（至少необходимо 5MB)
         long availableSpace = StorageHelper.getAvailableSpace(photoDir);
         if (availableSpace >= 0 && availableSpace < 5 * 1024 * 1024) {
-            AppLog.w(TAG, "Camera " + cameraId + " 存储空间不足，剩余: " + StorageHelper.formatSize(availableSpace));
-            // 仍然尝试保存，因为照片通常只有几百KB
+            AppLog.w(TAG, "Camera " + cameraId + " Хранилище空间不足，剩余: " + StorageHelper.formatSize(availableSpace));
+            // 仍然попыткаСохранить，因为Фото通常只有几百KB
         }
 
-        // 使用传入的时间戳命名：yyyyMMdd_HHmmss_摄像头位置.jpg
+        // использование传入 时间戳命名：yyyyMMdd_HHmmss_КамераПозиция.jpg
         String position = (cameraPosition != null) ? cameraPosition : cameraId;
         File photoFile = new File(photoDir, timestamp + "_" + position + ".jpg");
 
-        // 检查是否需要添加时间角标
+        // проверка 否необходимо添加时间角标
         android.graphics.Bitmap finalBitmap = bitmap;
         AppConfig appConfig = new AppConfig(context);
         if (appConfig.isTimestampWatermarkEnabled()) {
@@ -2108,7 +2108,7 @@ public class SingleCamera {
             AppLog.i(TAG, "Photo saved: " + photoFile.getAbsolutePath());
         } catch (IOException e) {
             if (e.getMessage() != null && e.getMessage().contains("ENOSPC")) {
-                AppLog.e(TAG, "Camera " + cameraId + " 保存照片失败：存储空间已满");
+                AppLog.e(TAG, "Camera " + cameraId + " СохранитьФотоОшибка：Хранилище空间满");
             } else {
                 AppLog.e(TAG, "Failed to save photo", e);
             }
@@ -2117,16 +2117,16 @@ public class SingleCamera {
                 try {
                     output.close();
                 } catch (IOException e) {
-                    // 关闭流时的 ENOSPC 错误通常表示文件已保存，但空间紧张
-                    // 降低日志级别，避免误导用户以为保存失败
+                    // Закрыто流时  ENOSPC Ошибка通常表示ФайлСохранить，但空间紧 шт.
+                    // 降Низкий д.志级别，避免误导用户以为СохранитьОшибка
                     if (e.getMessage() != null && e.getMessage().contains("ENOSPC")) {
-                        AppLog.w(TAG, "Camera " + cameraId + " 存储空间已满，请清理存储");
+                        AppLog.w(TAG, "Camera " + cameraId + " Хранилище空间满，Очистка Хранилище");
                     } else {
                         AppLog.e(TAG, "Failed to close output stream", e);
                     }
                 }
             }
-            // 如果创建了新的bitmap用于水印，需要回收
+            // Если 创建新 bitmap用于水印，необходимо回收
             if (finalBitmap != bitmap && finalBitmap != null) {
                 finalBitmap.recycle();
             }
@@ -2134,14 +2134,14 @@ public class SingleCamera {
     }
 
     /**
-     * 在Bitmap上添加时间角标
-     * @param originalBitmap 原始图片
-     * @param timestamp 时间戳字符串（格式：yyyyMMdd_HHmmss）
-     * @return 带有时间角标的新Bitmap
+     *  Bitmap添加时间角标
+     * @param originalBitmap 原始Изображение
+     * @param timestamp 时间戳字符串（格式：yyyyMMdd_HHmmss)
+     * @return 带有时间角标 新Bitmap
      */
     private android.graphics.Bitmap addTimestampWatermark(android.graphics.Bitmap originalBitmap, String timestamp) {
         try {
-            // 创建可编辑的副本
+            // 创建可编辑 副本
             android.graphics.Bitmap mutableBitmap = originalBitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true);
             android.graphics.Canvas canvas = new android.graphics.Canvas(mutableBitmap);
 
@@ -2153,34 +2153,34 @@ public class SingleCamera {
                 java.util.Date date = inputFormat.parse(timestamp);
                 displayTime = outputFormat.format(date);
             } catch (Exception e) {
-                // 解析失败，使用当前时间
+                // 解析Ошибка，использованиеТекущий时间
                 displayTime = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new java.util.Date());
             }
 
-            // 根据图片宽度动态计算字体大小（约为图片宽度的3%）
+            // 根据Изображение宽度动态计算字体大小（约为Изображение宽度 3%)
             float textSize = mutableBitmap.getWidth() * 0.03f;
-            if (textSize < 16) textSize = 16;  // 最小16像素
-            if (textSize > 48) textSize = 48;  // 最大48像素
+            if (textSize < 16) textSize = 16;  // минимум16像素
+            if (textSize > 48) textSize = 48;  // максимум48像素
 
-            // 设置画笔 - 阴影效果
+            // Настройки画笔 - 阴影效果
             android.graphics.Paint shadowPaint = new android.graphics.Paint();
             shadowPaint.setColor(android.graphics.Color.BLACK);
             shadowPaint.setTextSize(textSize);
             shadowPaint.setAntiAlias(true);
             shadowPaint.setTypeface(android.graphics.Typeface.MONOSPACE);
 
-            // 设置画笔 - 主文字
+            // Настройки画笔 - 主文字
             android.graphics.Paint textPaint = new android.graphics.Paint();
             textPaint.setColor(android.graphics.Color.WHITE);
             textPaint.setTextSize(textSize);
             textPaint.setAntiAlias(true);
             textPaint.setTypeface(android.graphics.Typeface.MONOSPACE);
 
-            // 计算位置（左上角，留一定边距）
+            // 计算Позиция（左角，留一定边距)
             float x = textSize * 0.5f;
             float y = textSize * 1.2f;
 
-            // 绘制阴影（偏移2像素）
+            // 绘制阴影（偏移2像素)
             canvas.drawText(displayTime, x + 2, y + 2, shadowPaint);
             // 绘制主文字
             canvas.drawText(displayTime, x, y, textPaint);
@@ -2190,69 +2190,69 @@ public class SingleCamera {
 
         } catch (Exception e) {
             AppLog.e(TAG, "Camera " + cameraId + " failed to add timestamp watermark", e);
-            return originalBitmap;  // 失败时返回原图
+            return originalBitmap;  // Ошибка时返回原图
         }
     }
 
     /**
-     * 关闭摄像头
+     * ЗакрытоКамера
      */
     public void closeCamera() {
-        // 如果不是主实例，不执行关闭操作
+        // Если 不 主实例，不выполнениеЗакрытооперация
         if (!isPrimaryInstance) {
             AppLog.d(TAG, "Camera " + cameraId + " (" + cameraPosition + ") is SECONDARY instance, skipping closeCamera");
             return;
         }
         
         synchronized (reconnectLock) {
-            shouldReconnect = false;  // 禁用自动重连
-            reconnectAttempts = 0;  // 重置重连计数
-            isReconnecting = false;  // 清除重连状态
-            isOpening = false;  // 清除打开中状态
-            deferSessionCreation = false;  // 清除延迟标志
+            shouldReconnect = false;  // Отключитьавтоматически重连
+            reconnectAttempts = 0;  // Сброс重连计数
+            isReconnecting = false;  // очистка重连Статус
+            isOpening = false;  // очисткаоткрытьСтатус
+            deferSessionCreation = false;  // очистка延迟标志
             stopHealthMonitor();
 
-            // 取消待处理的重连任务
+            // Отмена待处理 重连задача
             if (reconnectRunnable != null && backgroundHandler != null) {
                 backgroundHandler.removeCallbacks(reconnectRunnable);
                 reconnectRunnable = null;
             }
 
-            // 取消待处理的 session 重建任务（防止 closeCamera 后仍尝试 createCaptureSession）
+            // Отмена待处理  session 重建задача（防止 closeCamera 后仍попытка createCaptureSession)
             if (backgroundHandler != null) {
                 backgroundHandler.removeCallbacks(recreateSessionRunnable);
                 backgroundHandler.removeCallbacks(sessionCloseFallbackRunnable);
             }
 
-            // 重置 Session 状态标志（防止重新打开时残留状态导致死循环）
+            // Сброс Session Статус标志（防止重新открыть时残留Статус导致死循环)
             synchronized (sessionLock) {
                 isSessionClosing = false;
                 isConfiguring = false;
                 isPendingReconfiguration = false;
             }
 
-            // 清除未触发的回调
+            // очисткаНе 触发 回调
             synchronized (onCameraOpenedCallbacks) {
                 onCameraOpenedCallbacks.clear();
             }
 
-            // 关闭会话（捕获异常）
+            // Закрыто会话（捕获аномалия)
             if (captureSession != null) {
                 try {
                     captureSession.close();
                 } catch (Exception e) {
-                    // 忽略关闭异常
+                    // 忽略Закрытоаномалия
                     AppLog.d(TAG, "Camera " + cameraId + " ignored exception while closing session: " + e.getMessage());
                 }
                 captureSession = null;
             }
 
-            // 关闭设备（捕获异常）
+            // Закрыто设备（捕获аномалия)
             if (cameraDevice != null) {
                 try {
                     cameraDevice.close();
                 } catch (Exception e) {
-                    // 忽略关闭异常
+                    // 忽略Закрытоаномалия
                     AppLog.d(TAG, "Camera " + cameraId + " ignored exception while closing device: " + e.getMessage());
                 }
                 cameraDevice = null;
@@ -2272,14 +2272,14 @@ public class SingleCamera {
                 previewSurface = null;
             }
 
-            // 清理录制 Surface 引用（重要：防止 Surface abandoned 错误）
-            // 注意：这里只是清除引用，不 release()，因为 Surface 由 VideoRecorder 管理
+            // Очистка Запись Surface 引用（重要：防止 Surface abandoned Ошибка)
+            // 注意：这里只 очистка引用，不 release()，因为 Surface 由 VideoRecorder управление
             if (recordSurface != null) {
                 AppLog.d(TAG, "Camera " + cameraId + " clearing record surface reference");
                 recordSurface = null;
             }
 
-            // 清理悬浮窗 Surface 引用
+            // Очистка 悬浮窗 Surface 引用
             if (mainFloatingSurface != null) {
                 AppLog.d(TAG, "Camera " + cameraId + " clearing main floating surface reference");
                 mainFloatingSurface = null;
@@ -2311,7 +2311,7 @@ public class SingleCamera {
         }
     }
 
-    // ==================== 鱼眼矫正相关方法 ====================
+    // ==================== 鱼眼矫正相Выкл方法 ====================
 
     /**
      * 释放鱼眼矫正器
@@ -2328,7 +2328,7 @@ public class SingleCamera {
     }
 
     /**
-     * 实时更新鱼眼矫正参数（由悬浮窗调参时调用，无需重建 session）
+     * 实时обновление鱼眼矫正参数（由悬浮窗调参时调用，无需重建 session)
      */
     public void updateFisheyeParams(AppConfig appConfig) {
         if (fisheyeCorrector != null && fisheyeCorrector.isInitialized()) {
@@ -2337,25 +2337,25 @@ public class SingleCamera {
     }
 
     /**
-     * 鱼眼矫正开关切换后需要重建预览 session
-     * 因为需要切换 Surface（直接 / 中间 GL）
+     * 鱼眼矫正ВклВыкл切换后необходимо重建预览 session
+     * 因为необходимо切换 Surface（直接 / 间 GL)
      *
-     * 注意：不能直接 release previewSurface，因为旧 session 可能仍在使用它。
+     * 注意：不能直接 release previewSurface，因为旧 session 可能仍 использование它。
      * 只需释放 FisheyeCorrector 并置空 previewSurface 引用，
-     * session 关闭时会自然断开 SurfaceTexture 的 producer 连接。
+     * session Закрыто时会自然отключено SurfaceTexture   producer Подключение。
      */
     public void recreateForFisheyeToggle() {
         AppLog.d(TAG, "Camera " + cameraId + " recreating session for fisheye toggle");
         releaseFisheyeCorrector();
-        previewSurface = null; // 不 release，让 session 关闭时自然断开
+        previewSurface = null; // 不 release，让 session Закрыто时自然отключено
         recreateSession();
     }
 
     /**
-     * 手动触发重连（重置重连计数）
+     * вручную触发重连（Сброс重连计数)
      */
     public void reconnect() {
-        // 如果不是主实例，不执行重连操作
+        // Если 不 主实例，不выполнение重连операция
         if (!isPrimaryInstance) {
             AppLog.d(TAG, "Camera " + cameraId + " (" + cameraPosition + ") is SECONDARY instance, skipping reconnect");
             return;
@@ -2364,7 +2364,7 @@ public class SingleCamera {
         synchronized (reconnectLock) {
             AppLog.d(TAG, "Camera " + cameraId + " manual reconnect requested (PRIMARY instance)");
             
-            // 取消所有待执行的重连任务
+            // Отмена所有待выполнение 重连задача
             if (reconnectRunnable != null && backgroundHandler != null) {
                 backgroundHandler.removeCallbacks(reconnectRunnable);
                 reconnectRunnable = null;
@@ -2379,18 +2379,18 @@ public class SingleCamera {
     }
 
     /**
-     * 检查摄像头是否已连接
+     * проверкаКамера 否Подключено
      */
     public boolean isConnected() {
         return cameraDevice != null;
     }
 
     /**
-     * 生命周期：暂停摄像头（App退到后台时调用）
-     * 暂停时不会触发自动重连，因为是主动暂停
+     * 生命周期：ПаузаКамера（App退 до Фоновый режим时调用)
+     * Пауза时不会触发автоматически重连，因为 主动Пауза
      */
     public void pauseByLifecycle() {
-        // 如果不是主实例，不执行暂停操作
+        // Если 不 主实例，不выполнениеПаузаоперация
         if (!isPrimaryInstance) {
             AppLog.d(TAG, "Camera " + cameraId + " (" + cameraPosition + ") is SECONDARY instance, skipping pauseByLifecycle");
             return;
@@ -2399,10 +2399,10 @@ public class SingleCamera {
         synchronized (reconnectLock) {
             AppLog.d(TAG, "Camera " + cameraId + " paused by lifecycle (PRIMARY instance)");
             isPausedByLifecycle = true;
-            shouldReconnect = false;  // 禁用自动重连，因为是主动暂停
-            isReconnecting = false;  // 清除重连状态
+            shouldReconnect = false;  // Отключитьавтоматически重连，因为 主动Пауза
+            isReconnecting = false;  // очистка重连Статус
             
-            // 取消所有待执行的重连任务
+            // Отмена所有待выполнение 重连задача
             if (reconnectRunnable != null && backgroundHandler != null) {
                 backgroundHandler.removeCallbacks(reconnectRunnable);
                 reconnectRunnable = null;
@@ -2412,11 +2412,11 @@ public class SingleCamera {
     }
 
     /**
-     * 生命周期：恢复摄像头（App返回前台时调用）
-     * 如果摄像头之前是暂停状态，会自动重新打开
+     * 生命周期：ВосстановлениеКамера（App返回Передний план时调用)
+     * Если Камерадо ПаузаСтатус，会автоматически重新открыть
      */
     public void resumeByLifecycle() {
-        // 如果不是主实例，不执行恢复操作
+        // Если 不 主实例，不выполнениеВосстановлениеоперация
         if (!isPrimaryInstance) {
             AppLog.d(TAG, "Camera " + cameraId + " (" + cameraPosition + ") is SECONDARY instance, skipping resumeByLifecycle");
             return;
@@ -2427,12 +2427,12 @@ public class SingleCamera {
             AppLog.d(TAG, "Camera " + cameraId + " resume by lifecycle (PRIMARY instance)");
             if (isPausedByLifecycle) {
                 isPausedByLifecycle = false;
-                reconnectAttempts = 0;  // 重置重连计数
-                shouldReconnect = true;  // 启用自动重连
-                isReconnecting = false;  // 清除重连状态
+                reconnectAttempts = 0;  // Сброс重连计数
+                shouldReconnect = true;  // Включитьавтоматически重连
+                isReconnecting = false;  // очистка重连Статус
                 shouldOpen = true;
                 
-                // 取消所有待执行的重连任务
+                // Отмена所有待выполнение 重连задача
                 if (reconnectRunnable != null && backgroundHandler != null) {
                     backgroundHandler.removeCallbacks(reconnectRunnable);
                     reconnectRunnable = null;
@@ -2445,11 +2445,11 @@ public class SingleCamera {
     }
 
     /**
-     * 强制重新打开摄像头（用于从后台返回前台时）
-     * 即使摄像头当前是连接状态，也会重新打开
+     * 强制重新открытьКамера（用于 от Фоновый режим返回Передний план时)
+     * т.е.使КамераТекущий ПодключениеСтатус，также会重新открыть
      */
     public void forceReopen() {
-        // 如果不是主实例，不执行重开操作
+        // Если 不 主实例，不выполнение重Вклоперация
         if (!isPrimaryInstance) {
             AppLog.d(TAG, "Camera " + cameraId + " (" + cameraPosition + ") is SECONDARY instance, skipping forceReopen");
             return;
@@ -2458,18 +2458,18 @@ public class SingleCamera {
         synchronized (reconnectLock) {
             AppLog.d(TAG, "Camera " + cameraId + " force reopen requested (PRIMARY instance)");
             
-            // 取消所有待执行的重连任务
+            // Отмена所有待выполнение 重连задача
             if (reconnectRunnable != null && backgroundHandler != null) {
                 backgroundHandler.removeCallbacks(reconnectRunnable);
                 reconnectRunnable = null;
             }
             
-            // 重置状态
+            // СбросСтатус
             reconnectAttempts = 0;
             shouldReconnect = true;
             isReconnecting = false;
             
-            // 关闭现有连接
+            // Закрыто现有Подключение
             if (cameraDevice != null) {
                 try {
                     if (captureSession != null) {
@@ -2477,7 +2477,7 @@ public class SingleCamera {
                         captureSession = null;
                     }
                 } catch (Exception e) {
-                    // 忽略关闭异常
+                    // 忽略Закрытоаномалия
                     AppLog.d(TAG, "Camera " + cameraId + " ignored exception during session close: " + e.getMessage());
                 }
                 
@@ -2489,12 +2489,12 @@ public class SingleCamera {
                 }
             }
             
-            // 延迟重新打开，避免立即操作
+            // 延迟重新открыть，避免立т.е.операция
             if (backgroundHandler != null) {
                 backgroundHandler.postDelayed(() -> {
                     synchronized (reconnectLock) {
                         try {
-                            // 验证摄像头ID是否存在
+                            // 验证КамераID 否существует
                             String[] availableCameraIds = cameraManager.getCameraIdList();
                             boolean cameraExists = false;
                             for (String id : availableCameraIds) {
@@ -2511,7 +2511,7 @@ public class SingleCamera {
                                 return;
                             }
                             
-                            // 验证摄像头是否真正可用
+                            // 验证Камера 否真正Доступно
                             CameraCharacteristics characteristics;
                             try {
                                 characteristics = cameraManager.getCameraCharacteristics(cameraId);
@@ -2538,9 +2538,9 @@ public class SingleCamera {
                             shouldReconnect = false;
                         }
                     }
-                }, 300);  // 延迟300ms，给系统时间释放资源
+                }, 300);  // 延迟300ms， Система时间释放资源
             } else {
-                // 如果后台线程不存在，重新启动
+                // Если Фоновый режим线程не существует，重新Запуск
                 startBackgroundThread();
                 backgroundHandler.postDelayed(() -> {
                     openCamera();
@@ -2549,11 +2549,11 @@ public class SingleCamera {
         }
     }
     
-    // ==================== 亮度/降噪调节相关方法 ====================
+    // ==================== 亮度/Шумоподавление调节相Выкл方法 ====================
     
     /**
-     * 设置是否启用亮度/降噪调节
-     * @param enabled true 表示启用
+     * Настройки 否Включить亮度/Шумоподавление调节
+     * @param enabled true 表示Включить
      */
     public void setImageAdjustEnabled(boolean enabled) {
         this.imageAdjustEnabled = enabled;
@@ -2561,14 +2561,14 @@ public class SingleCamera {
     }
     
     /**
-     * 从配置中读取并应用亮度/降噪调节参数
-     * @param requestBuilder 请求构建器
+     *  от конфигурация读取并Приложение亮度/Шумоподавление调节参数
+     * @param requestBuilder 求构建器
      */
     private void applyImageAdjustParamsFromConfig(CaptureRequest.Builder requestBuilder) {
         try {
             AppConfig appConfig = new AppConfig(context);
             
-            // 应用曝光补偿
+            // ПриложениеЭкспозиция
             int exposureComp = appConfig.getExposureCompensation();
             if (exposureComp != 0) {
                 Range<Integer> range = getExposureCompensationRange();
@@ -2579,7 +2579,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用白平衡模式
+            // ПриложениеБаланс белогорежим
             int awbMode = appConfig.getAwbMode();
             if (awbMode >= 0) {
                 int[] supportedModes = getSupportedAwbModes();
@@ -2589,7 +2589,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用色调映射模式
+            // ПриложениеТональная компрессиярежим
             int tonemapMode = appConfig.getTonemapMode();
             if (tonemapMode >= 0) {
                 int[] supportedModes = getSupportedTonemapModes();
@@ -2599,7 +2599,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用边缘增强模式
+            // ПриложениеРезкостьрежим
             int edgeMode = appConfig.getEdgeMode();
             if (edgeMode >= 0) {
                 int[] supportedModes = getSupportedEdgeModes();
@@ -2609,7 +2609,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用降噪模式
+            // ПриложениеШумоподавлениережим
             int noiseReductionMode = appConfig.getNoiseReductionMode();
             if (noiseReductionMode >= 0) {
                 int[] supportedModes = getSupportedNoiseReductionModes();
@@ -2619,7 +2619,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用特效模式
+            // ПриложениеЭффектырежим
             int effectMode = appConfig.getEffectMode();
             if (effectMode >= 0) {
                 int[] supportedModes = getSupportedEffectModes();
@@ -2637,15 +2637,15 @@ public class SingleCamera {
     }
     
     /**
-     * 获取是否启用亮度/降噪调节
+     * Получение 否Включить亮度/Шумоподавление调节
      */
     public boolean isImageAdjustEnabled() {
         return imageAdjustEnabled;
     }
     
     /**
-     * 获取曝光补偿范围
-     * @return 曝光补偿范围 [min, max]，如果不支持返回 null
+     * ПолучениеЭкспозиция范围
+     * @return Экспозиция范围 [min, max]，Если не поддерживаетсяВозвращает null
      */
     public Range<Integer> getExposureCompensationRange() {
         try {
@@ -2660,8 +2660,8 @@ public class SingleCamera {
     }
     
     /**
-     * 获取曝光补偿步长
-     * @return 曝光补偿步长（EV 单位），如果不支持返回 null
+     * ПолучениеЭкспозиция步长
+     * @return Экспозиция步长（EV 单位)，Если не поддерживаетсяВозвращает null
      */
     public android.util.Rational getExposureCompensationStep() {
         try {
@@ -2676,8 +2676,8 @@ public class SingleCamera {
     }
     
     /**
-     * 获取支持的白平衡模式
-     * @return 支持的白平衡模式数组，如果不支持返回 null
+     * ПолучениеПоддерживаемые Баланс белогорежим
+     * @return Поддерживаемые Баланс белогорежим数 групп，Если не поддерживаетсяВозвращает null
      */
     public int[] getSupportedAwbModes() {
         try {
@@ -2692,8 +2692,8 @@ public class SingleCamera {
     }
     
     /**
-     * 获取支持的色调映射模式
-     * @return 支持的色调映射模式数组，如果不支持返回 null
+     * ПолучениеПоддерживаемые Тональная компрессиярежим
+     * @return Поддерживаемые Тональная компрессиярежим数 групп，Если не поддерживаетсяВозвращает null
      */
     public int[] getSupportedTonemapModes() {
         try {
@@ -2708,8 +2708,8 @@ public class SingleCamera {
     }
     
     /**
-     * 获取支持的边缘增强模式
-     * @return 支持的边缘增强模式数组，如果不支持返回 null
+     * ПолучениеПоддерживаемые Резкостьрежим
+     * @return Поддерживаемые Резкостьрежим数 групп，Если не поддерживаетсяВозвращает null
      */
     public int[] getSupportedEdgeModes() {
         try {
@@ -2724,8 +2724,8 @@ public class SingleCamera {
     }
     
     /**
-     * 获取支持的降噪模式
-     * @return 支持的降噪模式数组，如果不支持返回 null
+     * ПолучениеПоддерживаемые Шумоподавлениережим
+     * @return Поддерживаемые Шумоподавлениережим数 групп，Если не поддерживаетсяВозвращает null
      */
     public int[] getSupportedNoiseReductionModes() {
         try {
@@ -2740,8 +2740,8 @@ public class SingleCamera {
     }
     
     /**
-     * 获取支持的特效模式
-     * @return 支持的特效模式数组，如果不支持返回 null
+     * ПолучениеПоддерживаемые Эффектырежим
+     * @return Поддерживаемые Эффектырежим数 групп，Если не поддерживаетсяВозвращает null
      */
     public int[] getSupportedEffectModes() {
         try {
@@ -2756,7 +2756,7 @@ public class SingleCamera {
     }
     
     /**
-     * 获取摄像头特性（带缓存）
+     * ПолучениеКамера特性（带缓存)
      */
     private CameraCharacteristics getCameraCharacteristics() {
         if (cameraCharacteristics != null) {
@@ -2773,16 +2773,16 @@ public class SingleCamera {
     }
     
     /**
-     * 实时更新亮度/降噪调节参数
-     * 参数会立即应用到预览和录制
+     * 实时обновление亮度/Шумоподавление调节参数
+     * 参数会立т.е.Приложение до 预览 и Запись
      * 
-     * @param exposureCompensation 曝光补偿值（Integer.MIN_VALUE 表示不设置）
-     * @param awbMode 白平衡模式（-1 表示不设置）
-     * @param tonemapMode 色调映射模式（-1 表示不设置）
-     * @param edgeMode 边缘增强模式（-1 表示不设置）
-     * @param noiseReductionMode 降噪模式（-1 表示不设置）
-     * @param effectMode 特效模式（-1 表示不设置）
-     * @return true 表示成功，false 表示失败
+     * @param exposureCompensation Экспозиция值（Integer.MIN_VALUE 表示不Настройки)
+     * @param awbMode Баланс белогорежим（-1 表示不Настройки)
+     * @param tonemapMode Тональная компрессиярежим（-1 表示不Настройки)
+     * @param edgeMode Резкостьрежим（-1 表示不Настройки)
+     * @param noiseReductionMode Шумоподавлениережим（-1 表示不Настройки)
+     * @param effectMode Эффектырежим（-1 表示不Настройки)
+     * @return true 表示Успешно，false 表示Ошибка
      */
     public boolean updateImageAdjustParams(int exposureCompensation, int awbMode, int tonemapMode,
                                            int edgeMode, int noiseReductionMode, int effectMode) {
@@ -2797,18 +2797,18 @@ public class SingleCamera {
         }
         
         try {
-            // 应用曝光补偿
+            // ПриложениеЭкспозиция
             if (exposureCompensation != Integer.MIN_VALUE) {
                 Range<Integer> range = getExposureCompensationRange();
                 if (range != null) {
-                    // 确保值在有效范围内
+                    // 确保值 действует范围内
                     int clampedValue = Math.max(range.getLower(), Math.min(exposureCompensation, range.getUpper()));
                     currentRequestBuilder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, clampedValue);
                     AppLog.d(TAG, "Camera " + cameraId + " set exposure compensation: " + clampedValue + " (range: " + range + ")");
                 }
             }
             
-            // 应用白平衡模式
+            // ПриложениеБаланс белогорежим
             if (awbMode >= 0) {
                 int[] supportedModes = getSupportedAwbModes();
                 if (supportedModes != null && isModeSupported(supportedModes, awbMode)) {
@@ -2819,7 +2819,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用色调映射模式
+            // ПриложениеТональная компрессиярежим
             if (tonemapMode >= 0) {
                 int[] supportedModes = getSupportedTonemapModes();
                 if (supportedModes != null && isModeSupported(supportedModes, tonemapMode)) {
@@ -2830,7 +2830,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用边缘增强模式
+            // ПриложениеРезкостьрежим
             if (edgeMode >= 0) {
                 int[] supportedModes = getSupportedEdgeModes();
                 if (supportedModes != null && isModeSupported(supportedModes, edgeMode)) {
@@ -2841,7 +2841,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用降噪模式
+            // ПриложениеШумоподавлениережим
             if (noiseReductionMode >= 0) {
                 int[] supportedModes = getSupportedNoiseReductionModes();
                 if (supportedModes != null && isModeSupported(supportedModes, noiseReductionMode)) {
@@ -2852,7 +2852,7 @@ public class SingleCamera {
                 }
             }
             
-            // 应用特效模式
+            // ПриложениеЭффектырежим
             if (effectMode >= 0) {
                 int[] supportedModes = getSupportedEffectModes();
                 if (supportedModes != null && isModeSupported(supportedModes, effectMode)) {
@@ -2863,7 +2863,7 @@ public class SingleCamera {
                 }
             }
             
-            // 重新提交请求（实时生效）
+            // 重新提交求（实时生效)
             captureSession.setRepeatingRequest(currentRequestBuilder.build(), null, backgroundHandler);
             AppLog.d(TAG, "Camera " + cameraId + " image adjust params updated successfully");
             return true;
@@ -2881,7 +2881,7 @@ public class SingleCamera {
     }
     
     /**
-     * 检查模式是否在支持列表中
+     * проверкарежим 否 поддержка列表
      */
     private boolean isModeSupported(int[] supportedModes, int mode) {
         if (supportedModes == null) {
@@ -2896,48 +2896,48 @@ public class SingleCamera {
     }
     
     /**
-     * 获取当前请求构建器（用于外部调试）
+     * ПолучениеТекущий求构建器（用于Внешнееотладка)
      */
     public CaptureRequest.Builder getCurrentRequestBuilder() {
         return currentRequestBuilder;
     }
     
     /**
-     * 从 CaptureResult 读取相机实际使用的参数
+     *  от  CaptureResult 读取相机实际использование 参数
      */
     private void readActualParamsFromResult(TotalCaptureResult result) {
         try {
-            // 曝光补偿
+            // Экспозиция
             Integer exposure = result.get(TotalCaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION);
             if (exposure != null) {
                 actualExposureCompensation = exposure;
             }
             
-            // 白平衡模式
+            // Баланс белогорежим
             Integer awb = result.get(TotalCaptureResult.CONTROL_AWB_MODE);
             if (awb != null) {
                 actualAwbMode = awb;
             }
             
-            // 边缘增强模式
+            // Резкостьрежим
             Integer edge = result.get(TotalCaptureResult.EDGE_MODE);
             if (edge != null) {
                 actualEdgeMode = edge;
             }
             
-            // 降噪模式
+            // Шумоподавлениережим
             Integer noise = result.get(TotalCaptureResult.NOISE_REDUCTION_MODE);
             if (noise != null) {
                 actualNoiseReductionMode = noise;
             }
             
-            // 特效模式
+            // Эффектырежим
             Integer effect = result.get(TotalCaptureResult.CONTROL_EFFECT_MODE);
             if (effect != null) {
                 actualEffectMode = effect;
             }
             
-            // 色调映射模式
+            // Тональная компрессиярежим
             Integer tonemap = result.get(TotalCaptureResult.TONEMAP_MODE);
             if (tonemap != null) {
                 actualTonemapMode = tonemap;
@@ -2952,52 +2952,52 @@ public class SingleCamera {
         }
     }
     
-    // ==================== 获取实际参数的方法 ====================
+    // ==================== Получение实际参数 方法 ====================
     
     /**
-     * 获取相机实际使用的曝光补偿值
+     * Получение相机实际использование Экспозиция值
      */
     public int getActualExposureCompensation() {
         return actualExposureCompensation;
     }
     
     /**
-     * 获取相机实际使用的白平衡模式
+     * Получение相机实际использование Баланс белогорежим
      */
     public int getActualAwbMode() {
         return actualAwbMode;
     }
     
     /**
-     * 获取相机实际使用的边缘增强模式
+     * Получение相机实际использование Резкостьрежим
      */
     public int getActualEdgeMode() {
         return actualEdgeMode;
     }
     
     /**
-     * 获取相机实际使用的降噪模式
+     * Получение相机实际использование Шумоподавлениережим
      */
     public int getActualNoiseReductionMode() {
         return actualNoiseReductionMode;
     }
     
     /**
-     * 获取相机实际使用的特效模式
+     * Получение相机实际использование Эффектырежим
      */
     public int getActualEffectMode() {
         return actualEffectMode;
     }
     
     /**
-     * 获取相机实际使用的色调映射模式
+     * Получение相机实际использование Тональная компрессиярежим
      */
     public int getActualTonemapMode() {
         return actualTonemapMode;
     }
     
     /**
-     * 是否已读取过实际参数
+     *  否读取过实际参数
      */
     public boolean hasActualParams() {
         return hasReadActualParams;

@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Logcat 实时日志查看工具
+ * Logcat 实时 д.志Просмотринструмент
  */
 public class LogcatViewerActivity extends Activity {
     private TextView logTextView;
@@ -36,7 +36,7 @@ public class LogcatViewerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // 设置全屏和常亮
+        // Настройки全屏 и 常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
         setContentView(R.layout.activity_logcat_viewer);
@@ -50,7 +50,7 @@ public class LogcatViewerActivity extends Activity {
         filterKeyword = getIntent().getStringExtra("filter_keyword");
         if (filterKeyword == null) filterKeyword = "";
         
-        setTitle("Logcat 调试: " + (filterKeyword.isEmpty() ? "全部" : filterKeyword));
+        setTitle("Logcat отладка: " + (filterKeyword.isEmpty() ? "Все" : filterKeyword));
         
         btnClear.setOnClickListener(v -> logTextView.setText(""));
         btnSave.setOnClickListener(v -> saveLogToFile());
@@ -62,7 +62,7 @@ public class LogcatViewerActivity extends Activity {
     private void saveLogToFile() {
         String logContent = logTextView.getText().toString();
         if (logContent.isEmpty()) {
-            Toast.makeText(this, "日志内容为空，无需保存", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Логи пусты, сохранять нечего", Toast.LENGTH_SHORT).show();
             return;
         }
         
@@ -70,7 +70,7 @@ public class LogcatViewerActivity extends Activity {
             String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
             String fileName = "logcat_" + timestamp + ".txt";
             
-            // 保存到 Download/EVCam_Log/ 目录（与设置界面debug模式日志保存位置一致）
+            // Сохранить до  Download/EVCam_Log/ каталог（ и Настройки界面debugрежим д.志СохранитьПозиция一致)
             File logDir = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS), "EVCam_Log");
             if (!logDir.exists()) {
@@ -83,9 +83,9 @@ public class LogcatViewerActivity extends Activity {
                 writer.write(logContent);
             }
             
-            Toast.makeText(this, "日志已保存: " + logFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Логи сохранены: " + logFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            Toast.makeText(this, "保存失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Ошибка сохранения: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -95,7 +95,7 @@ public class LogcatViewerActivity extends Activity {
             Process process = null;
             BufferedReader reader = null;
             try {
-                // 读取最近的100条日志并持续监听
+                // 读取最近 100条 д.志并持续监听
                 String cmd = "logcat -v time";
                 process = Runtime.getRuntime().exec(cmd);
                 reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -106,7 +106,7 @@ public class LogcatViewerActivity extends Activity {
                         final String finalLine = line;
                         mainHandler.post(() -> {
                             logTextView.append(finalLine + "\n");
-                            // 自动滚动到底部
+                            // автоматически滚动 до 底部
                             scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
                             
                             // 防止内容过多导致内存问题

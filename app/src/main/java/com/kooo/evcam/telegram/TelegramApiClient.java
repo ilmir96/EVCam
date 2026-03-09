@@ -19,7 +19,7 @@ import okhttp3.Response;
 
 /**
  * Telegram Bot API 客户端
- * 负责与 Telegram 服务器进行 HTTP 通信
+ * 负责 и  Telegram Сервис器进行 HTTP 通信
  */
 public class TelegramApiClient {
     private static final String TAG = "TelegramApiClient";
@@ -32,22 +32,22 @@ public class TelegramApiClient {
         this.config = config;
         this.gson = new Gson();
         this.httpClient = new OkHttpClient.Builder()
-                .connectTimeout(15, TimeUnit.SECONDS)  // 连接超时15秒
-                .readTimeout(45, TimeUnit.SECONDS)     // 读取超时45秒
-                .writeTimeout(60, TimeUnit.SECONDS)    // 写入超时60秒（文件上传）
+                .connectTimeout(15, TimeUnit.SECONDS)  // Подключениетаймаут15 сек.
+                .readTimeout(45, TimeUnit.SECONDS)     // 读取таймаут45 сек.
+                .writeTimeout(60, TimeUnit.SECONDS)    // 写入таймаут60 сек.（Файл传)
                 .build();
     }
 
     /**
      * 构建 API URL
-     * 使用配置的 API Host（支持自定义反向代理地址）
+     * использованиеконфигурация  API Host（поддержка自定义反 к 代理地址)
      */
     private String buildUrl(String method) {
         return config.getBotApiHost() + "/bot" + config.getBotToken() + "/" + method;
     }
 
     /**
-     * 获取 Bot 信息（用于验证 Token 是否有效）
+     * Получение Bot Информация（用于验证 Token  否действует)
      */
     public JsonObject getMe() throws IOException {
         String url = buildUrl("getMe");
@@ -62,12 +62,12 @@ public class TelegramApiClient {
             AppLog.d(TAG, "getMe 响应: " + responseBody);
 
             if (!response.isSuccessful()) {
-                throw new IOException("getMe 失败: " + response.code() + ", " + responseBody);
+                throw new IOException("getMe Ошибка: " + response.code() + ", " + responseBody);
             }
 
             JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
             if (!jsonResponse.get("ok").getAsBoolean()) {
-                throw new IOException("getMe 失败: " + responseBody);
+                throw new IOException("getMe Ошибка: " + responseBody);
             }
 
             return jsonResponse.getAsJsonObject("result");
@@ -75,10 +75,10 @@ public class TelegramApiClient {
     }
 
     /**
-     * 获取更新（Long Polling 方式）
-     * @param offset 从此 update_id 开始获取
-     * @param timeout 长轮询超时时间（秒）
-     * @param limit 限制返回的更新数量（1-100，默认100）
+     * Получениеобновление（Long Polling 方式)
+     * @param offset  от 此 update_id Вкл始Получение
+     * @param timeout 长轮询таймаут时间（ сек.)
+     * @param limit 限制返回 обновление数量（1-100，По умолчанию100)
      */
     public JsonArray getUpdates(long offset, int timeout, int limit) throws IOException {
         String url = buildUrl("getUpdates") +
@@ -92,7 +92,7 @@ public class TelegramApiClient {
                 .get()
                 .build();
 
-        // 为 Long Polling 创建特殊的客户端，超时时间更长
+        // 为 Long Polling 创建特殊 客户端，таймаут时间更长
         OkHttpClient longPollClient = httpClient.newBuilder()
                 .readTimeout(timeout + 10, TimeUnit.SECONDS)
                 .build();
@@ -101,12 +101,12 @@ public class TelegramApiClient {
             String responseBody = response.body() != null ? response.body().string() : "";
 
             if (!response.isSuccessful()) {
-                throw new IOException("getUpdates 失败: " + response.code() + ", " + responseBody);
+                throw new IOException("getUpdates Ошибка: " + response.code() + ", " + responseBody);
             }
 
             JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
             if (!jsonResponse.get("ok").getAsBoolean()) {
-                throw new IOException("getUpdates 失败: " + responseBody);
+                throw new IOException("getUpdates Ошибка: " + responseBody);
             }
 
             return jsonResponse.getAsJsonArray("result");
@@ -114,7 +114,7 @@ public class TelegramApiClient {
     }
 
     /**
-     * 发送文本消息
+     * Отправка文本消息
      */
     public void sendMessage(long chatId, String text) throws IOException {
         String url = buildUrl("sendMessage");
@@ -125,7 +125,7 @@ public class TelegramApiClient {
         body.addProperty("parse_mode", "HTML");
 
         String requestJson = gson.toJson(body);
-        AppLog.d(TAG, "发送消息: chatId=" + chatId + ", text=" + text);
+        AppLog.d(TAG, "Отправка消息: chatId=" + chatId + ", text=" + text);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -138,22 +138,22 @@ public class TelegramApiClient {
         try (Response response = httpClient.newCall(request).execute()) {
             String responseBody = response.body() != null ? response.body().string() : "";
             if (!response.isSuccessful()) {
-                AppLog.e(TAG, "发送消息失败，响应: " + responseBody);
-                throw new IOException("发送消息失败: " + response.code() + ", " + responseBody);
+                AppLog.e(TAG, "Ошибка отправки сообщения，响应: " + responseBody);
+                throw new IOException("Ошибка отправки сообщения: " + response.code() + ", " + responseBody);
             }
-            AppLog.d(TAG, "消息发送成功");
+            AppLog.d(TAG, "消息ОтправкаУспешно");
         }
     }
 
     /**
-     * 发送图片
+     * ОтправкаИзображение
      */
     public void sendPhoto(long chatId, File photoFile) throws IOException {
         sendPhoto(chatId, photoFile, null);
     }
 
     /**
-     * 发送图片（带说明文字）
+     * ОтправкаИзображение（带说明文字)
      */
     public void sendPhoto(long chatId, File photoFile, String caption) throws IOException {
         String url = buildUrl("sendPhoto");
@@ -180,22 +180,22 @@ public class TelegramApiClient {
         try (Response response = httpClient.newCall(request).execute()) {
             String responseBody = response.body() != null ? response.body().string() : "";
             if (!response.isSuccessful()) {
-                AppLog.e(TAG, "发送图片失败，响应: " + responseBody);
-                throw new IOException("发送图片失败: " + response.code() + ", " + responseBody);
+                AppLog.e(TAG, "ОтправкаИзображениеОшибка，响应: " + responseBody);
+                throw new IOException("ОтправкаИзображениеОшибка: " + response.code() + ", " + responseBody);
             }
-            AppLog.d(TAG, "图片发送成功: " + photoFile.getName());
+            AppLog.d(TAG, "ИзображениеОтправкаУспешно: " + photoFile.getName());
         }
     }
 
     /**
-     * 发送视频
+     * ОтправкаВидео
      */
     public void sendVideo(long chatId, File videoFile, File thumbnailFile, int duration) throws IOException {
         sendVideo(chatId, videoFile, thumbnailFile, duration, null);
     }
 
     /**
-     * 发送视频（带说明文字）
+     * ОтправкаВидео（带说明文字)
      */
     public void sendVideo(long chatId, File videoFile, File thumbnailFile, int duration, String caption) throws IOException {
         String url = buildUrl("sendVideo");
@@ -232,22 +232,22 @@ public class TelegramApiClient {
         try (Response response = httpClient.newCall(request).execute()) {
             String responseBody = response.body() != null ? response.body().string() : "";
             if (!response.isSuccessful()) {
-                AppLog.e(TAG, "发送视频失败，响应: " + responseBody);
-                throw new IOException("发送视频失败: " + response.code() + ", " + responseBody);
+                AppLog.e(TAG, "ОтправкаВидеоОшибка，响应: " + responseBody);
+                throw new IOException("ОтправкаВидеоОшибка: " + response.code() + ", " + responseBody);
             }
-            AppLog.d(TAG, "视频发送成功: " + videoFile.getName());
+            AppLog.d(TAG, "ВидеоОтправкаУспешно: " + videoFile.getName());
         }
     }
 
     /**
-     * 发送文档/文件
+     * Отправка文档/Файл
      */
     public void sendDocument(long chatId, File file) throws IOException {
         sendDocument(chatId, file, null);
     }
 
     /**
-     * 发送文档/文件（带说明文字）
+     * Отправка文档/Файл（带说明文字)
      */
     public void sendDocument(long chatId, File file, String caption) throws IOException {
         String url = buildUrl("sendDocument");
@@ -274,15 +274,15 @@ public class TelegramApiClient {
         try (Response response = httpClient.newCall(request).execute()) {
             String responseBody = response.body() != null ? response.body().string() : "";
             if (!response.isSuccessful()) {
-                AppLog.e(TAG, "发送文件失败，响应: " + responseBody);
-                throw new IOException("发送文件失败: " + response.code() + ", " + responseBody);
+                AppLog.e(TAG, "ОтправкаФайлОшибка，响应: " + responseBody);
+                throw new IOException("ОтправкаФайлОшибка: " + response.code() + ", " + responseBody);
             }
-            AppLog.d(TAG, "文件发送成功: " + file.getName());
+            AppLog.d(TAG, "ФайлОтправкаУспешно: " + file.getName());
         }
     }
 
     /**
-     * 发送聊天操作（如"正在输入..."、"正在上传视频..."）
+     * Отправка聊天операция（если"Выполняется Ввести..."、"Выполняется 传Видео...")
      * @param action typing, upload_photo, upload_video, upload_document 等
      */
     public void sendChatAction(long chatId, String action) {
@@ -301,10 +301,10 @@ public class TelegramApiClient {
                     ))
                     .build();
 
-            // 异步发送，不等待响应
+            // 异步Отправка，不ожидание响应
             httpClient.newCall(request).execute().close();
         } catch (Exception e) {
-            AppLog.w(TAG, "发送 ChatAction 失败: " + e.getMessage());
+            AppLog.w(TAG, "Отправка ChatAction Ошибка: " + e.getMessage());
         }
     }
 }

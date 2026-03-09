@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 视频分组列表适配器
- * 显示按时间戳分组的视频组
+ * Видео分 групп列表适配器
+ * 显示按时间戳分 групп Видео групп
  */
 public class VideoGroupAdapter extends RecyclerView.Adapter<VideoGroupAdapter.ViewHolder> {
 
@@ -98,26 +98,26 @@ public class VideoGroupAdapter extends RecyclerView.Adapter<VideoGroupAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         VideoGroup group = videoGroups.get(position);
 
-        // 设置日期时间
+        // Настройки д.期时间
         holder.videoDate.setText(group.getFormattedDate());
         holder.videoTime.setText(group.getFormattedTime());
         holder.videoSize.setText(group.getFormattedSize());
 
-        // 视频路数标签
+        // Видео кам.数标签
         int count = group.getVideoCount();
-        holder.videoCountBadge.setText(count + "路");
+        holder.videoCountBadge.setText(count + " кам.");
 
-        // 加载四个位置的缩略图
+        // загрузка四 шт.Позиция 缩略图
         loadThumbnail(group.getFrontVideo(), holder.thumbFront);
         loadThumbnail(group.getBackVideo(), holder.thumbBack);
         loadThumbnail(group.getLeftVideo(), holder.thumbLeft);
         loadThumbnail(group.getRightVideo(), holder.thumbRight);
 
-        // 选中状态样式
+        // 选Статус样式
         boolean isSelected = (position == selectedPosition) || selectedPositions.contains(position);
         updateSelectionStyle(holder, isSelected, position == selectedPosition);
 
-        // 多选模式的选中指示器
+        // 多选режим 选指示器
         if (isMultiSelectMode) {
             holder.checkIndicator.setVisibility(selectedPositions.contains(position) ? View.VISIBLE : View.GONE);
         } else {
@@ -127,12 +127,12 @@ public class VideoGroupAdapter extends RecyclerView.Adapter<VideoGroupAdapter.Vi
         // 点击事件
         holder.itemView.setOnClickListener(v -> {
             if (isMultiSelectMode) {
-                // 多选模式：切换选中状态
+                // 多选режим：切换选Статус
                 if (itemSelectedListener != null) {
                     itemSelectedListener.onItemSelected(position);
                 }
             } else {
-                // 单选模式：选中并播放
+                // 单选режим：选并Воспр.
                 setSelectedPosition(position);
                 if (itemClickListener != null) {
                     itemClickListener.onItemClick(group, position);
@@ -143,7 +143,7 @@ public class VideoGroupAdapter extends RecyclerView.Adapter<VideoGroupAdapter.Vi
 
     private void updateSelectionStyle(ViewHolder holder, boolean isSelected, boolean isCurrentlyPlaying) {
         if (isSelected) {
-            // 选中状态：高亮背景
+            // 选Статус：Высокий亮背景
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.item_selected_background));
         } else {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.transparent));
@@ -151,7 +151,7 @@ public class VideoGroupAdapter extends RecyclerView.Adapter<VideoGroupAdapter.Vi
     }
 
     /**
-     * 加载视频缩略图
+     * загрузкаВидео缩略图
      */
     private void loadThumbnail(File videoFile, ImageView imageView) {
         if (videoFile == null || !videoFile.exists() || videoFile.length() == 0) {

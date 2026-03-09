@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 视频上传服务
- * 负责将录制的视频上传到钉钉
+ * Видео传Сервис
+ * 负责将Запись Видео传 до DingTalk
  */
 public class VideoUploadService {
     private static final String TAG = "VideoUploadService";
@@ -31,22 +31,22 @@ public class VideoUploadService {
     }
 
     /**
-     * 上传视频文件到钉钉
-     * @param videoFiles 视频文件列表
-     * @param conversationId 钉钉会话 ID
-     * @param conversationType 会话类型（"1"=单聊，"2"=群聊）
-     * @param userId 钉钉用户 ID（用于发送视频消息）
-     * @param callback 上传回调
+     * 传ВидеоФайл до DingTalk
+     * @param videoFiles ВидеоФайл列表
+     * @param conversationId DingTalk会话 ID
+     * @param conversationType 会话类型（"1"=личный чат，"2"=групповой чат)
+     * @param userId DingTalk用户 ID（用于ОтправкаВидео消息)
+     * @param callback 传回调
      */
     public void uploadVideos(List<File> videoFiles, String conversationId, String conversationType, String userId, UploadCallback callback) {
         new Thread(() -> {
             try {
                 if (videoFiles == null || videoFiles.isEmpty()) {
-                    callback.onError("没有视频文件可上传");
+                    callback.onError("Нет видео для отправки");
                     return;
                 }
 
-                callback.onProgress("开始上传 " + videoFiles.size() + " 个视频文件...");
+                callback.onProgress("Начало отправки " + videoFiles.size() + " видеофайл(ов)...");
 
                 List<String> uploadedFiles = new ArrayList<>();
 
@@ -54,87 +54,87 @@ public class VideoUploadService {
                     File videoFile = videoFiles.get(i);
 
                     if (!videoFile.exists()) {
-                        AppLog.w(TAG, "视频文件不存在: " + videoFile.getPath());
+                        AppLog.w(TAG, "ВидеоФайлне существует: " + videoFile.getPath());
                         continue;
                     }
 
-                    callback.onProgress("正在处理 (" + (i + 1) + "/" + videoFiles.size() + "): " + videoFile.getName());
+                    callback.onProgress("Обработка (" + (i + 1) + "/" + videoFiles.size() + "): " + videoFile.getName());
 
                     try {
-                        // 1. 提取视频封面
+                        // 1. 提取Видео封面
                         File thumbnailFile = new File(videoFile.getParent(),
                                 videoFile.getName().replace(".mp4", "_thumb.jpg"));
 
                         boolean thumbnailExtracted = VideoThumbnailExtractor.extractThumbnail(videoFile, thumbnailFile);
                         if (!thumbnailExtracted) {
-                            AppLog.w(TAG, "封面提取失败，跳过视频: " + videoFile.getName());
-                            callback.onError("封面提取失败: " + videoFile.getName());
+                            AppLog.w(TAG, "封面提取Ошибка，跳过Видео: " + videoFile.getName());
+                            callback.onError("Ошибка извлечения обложки: " + videoFile.getName());
                             continue;
                         }
 
-                        // 2. 获取视频时长
+                        // 2. ПолучениеВидео时长
                         int duration = VideoThumbnailExtractor.getVideoDuration(videoFile);
                         if (duration == 0) {
-                            duration = 60; // 默认 60 秒
+                            duration = 60; // По умолчанию 60  сек.
                         }
 
-                        // 3. 上传视频文件到钉钉
-                        callback.onProgress("正在上传视频 (" + (i + 1) + "/" + videoFiles.size() + ")...");
+                        // 3. 传ВидеоФайл до DingTalk
+                        callback.onProgress("Отправка видео (" + (i + 1) + "/" + videoFiles.size() + ")...");
                         String videoMediaId = apiClient.uploadFile(videoFile);
 
-                        // 4. 上传封面图到钉钉
-                        callback.onProgress("正在上传封面 (" + (i + 1) + "/" + videoFiles.size() + ")...");
+                        // 4. 传封面图 до DingTalk
+                        callback.onProgress("Загрузка обложки (" + (i + 1) + "/" + videoFiles.size() + ")...");
                         String picMediaId = apiClient.uploadImage(thumbnailFile);
 
-                        // 5. 发送视频消息
-                        callback.onProgress("正在发送视频消息 (" + (i + 1) + "/" + videoFiles.size() + ")...");
+                        // 5. ОтправкаВидео消息
+                        callback.onProgress("Отправка видео-сообщения (" + (i + 1) + "/" + videoFiles.size() + ")...");
                         apiClient.sendVideoMessage(conversationId, conversationType, videoMediaId, picMediaId, duration, userId);
 
                         uploadedFiles.add(videoFile.getName());
-                        AppLog.d(TAG, "视频上传成功: " + videoFile.getName());
+                        AppLog.d(TAG, "Видео传Успешно: " + videoFile.getName());
 
-                        // 6. 清理临时封面文件
+                        // 6. Очистка временно封面Файл
                         if (thumbnailFile.exists()) {
                             thumbnailFile.delete();
                         }
 
-                        // 7. 延迟2秒后再上传下一个视频，减少网络和系统压力
-                        if (i < videoFiles.size() - 1) {  // 不是最后一个视频
-                            callback.onProgress("等待2秒后上传下一个视频...");
+                        // 7. 延迟2 сек.后再传一 шт.Видео，减少Сеть и Система压力
+                        if (i < videoFiles.size() - 1) {  // 不 最后一 шт.Видео
+                            callback.onProgress("Загрузка следующего видео через 2 сек....");
                             Thread.sleep(2000);
                         }
 
                     } catch (Exception e) {
-                        AppLog.e(TAG, "上传视频失败: " + videoFile.getName(), e);
-                        callback.onError("上传失败: " + videoFile.getName() + " - " + e.getMessage());
+                        AppLog.e(TAG, "传ВидеоОшибка: " + videoFile.getName(), e);
+                        callback.onError("Ошибка отправки: " + videoFile.getName() + " - " + e.getMessage());
                     }
                 }
 
                 if (uploadedFiles.isEmpty()) {
-                    callback.onError("所有视频上传失败");
+                    callback.onError("Ошибка загрузки всех видео");
                 } else {
-                    String successMessage = "视频上传完成！共上传 " + uploadedFiles.size() + " 个文件";
+                    String successMessage = "Загрузка видео завершена！Всего загружено " + uploadedFiles.size() + " файл(ов)";
                     callback.onSuccess(successMessage);
 
-                    // 等待5秒，确保视频消息被钉钉服务器处理完毕后再发送完成消息
-                    // 视频处理比图片更慢，需要更长的等待时间
+                    // ожидание5 сек.，确保Видео消息 DingTalkСервис器处理完毕后再Отправказавершение消息
+                    // Видео处理比Изображение更慢，необходимо更长 ожидание时间
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException ignored) {}
 
-                    // 发送完成消息，传递 conversationType 和 userId
+                    // Отправказавершение消息，传递 conversationType  и  userId
                     apiClient.sendTextMessage(conversationId, conversationType, successMessage, userId);
                 }
 
             } catch (Exception e) {
-                AppLog.e(TAG, "上传过程出错", e);
-                callback.onError("上传过程出错: " + e.getMessage());
+                AppLog.e(TAG, "传过程出错", e);
+                callback.onError("Ошибка при загрузке: " + e.getMessage());
             }
         }).start();
     }
 
     /**
-     * 上传单个视频文件
+     * 传单 шт.ВидеоФайл
      */
     public void uploadVideo(File videoFile, String conversationId, String conversationType, String userId, UploadCallback callback) {
         List<File> files = new ArrayList<>();

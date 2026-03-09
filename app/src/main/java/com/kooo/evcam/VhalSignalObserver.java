@@ -18,24 +18,24 @@ import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
 
 /**
- * 通过车辆API 监听车辆信号（转向灯 + 车门状态）。
- * 协议解码由 native 层完成。
+ * 通过车辆API 监听车辆信号（转 к 灯 + 车门Статус)。
+ * 协议解码由 native 层завершение。
  */
 public class VhalSignalObserver {
     private static final String TAG = "VhalSignalObserver";
 
     /**
-     * 转向灯信号回调接口
+     * 转 к 灯信号回调接口
      */
     public interface TurnSignalListener {
-        /** 转向灯状态变化 */
+        /** 转 к 灯Статус变化 */
         void onTurnSignal(String direction, boolean on);
-        /** 连接状态变化 */
+        /** ПодключениеСтатус变化 */
         void onConnectionStateChanged(boolean connected);
     }
 
     /**
-     * 车门信号回调接口（与 DoorSignalObserver.DoorSignalListener 方法签名一致）
+     * 车门信号回调接口（ и  DoorSignalObserver.DoorSignalListener 方法签名一致)
      */
     public interface DoorSignalListener {
         void onDoorOpen(String side);
@@ -47,7 +47,7 @@ public class VhalSignalObserver {
      * 定制键唤醒回调接口
      */
     public interface CustomKeyListener {
-        /** 按钮触发（值变为1）且速度条件满足 */
+        /** 按钮触发（值变为1)且速度条件满足 */
         void onCustomKeyTriggered();
     }
 
@@ -56,7 +56,7 @@ public class VhalSignalObserver {
     private volatile CustomKeyListener customKeyListener;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    // 定制键唤醒状态跟踪
+    // 定制键唤醒Статус跟踪
     private volatile float currentSpeed = 0f;
     private volatile int lastButtonState = -1;
 
@@ -65,45 +65,45 @@ public class VhalSignalObserver {
     private volatile boolean running = false;
     private volatile boolean connected = false;
 
-    // 上一次的转向灯状态，避免重复回调
+    // 一 раз 转 к 灯Статус，避免重复回调
     private int lastSignalState = -1;
 
-    // 车门状态跟踪（用于多门关闭逻辑）
+    // 车门Статус跟踪（用于多门Закрыто逻辑)
     private volatile boolean isPassDoorOpen = false;     // 副驾门
     private volatile boolean isLeftRearDoorOpen = false;  // 左后门
     private volatile boolean isRightRearDoorOpen = false; // 右后门
 
     // 重连参数
     private static final long RECONNECT_DELAY_MS = 3000;
-    private static final long STREAM_TIMEOUT_MS = 120_000; // gRPC stream 最大沉默时间
+    private static final long STREAM_TIMEOUT_MS = 120_000; // gRPC stream максимум沉默时间
 
     public VhalSignalObserver(TurnSignalListener listener) {
         this.listener = listener;
     }
 
     /**
-     * 设置车门信号监听器（可在 start() 前后调用）
+     * Настройки车门信号监听器（可  start() 前后调用)
      */
     public void setDoorSignalListener(DoorSignalListener listener) {
         this.doorListener = listener;
     }
 
     /**
-     * 设置定制键唤醒监听器
+     * Настройки定制键唤醒监听器
      */
     public void setCustomKeyListener(CustomKeyListener listener) {
         this.customKeyListener = listener;
     }
 
     /**
-     * 获取当前速度值（用于定制键唤醒速度条件判断）
+     * ПолучениеТекущий速度值（用于定制键唤醒速度条件判断)
      */
     public float getCurrentSpeed() {
         return currentSpeed;
     }
 
     /**
-     * 配置定制键唤醒参数
+     * конфигурация定制键唤醒参数
      */
     public void configureCustomKey(int speedPropId, int buttonPropId, float speedThreshold) {
         if (!VhalNative.isLibraryLoaded()) {
@@ -114,7 +114,7 @@ public class VhalSignalObserver {
     }
 
     /**
-     * 启动连接和监听
+     * ЗапускПодключение и 监听
      */
     public void start() {
         if (running) return;
@@ -129,7 +129,7 @@ public class VhalSignalObserver {
     }
 
     /**
-     * 停止连接和监听
+     * ОстановкаПодключение и 监听
      */
     public void stop() {
         running = false;
@@ -141,24 +141,24 @@ public class VhalSignalObserver {
     }
 
     /**
-     * 当前是否已连接
+     * Текущий 否Подключено
      */
     public boolean isConnected() {
         return connected;
     }
 
     /**
-     * 观察者是否存活（线程仍在运行）
+     * 观察者 否存活（线程仍 Работа)
      */
     public boolean isAlive() {
         return running && connectThread != null && connectThread.isAlive();
     }
 
     /**
-     * 一次性连接测试（阻塞调用，用于 UI 状态检查）
+     * 一 раз性Подключениетестирование（阻塞调用，用于 UI Статуспроверка)
      */
     public static boolean testConnection() {
-        // 检查 native 库是否已加载
+        // проверка native 库 否загрузка
         if (!VhalNative.isLibraryLoaded()) {
             AppLog.w(TAG, "Native library not loaded, skipping gRPC connection test");
             return false;
@@ -207,13 +207,13 @@ public class VhalSignalObserver {
 
     private boolean connect() {
         try {
-            // 检查 native 库是否已加载
+            // проверка native 库 否загрузка
             if (!VhalNative.isLibraryLoaded()) {
                 AppLog.w(TAG, "Native library not loaded, skipping VHAL connection");
                 return false;
             }
             
-            // 构建连接，附带 session_id 和 client_id metadata
+            // 构建Подключение，附带 session_id  и  client_id metadata
             String sessionId = UUID.randomUUID().toString();
             Metadata headers = new Metadata();
             headers.put(
@@ -259,12 +259,12 @@ public class VhalSignalObserver {
     }
 
     /**
-     * 开始属性流监听（阻塞直到断开或出错）
+     * Вкл始属性流监听（阻塞直 до отключеноили出错)
      */
     private void streamProperties() {
         if (grpcChannel == null) return;
 
-        // 使用 CountDownLatch 等待流结束
+        // использование CountDownLatch ожидание流завершить
         final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
         final boolean[] streamError = {false};
 
@@ -302,8 +302,8 @@ public class VhalSignalObserver {
                 }
             });
 
-            // 请求服务器推送所有当前属性值（与 EVCC 一致，立即调用无延迟）
-            // 服务器通过 channel metadata 中的 session_id 关联此请求和 stream
+            // 求Сервис器推送所有Текущий属性值（ и  EVCC 一致，立т.е.调用无延迟)
+            // Сервис器通过 channel metadata   session_id Выкл联此求 и  stream
             new Thread(() -> {
                 try {
                     if (grpcChannel != null) {
@@ -324,7 +324,7 @@ public class VhalSignalObserver {
                 }
             }, "VehicleApiSendAll").start();
 
-            // 等待流结束（带超时，防止半开连接卡死 reconnect 循环）
+            // ожидание流завершить（带таймаут，防止半ВклПодключение卡死 reconnect 循环)
             if (!latch.await(STREAM_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 AppLog.w(TAG, "Stream idle timeout (" + STREAM_TIMEOUT_MS + "ms), forcing reconnect");
             }
@@ -337,7 +337,7 @@ public class VhalSignalObserver {
     }
 
     /**
-     * 处理一批属性值更新（由 native 层解码）
+     * 处理一批属性值обновление（由 native 层解码)
      */
     private void processPropertyBatch(byte[] data) {
         if (!VhalNative.isLibraryLoaded()) {
@@ -384,7 +384,7 @@ public class VhalSignalObserver {
     }
 
     /**
-     * 处理转向灯事件
+     * 处理转 к 灯事件
      */
     private void handleTurnSignalEvent(int direction) {
         if (direction == lastSignalState) return;
@@ -416,8 +416,8 @@ public class VhalSignalObserver {
     }
 
     /**
-     * 处理车门位置事件
-     * 多门逻辑: 右侧摄像头仅在副驾 AND 右后门都关闭时才触发 onDoorClose
+     * 处理车门Позиция事件
+     * 多门逻辑: 右侧Камератолько 副驾 AND 右后门всеЗакрыто时才触发 onDoorClose
      */
     private void handleDoorPositionEvent(int doorPos, boolean isOpen) {
         AppLog.d(TAG, "Door event: pos=" + doorPos + ", open=" + isOpen);
@@ -441,7 +441,7 @@ public class VhalSignalObserver {
     }
 
     /**
-     * 处理单个车门事件的辅助方法
+     * 处理单 шт.车门事件 辅助方法
      */
     private void handleDoorSideEvent(boolean isOpen, String side, boolean isPassenger) {
         mainHandler.post(() -> {
@@ -508,7 +508,7 @@ public class VhalSignalObserver {
         @Override
         public byte[] parse(InputStream stream) {
             try {
-                // 不使用 readAllBytes()，Android 11 (API 30) 不支持该方法
+                // 不использование readAllBytes()，Android 11 (API 30) не поддерживается该方法
                 java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
                 byte[] buf = new byte[4096];
                 int len;

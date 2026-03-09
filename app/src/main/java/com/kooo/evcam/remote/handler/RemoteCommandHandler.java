@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * 远程命令处理器抽象基类
- * 包含所有平台公共的远程录制/拍照逻辑（约90%的代码）
- * 子类只需实现平台特定的方法
+ * Удалённыйкоманда处理器抽象基类
+ * содержит所有平台公Всего  Удалённая запись/Фото逻辑（约90% 代码)
+ * 子类只需实现平台特定 方法
  */
 public abstract class RemoteCommandHandler {
     private static final String TAG = "RemoteCommandHandler";
@@ -35,25 +35,25 @@ public abstract class RemoteCommandHandler {
     protected final MediaFileFinder mediaFileFinder;
     protected final Handler mainHandler;
     
-    // 状态管理
+    // Статусуправление
     private volatile boolean isRemoteRecording = false;
     private volatile boolean isPreparingRecording = false;
     private RecordingContext currentContext = null;
     
-    // 自动停止相关
+    // автоматическиОстановка相Выкл
     private Handler autoStopHandler;
     private Runnable autoStopRunnable;
     private int pendingDurationSeconds = 0;
     
-    // 摄像头控制器接口（由 MainActivity 提供）
+    // Камера控制器接口（由 MainActivity 提供)
     private CameraController cameraController;
     
-    // 录制状态监听器（由 MainActivity 提供）
+    // ЗаписьСтатус监听器（由 MainActivity 提供)
     private RecordingStateListener recordingStateListener;
     
     /**
-     * 摄像头控制器接口
-     * 由 MainActivity 实现，提供摄像头操作能力
+     * Камера控制器接口
+     * 由 MainActivity 实现，提供Камераоперация能力
      */
     public interface CameraController {
         boolean isRecording();
@@ -63,14 +63,14 @@ public abstract class RemoteCommandHandler {
         void takePicture(String timestamp);
         void stopRecordingTimer();
         void stopBlinkAnimation();
-        void startRecording();  // 恢复手动录制
-        void setSegmentDurationOverride(long durationMs);  // 设置分段时长覆盖（用于远程录制）
-        void clearSegmentDurationOverride();  // 清除分段时长覆盖
+        void startRecording();  // ВосстановлениевручнуюЗапись
+        void setSegmentDurationOverride(long durationMs);  // Настройки分时长覆盖（用于Удалённая запись)
+        void clearSegmentDurationOverride();  // очистка分时长覆盖
     }
     
     /**
-     * 录制状态监听器
-     * 由 MainActivity 实现，用于更新 UI 状态
+     * ЗаписьСтатус监听器
+     * 由 MainActivity 实现，用于обновление UI Статус
      */
     public interface RecordingStateListener {
         void onRemoteRecordingStart();
@@ -99,7 +99,7 @@ public abstract class RemoteCommandHandler {
         this.recordingStateListener = listener;
     }
     
-    // ==================== 状态查询 ====================
+    // ==================== Статус查询 ====================
     
     public boolean isRemoteRecording() {
         return isRemoteRecording;
@@ -113,55 +113,55 @@ public abstract class RemoteCommandHandler {
         return currentContext;
     }
     
-    // ==================== 远程录制 - 公共逻辑 ====================
+    // ==================== Удалённая запись - 公Всего 逻辑 ====================
     
     /**
-     * 启动远程录制
-     * 这是主入口方法，包含完整的录制流程
+     * ЗапускУдалённая запись
+     * 这 主入口方法，содержит完整 Запись流程
      */
     public void startRemoteRecording(ChatIdentifier chatId, int durationSeconds) {
         String platformName = getPlatformName();
-        AppLog.d(TAG, platformName + " 远程录制: chatId=" + chatId.getId() + ", duration=" + durationSeconds);
+        AppLog.d(TAG, platformName + " Удалённая запись: chatId=" + chatId.getId() + ", duration=" + durationSeconds);
         
-        // 1. 检查是否已有远程录制任务正在进行
+        // 1. проверка 否有Удалённая записьзадачаВыполняется 进行
         if (isRemoteRecording) {
-            AppLog.w(TAG, "远程录制任务正在进行中，拒绝新的" + platformName + "录制指令");
-            sendError(chatId, "远程录制任务正在进行中，请等待完成后再试");
+            AppLog.w(TAG, "Удалённая записьзадачаВыполняется выполняется，отклонить新 " + platformName + "Записькоманда");
+            sendError(chatId, "Удалённая запись уже выполняется, дождитесь завершения");
             return;
         }
         
-        // 2. 检查摄像头控制器
+        // 2. проверкаКамера控制器
         if (cameraController == null) {
-            AppLog.e(TAG, "摄像头控制器未设置");
-            sendError(chatId, "摄像头未初始化");
+            AppLog.e(TAG, "Камера控制器Не Настройки");
+            sendError(chatId, "Камера не инициализирована");
             returnToBackgroundIfNeeded();
             return;
         }
         
-        // 3. 检查是否有已连接的摄像头
+        // 3. проверка 否有Подключено Камера
         if (!cameraController.hasConnectedCameras()) {
-            AppLog.e(TAG, "没有可用的相机");
-            sendError(chatId, "没有可用的相机");
+            AppLog.e(TAG, "Нет доступных камер");
+            sendError(chatId, "Нет доступных камер");
             returnToBackgroundIfNeeded();
             return;
         }
         
-        // 4. 生成统一的时间戳
+        // 4. 生成统一 时间戳
         String timestamp = generateTimestamp();
-        AppLog.d(TAG, platformName + " 录制统一时间戳: " + timestamp);
+        AppLog.d(TAG, platformName + " Запись统一时间戳: " + timestamp);
         
-        // 5. 创建录制上下文
+        // 5. 创建Запись文
         currentContext = new RecordingContext(chatId, durationSeconds, timestamp);
         
-        // 6. 如果正在手动录制，记录状态并停止
+        // 6. Если Выполняется вручнуюЗапись，记录Статус并Остановка
         if (cameraController.isRecording()) {
             currentContext.setWasManualRecordingBefore(true);
-            AppLog.d(TAG, platformName + ": 检测到手动录制正在进行，暂停手动录制");
+            AppLog.d(TAG, platformName + ": ОбнаруженовручнуюЗаписьВыполняется 进行，ПаузавручнуюЗапись");
             cameraController.stopRecording(false);
             cameraController.stopRecordingTimer();
             cameraController.stopBlinkAnimation();
             
-            // 等待停止完成
+            // ожиданиеОстановказавершение
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -169,16 +169,16 @@ public abstract class RemoteCommandHandler {
             }
         }
         
-        // 7. 标记开始远程录制
+        // 7. 标记Вкл始Удалённая запись
         isRemoteRecording = true;
         
-        // 8. 设置分段时长覆盖（远程录制不分段）
-        // 将分段时长设置为录制时长 + 30秒余量，确保整个录制过程不会触发分段
+        // 8. Настройки分时长覆盖（Удалённая запись不分)
+        // 将分时长Настройки为Запись时长 + 30 сек.余量，确保整 шт.Запись过程不会触发分
         long segmentOverrideMs = (durationSeconds + 30) * 1000L;
         cameraController.setSegmentDurationOverride(segmentOverrideMs);
-        AppLog.d(TAG, platformName + " 设置分段时长覆盖: " + (segmentOverrideMs / 1000) + " 秒（禁用分段）");
+        AppLog.d(TAG, platformName + " Настройки分时长覆盖: " + (segmentOverrideMs / 1000) + "  сек.（Отключить分)");
         
-        // 9. 开始录制
+        // 9. Начать запись
         boolean success = cameraController.startRecording(timestamp);
         if (success) {
             onRecordingStarted(currentContext, durationSeconds);
@@ -188,109 +188,109 @@ public abstract class RemoteCommandHandler {
     }
     
     /**
-     * 录制成功启动后的处理
+     * ЗаписьУспешноЗапуск后 处理
      */
     private void onRecordingStarted(RecordingContext ctx, int durationSeconds) {
         String platformName = getPlatformName();
-        AppLog.d(TAG, platformName + " 远程录制已开始");
+        AppLog.d(TAG, platformName + " Удалённая записьВкл始");
         isPreparingRecording = true;
         
-        // 通知监听器
+        // Уведомление监听器
         if (recordingStateListener != null) {
             recordingStateListener.onRemoteRecordingStart();
             recordingStateListener.onPreparing();
         }
         
-        // 启动前台服务保护
-        CameraForegroundService.start(context, platformName + " 远程录制", 
-                "正在录制 " + durationSeconds + " 秒视频...");
+        // ЗапускПередний планСервис保护
+        CameraForegroundService.start(context, platformName + " Удалённая запись", 
+                "Выполняется Запись " + durationSeconds + "  сек. видео...");
         
-        // 发送录制状态广播
+        // ОтправкаЗаписьСтатус广播
         FloatingWindowService.sendRecordingStateChanged(context, true);
         
-        // 设置自动停止定时器
+        // НастройкиавтоматическиОстановка定时器
         setupAutoStop(ctx, durationSeconds);
     }
     
     /**
-     * 设置自动停止定时器
+     * НастройкиавтоматическиОстановка定时器
      */
     private void setupAutoStop(RecordingContext ctx, int durationSeconds) {
         autoStopRunnable = () -> {
             String platformName = getPlatformName();
-            AppLog.d(TAG, platformName + " " + durationSeconds + " 秒录制完成，正在停止...");
+            AppLog.d(TAG, platformName + " " + durationSeconds + "  сек.Записьзавершение，Выполняется Остановка...");
             
-            // 停止录制（跳过自动传输，等上传完成后再传输）
+            // Остановить запись（跳过автоматически传输，等Загрузка завершена后再传输)
             if (cameraController != null) {
                 cameraController.stopRecording(true);
-                // 清除分段时长覆盖（恢复为用户配置值）
+                // очистка分时长覆盖（Восстановление为用户конфигурация值)
                 cameraController.clearSegmentDurationOverride();
             }
             
-            // 停止前台服务
+            // ОстановкаПередний планСервис
             CameraForegroundService.stop(context);
             
-            // 发送录制状态广播
+            // ОтправкаЗаписьСтатус广播
             FloatingWindowService.sendRecordingStateChanged(context, false);
             
-            // 更新状态
+            // обновлениеСтатус
             isPreparingRecording = false;
             isRemoteRecording = false;
             
-            // 通知监听器录制结束（停止闪烁动画、恢复按钮颜色等）
+            // Уведомление监听器Записьзавершить（Остановка闪烁动画、Восстановление按钮颜色等)
             if (recordingStateListener != null) {
                 recordingStateListener.onRemoteRecordingStop();
             }
             
-            // 延迟后处理上传和恢复
+            // 延迟后处理传 и Восстановление
             mainHandler.postDelayed(() -> {
                 handleRecordingComplete(ctx);
             }, 1000);
         };
         
-        // 定时器延迟到首次数据写入后启动
+        // 定时器延迟 до 首 раз数据写入后Запуск
         pendingDurationSeconds = durationSeconds;
-        AppLog.d(TAG, getPlatformName() + " 录制定时器将在首次数据写入后启动，时长: " + durationSeconds + " 秒");
+        AppLog.d(TAG, getPlatformName() + " Запись定时器将 首 раз数据写入后Запуск，时长: " + durationSeconds + "  сек.");
     }
     
     /**
-     * 通知首次数据写入完成，启动定时器
-     * 由 MainActivity 在检测到录制数据写入时调用
+     * Уведомление首 раз数据写入завершение，Запуск定时器
+     * 由 MainActivity  ОбнаруженоЗапись数据写入时调用
      */
     public void onFirstDataWritten() {
         if (pendingDurationSeconds > 0 && autoStopRunnable != null) {
-            AppLog.d(TAG, "首次数据写入，启动定时器: " + pendingDurationSeconds + " 秒");
+            AppLog.d(TAG, "首 раз数据写入，Запуск定时器: " + pendingDurationSeconds + "  сек.");
             autoStopHandler.postDelayed(autoStopRunnable, pendingDurationSeconds * 1000L);
             pendingDurationSeconds = 0;
         }
     }
     
     /**
-     * 通知时间戳更新（Watchdog 重建录制后调用）
-     * 由 MainActivity 在录制时间戳变化时调用
+     * Уведомление时间戳обновление（Watchdog 重建Запись后调用)
+     * 由 MainActivity  Запись时间戳变化时调用
      */
     public void onTimestampUpdated(String newTimestamp) {
         if (isRemoteRecording && currentContext != null) {
             String oldTimestamp = currentContext.getTimestamp();
             currentContext.setTimestamp(newTimestamp);
-            AppLog.d(TAG, getPlatformName() + " 远程录制时间戳更新: " + oldTimestamp + " -> " + newTimestamp);
+            AppLog.d(TAG, getPlatformName() + " Удалённая запись时间戳обновление: " + oldTimestamp + " -> " + newTimestamp);
         }
     }
     
     /**
-     * 录制完成后的处理（上传和恢复）
+     * Записьзавершение后 处理（传 и Восстановление)
      */
     private void handleRecordingComplete(RecordingContext ctx) {
         final boolean shouldResumeRecording = ctx.wasManualRecordingBefore();
         
-        // 上传视频
+        // 传Видео
         uploadVideos(ctx);
         
-        // 恢复手动录制（如果之前有）
+        // ВосстановлениевручнуюЗапись（Если до有)
         if (shouldResumeRecording && cameraController != null) {
             mainHandler.postDelayed(() -> {
                 if (!isRemoteRecording && cameraController != null && !cameraController.isRecording()) {
-                    AppLog.d(TAG, "恢复之前的手动录制");
+                    AppLog.d(TAG, "Восстановлениедо вручнуюЗапись");
                     cameraController.startRecording();
                 }
             }, 500);
@@ -298,109 +298,109 @@ public abstract class RemoteCommandHandler {
     }
     
     /**
-     * 录制启动失败的处理
+     * ЗаписьЗапускОшибка 处理
      */
     private void onRecordingFailed(RecordingContext ctx) {
         String platformName = getPlatformName();
-        AppLog.e(TAG, platformName + " 远程录制启动失败");
+        AppLog.e(TAG, platformName + " Удалённая записьЗапускОшибка");
         isRemoteRecording = false;
         
-        // 清除分段时长覆盖
+        // очистка分时长覆盖
         if (cameraController != null) {
             cameraController.clearSegmentDurationOverride();
         }
         
-        // 如果之前有手动录制，尝试恢复
+        // Если до有вручнуюЗапись，попыткаВосстановление
         if (ctx.wasManualRecordingBefore() && cameraController != null) {
-            AppLog.d(TAG, platformName + " 远程录制启动失败，尝试恢复手动录制");
+            AppLog.d(TAG, platformName + " Удалённая записьЗапускОшибка，попыткаВосстановлениевручнуюЗапись");
             cameraController.startRecording();
         }
         
-        sendError(ctx.getChatId(), "录制启动失败");
+        sendError(ctx.getChatId(), "ЗаписьЗапускОшибка");
         returnToBackgroundIfNeeded();
     }
     
-    // ==================== 远程拍照 - 公共逻辑 ====================
+    // ==================== УдалённыйФото - 公Всего 逻辑 ====================
     
     /**
-     * 启动远程拍照
+     * ЗапускУдалённыйФото
      */
     public void startRemotePhoto(ChatIdentifier chatId) {
         String platformName = getPlatformName();
-        AppLog.d(TAG, platformName + " 远程拍照: chatId=" + chatId.getId());
+        AppLog.d(TAG, platformName + " УдалённыйФото: chatId=" + chatId.getId());
         
-        // 1. 检查摄像头控制器
+        // 1. проверкаКамера控制器
         if (cameraController == null) {
-            AppLog.e(TAG, "摄像头控制器未设置");
-            sendError(chatId, "摄像头未初始化");
+            AppLog.e(TAG, "Камера控制器Не Настройки");
+            sendError(chatId, "Камера не инициализирована");
             returnToBackgroundIfNeeded();
             return;
         }
         
-        // 2. 检查摄像头连接
+        // 2. проверкаКамераПодключение
         if (!cameraController.hasConnectedCameras()) {
-            AppLog.e(TAG, "没有可用的相机");
-            sendError(chatId, "没有可用的相机");
+            AppLog.e(TAG, "Нет доступных камер");
+            sendError(chatId, "Нет доступных камер");
             returnToBackgroundIfNeeded();
             return;
         }
         
         // 3. 生成时间戳
         String timestamp = generateTimestamp();
-        AppLog.d(TAG, platformName + " 拍照时间戳: " + timestamp);
+        AppLog.d(TAG, platformName + " Фото时间戳: " + timestamp);
         
-        // 4. 执行拍照
+        // 4. выполнениеФото
         cameraController.takePicture(timestamp);
-        AppLog.d(TAG, platformName + " 远程拍照已执行");
+        AppLog.d(TAG, platformName + " УдалённыйФотовыполнение");
         
-        // 5. 等待拍照完成后上传（5秒延迟）
+        // 5. ожиданиеФотозавершение后传（5 сек.延迟)
         final String finalTimestamp = timestamp;
         mainHandler.postDelayed(() -> {
             uploadPhotos(chatId, finalTimestamp);
         }, 5000);
     }
     
-    // ==================== 上传逻辑 ====================
+    // ==================== 传逻辑 ====================
     
     /**
-     * 上传录制的视频
+     * 传Запись Видео
      */
     private void uploadVideos(RecordingContext ctx) {
         String platformName = getPlatformName();
         List<String> allTimestamps = ctx.getAllTimestamps();
         ChatIdentifier chatId = ctx.getChatId();
         
-        // 检查 API 客户端
+        // проверка API 客户端
         if (!isApiClientReady()) {
-            AppLog.e(TAG, platformName + " API 客户端未初始化");
+            AppLog.e(TAG, platformName + " API 客户端Не инициализация");
             returnToBackgroundIfNeeded();
             return;
         }
         
-        // 查找视频文件（使用所有时间戳，包括 Watchdog 重建前后的）
+        // 查找ВидеоФайл（использование所有时间戳，包括 Watchdog 重建前后 )
         List<File> videoFiles = mediaFileFinder.findVideoFiles(allTimestamps);
         if (videoFiles.isEmpty()) {
-            AppLog.e(TAG, "未找到录制的视频文件，时间戳: " + allTimestamps);
-            sendError(chatId, "未找到录制的视频文件");
+            AppLog.e(TAG, "Не найдены записанные видеофайлы，时间戳: " + allTimestamps);
+            sendError(chatId, "Не найдены записанные видеофайлы");
             returnToBackgroundIfNeeded();
             return;
         }
         
-        AppLog.d(TAG, "找到 " + videoFiles.size() + " 个视频文件，开始上传到" + platformName);
+        AppLog.d(TAG, "找 до  " + videoFiles.size() + " видеофайл(ов)，Вкл始传 до " + platformName);
         
-        // 创建上传服务并上传
+        // 创建传Сервис并传
         MediaUploadService uploadService = createVideoUploadService();
         uploadService.uploadVideos(videoFiles, chatId, new RemoteUploadCallback() {
             @Override
             public void onProgress(String message) {
-                AppLog.d(TAG, platformName + " 视频上传进度: " + message);
+                AppLog.d(TAG, platformName + " Видео传进度: " + message);
             }
             
             @Override
             public void onSuccess(String message) {
-                AppLog.d(TAG, platformName + " 视频上传成功: " + message);
+                AppLog.d(TAG, platformName + " Видео传Успешно: " + message);
                 
-                // 传输临时文件到最终目录
+                // 传输временноФайл до 最终каталог
                 mediaFileFinder.transferToFinalDir(videoFiles);
                 
                 returnToBackgroundIfNeeded();
@@ -408,12 +408,12 @@ public abstract class RemoteCommandHandler {
             
             @Override
             public void onError(String error) {
-                AppLog.e(TAG, platformName + " 视频上传失败: " + error);
+                AppLog.e(TAG, platformName + " ВидеоОшибка загрузки: " + error);
                 
-                // 即使上传失败，也要传输文件到最终存储位置（保留视频）
+                // т.е.使Ошибка загрузки，также要传输Файл до 最终ХранилищеПозиция（保留Видео)
                 mediaFileFinder.transferToFinalDir(videoFiles);
                 
-                // 平台特定的错误处理（如文件大小限制提示）
+                // 平台特定 Ошибка处理（еслиФайл大小限制Уведомление)
                 handleUploadError(chatId, error);
                 
                 returnToBackgroundIfNeeded();
@@ -422,46 +422,46 @@ public abstract class RemoteCommandHandler {
     }
     
     /**
-     * 上传拍摄的照片
+     * 传拍 Фото
      */
     private void uploadPhotos(ChatIdentifier chatId, String timestamp) {
         String platformName = getPlatformName();
         
-        // 检查 API 客户端
+        // проверка API 客户端
         if (!isApiClientReady()) {
-            AppLog.e(TAG, platformName + " API 客户端未初始化");
+            AppLog.e(TAG, platformName + " API 客户端Не инициализация");
             returnToBackgroundIfNeeded();
             return;
         }
         
-        // 查找照片文件
+        // 查找ФотоФайл
         List<File> photoFiles = mediaFileFinder.findPhotoFiles(timestamp);
         if (photoFiles.isEmpty()) {
-            AppLog.e(TAG, "未找到拍摄的照片，时间戳: " + timestamp);
-            sendError(chatId, "未找到拍摄的照片");
+            AppLog.e(TAG, "Не найдены сделанные фото，时间戳: " + timestamp);
+            sendError(chatId, "Не найдены сделанные фото");
             returnToBackgroundIfNeeded();
             return;
         }
         
-        AppLog.d(TAG, "找到 " + photoFiles.size() + " 张照片，开始上传到" + platformName);
+        AppLog.d(TAG, "找 до  " + photoFiles.size() + " фото，Вкл始传 до " + platformName);
         
-        // 创建上传服务并上传
+        // 创建传Сервис并传
         MediaUploadService uploadService = createPhotoUploadService();
         uploadService.uploadPhotos(photoFiles, chatId, new RemoteUploadCallback() {
             @Override
             public void onProgress(String message) {
-                AppLog.d(TAG, platformName + " 照片上传进度: " + message);
+                AppLog.d(TAG, platformName + " Фото传进度: " + message);
             }
             
             @Override
             public void onSuccess(String message) {
-                AppLog.d(TAG, platformName + " 照片上传成功: " + message);
+                AppLog.d(TAG, platformName + " Фото传Успешно: " + message);
                 returnToBackgroundIfNeeded();
             }
             
             @Override
             public void onError(String error) {
-                AppLog.e(TAG, platformName + " 照片上传失败: " + error);
+                AppLog.e(TAG, platformName + " ФотоОшибка загрузки: " + error);
                 returnToBackgroundIfNeeded();
             }
         });
@@ -478,7 +478,7 @@ public abstract class RemoteCommandHandler {
     }
     
     /**
-     * 返回后台（如果是远程唤醒的）
+     * 返回Фоновый режим（Если  Удалённый唤醒 )
      */
     protected void returnToBackgroundIfNeeded() {
         if (recordingStateListener != null) {
@@ -487,7 +487,7 @@ public abstract class RemoteCommandHandler {
     }
     
     /**
-     * 清理资源
+     * Очистка 资源
      */
     public void cleanup() {
         if (autoStopHandler != null && autoStopRunnable != null) {
@@ -501,45 +501,45 @@ public abstract class RemoteCommandHandler {
     // ==================== 抽象方法 - 平台特定实现 ====================
     
     /**
-     * 获取平台名称
+     * Получение平台名称
      */
     protected abstract String getPlatformName();
     
     /**
-     * 获取平台类型
+     * Получение平台类型
      */
     protected abstract RemotePlatform getPlatform();
     
     /**
-     * 检查 API 客户端是否就绪
+     * проверка API 客户端 否绪
      */
     protected abstract boolean isApiClientReady();
     
     /**
-     * 发送消息
+     * Отправка消息
      */
     public abstract void sendMessage(ChatIdentifier chatId, String message);
     
     /**
-     * 发送错误消息
+     * ОтправкаОшибка消息
      */
     public abstract void sendError(ChatIdentifier chatId, String error);
     
     /**
-     * 创建视频上传服务
+     * 创建Видео传Сервис
      */
     protected abstract MediaUploadService createVideoUploadService();
     
     /**
-     * 创建照片上传服务
+     * 创建Фото传Сервис
      */
     protected abstract MediaUploadService createPhotoUploadService();
     
     /**
-     * 处理上传错误（平台特定，如文件大小限制提示）
-     * 子类可重写以添加平台特定的错误处理
+     * 处理传Ошибка（平台特定，еслиФайл大小限制Уведомление)
+     * 子类可重写以添加平台特定 Ошибка处理
      */
     protected void handleUploadError(ChatIdentifier chatId, String error) {
-        // 默认不做额外处理，子类可重写
+        // По умолчанию不做额外处理，子类可重写
     }
 }

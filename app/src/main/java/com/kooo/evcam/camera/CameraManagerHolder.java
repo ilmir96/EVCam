@@ -9,8 +9,8 @@ import com.kooo.evcam.AppLog;
 
 /**
  * 全局单例，持有 MultiCameraManager 实例。
- * 允许在后台（Service）中初始化摄像头，不依赖 MainActivity。
- * TextureView 可以在 MainActivity 打开后再绑定。
+ * разрешить Фоновый режим（Service)инициализацияКамера，不依赖 MainActivity。
+ * TextureView 可以  MainActivity открыть后再绑定。
  */
 public class CameraManagerHolder {
     private static final String TAG = "CameraManagerHolder";
@@ -27,20 +27,20 @@ public class CameraManagerHolder {
     }
 
     /**
-     * 获取已初始化的 MultiCameraManager，如果未初始化则在后台初始化（TextureView=null）。
-     * 可从 Service 或 Activity 调用。
+     * Получениеинициализация  MultiCameraManager，Если Не инициализация则 Фоновый режиминициализация（TextureView=null)。
+     * 可 от  Service или Activity 调用。
      */
     public synchronized MultiCameraManager getOrInit(Context context) {
         if (cameraManager != null) {
             return cameraManager;
         }
 
-        AppLog.d(TAG, "后台初始化摄像头（无 TextureView）...");
+        AppLog.d(TAG, "Фоновый режиминициализацияКамера（无 TextureView)...");
         AppConfig appConfig = new AppConfig(context);
 
         cameraManager = new MultiCameraManager(context.getApplicationContext());
 
-        // 获取摄像头数量
+        // ПолучениеКамера数量
         int cameraCount = getCameraCount(appConfig);
         cameraManager.setMaxOpenCameras(cameraCount);
 
@@ -56,34 +56,34 @@ public class CameraManagerHolder {
                 return cameraManager;
             }
 
-            // 根据车型配置初始化摄像头（TextureView 全部传 null）
+            // 根据车型конфигурацияинициализацияКамера（TextureView Все传 null)
             initCamerasByCarModel(appConfig, cameraIds);
 
-            // 设置录制模式
+            // НастройкиЗаписьрежим
             boolean useCodecRecording = appConfig.shouldUseCodecRecording();
             cameraManager.setCodecRecordingMode(useCodecRecording);
 
-            // 注意：不在后台调用 openAllCameras()
-            // 部分设备/系统会禁止后台应用访问摄像头（CAMERA_DISABLED by policy）
-            // 摄像头会在悬浮窗设置 Surface 并调用 recreateSession 时按需打开
+            // 注意：不 Фоновый режим调用 openAllCameras()
+            // 部分设备/Система会禁止Фоновый режимПриложениедоступКамера（CAMERA_DISABLED by policy)
+            // Камера会 悬浮窗Настройки Surface 并调用 recreateSession 时按需открыть
 
-            AppLog.d(TAG, "后台摄像头对象初始化完成，共 " + cameraCount + " 个摄像头（未打开硬件）");
+            AppLog.d(TAG, "Фоновый режимКамера 象инициализациязавершение，Всего  " + cameraCount + " камер(ы)（Не открыть硬件)");
         } catch (CameraAccessException e) {
-            AppLog.e(TAG, "后台初始化摄像头失败: " + e.getMessage());
+            AppLog.e(TAG, "Фоновый режиминициализацияКамераОшибка: " + e.getMessage());
         }
 
         return cameraManager;
     }
 
     /**
-     * 获取已初始化的 MultiCameraManager（不自动初始化）
+     * Получениеинициализация  MultiCameraManager（不автоматическиинициализация)
      */
     public synchronized MultiCameraManager getCameraManager() {
         return cameraManager;
     }
 
     /**
-     * 设置已有的 MultiCameraManager（由 MainActivity 初始化时调用）
+     * Настройки有  MultiCameraManager（由 MainActivity инициализация时调用)
      */
     public synchronized void setCameraManager(MultiCameraManager manager) {
         this.cameraManager = manager;
@@ -106,11 +106,11 @@ public class CameraManagerHolder {
         } else if (appConfig.isCustomCarModel()) {
             return appConfig.getCameraCount();
         }
-        return 4; // E5, L7, Xinghan7 等默认4摄
+        return 4; // E5, L7, Xinghan7 等По умолчанию4
     }
 
     /**
-     * 根据车型配置初始化摄像头（与 MainActivity 中的逻辑一致，但 TextureView 全部传 null）
+     * 根据车型конфигурацияинициализацияКамера（ и  MainActivity  逻辑一致，但 TextureView Все传 null)
      */
     private void initCamerasByCarModel(AppConfig appConfig, String[] cameraIds) {
         String carModel = appConfig.getCarModel();
@@ -124,7 +124,7 @@ public class CameraManagerHolder {
         } else if (appConfig.isCustomCarModel()) {
             initCamerasForCustomModel(appConfig, cameraIds);
         } else {
-            // 银河E5（默认）
+            // GalaxyE5（По умолчанию)
             initCamerasForGalaxyE5(cameraIds);
         }
     }

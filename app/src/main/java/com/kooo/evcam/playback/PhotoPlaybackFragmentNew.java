@@ -46,12 +46,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 图片回看Fragment（新版）
- * 支持左右分栏、四宫格预览、单路/多路切换
+ * Изображение回看Fragment（新版)
+ * поддержка左右分栏、四宫格预览、单 кам./多 кам.切换
  */
 public class PhotoPlaybackFragmentNew extends Fragment {
 
-    // UI 组件
+    // UI  групп件
     private RecyclerView photoList;
     private TextView emptyText;
     private TextView currentDatetime;
@@ -61,7 +61,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     private TextView selectedCount;
     private View toolbar, multiSelectToolbar;
 
-    // 预览区组件
+    // 预览区 групп件
     private View multiViewLayout, singleViewLayout;
     private ImageView imageFront, imageBack, imageLeft, imageRight, imageSingle;
     private FrameLayout frameFront, frameBack, frameLeft, frameRight;
@@ -75,7 +75,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     private ExpandablePhotoGroupAdapter adapter;
     private PhotoGroup currentGroup;
 
-    // 状态
+    // Статус
     private boolean isMultiSelectMode = false;
     private boolean isSingleMode = false;
     private String currentSinglePosition = PhotoGroup.POSITION_FRONT;
@@ -95,7 +95,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     }
 
     private void initViews(View view) {
-        // 工具栏
+        // инструмент栏
         toolbar = view.findViewById(R.id.toolbar);
         multiSelectToolbar = view.findViewById(R.id.multi_select_toolbar);
         btnMenu = view.findViewById(R.id.btn_menu);
@@ -104,7 +104,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
         btnHome = view.findViewById(R.id.btn_home);
         currentDatetime = view.findViewById(R.id.current_datetime);
 
-        // 多选工具栏
+        // 多选инструмент栏
         btnSelectAll = view.findViewById(R.id.btn_select_all);
         btnDeleteSelected = view.findViewById(R.id.btn_delete_selected);
         btnCancelSelect = view.findViewById(R.id.btn_cancel_select);
@@ -141,11 +141,11 @@ public class PhotoPlaybackFragmentNew extends Fragment {
         placeholderLeft = view.findViewById(R.id.placeholder_left);
         placeholderRight = view.findViewById(R.id.placeholder_right);
 
-        // 摄像头切换按钮和控制栏
+        // Камера切换按钮 и 控制栏
         btnViewMode = view.findViewById(R.id.btn_view_mode);
         controlsLayout = view.findViewById(R.id.controls_layout);
 
-        // 设置列表（竖屏2列，横屏1列，日期头部跨越所有列）
+        // Настройки列表（竖屏2列，横屏1列， д.期头部跨越所有列)
         adapter = new ExpandablePhotoGroupAdapter(getContext(), dateSections);
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -153,7 +153,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
             gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    // 日期头部占满2列，图片项占1列
+                    //  д.期头部占满2列，Изображение项占1列
                     return adapter.getItemViewType(position) == 0 ? 2 : 1;
                 }
             });
@@ -163,7 +163,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
         }
         photoList.setAdapter(adapter);
 
-        // 初始状态：隐藏四宫格，显示提示
+        // 初始Статус：隐藏四宫格，显示Уведомление
         multiViewLayout.setVisibility(View.GONE);
         singleViewLayout.setVisibility(View.GONE);
         noSelectionHint.setVisibility(View.VISIBLE);
@@ -191,10 +191,10 @@ public class PhotoPlaybackFragmentNew extends Fragment {
             }
         });
 
-        // 刷新
+        // Обновить
         btnRefresh.setOnClickListener(v -> updatePhotoList());
 
-        // 多选模式
+        // 多选режим
         btnMultiSelect.setOnClickListener(v -> toggleMultiSelectMode());
         btnSelectAll.setOnClickListener(v -> selectAll());
         btnCancelSelect.setOnClickListener(v -> exitMultiSelectMode());
@@ -209,20 +209,20 @@ public class PhotoPlaybackFragmentNew extends Fragment {
             updateSelectedCount();
         });
 
-        // 摄像头切换按钮（循环切换）
+        // Камера切换按钮（循环切换)
         btnViewMode.setOnClickListener(v -> cycleViewMode());
     }
 
     /**
-     * 设置四宫格双击监听（双击放大到单路）
+     * Настройки四宫格双击监听（双击放大 до 单 кам.)
      */
     private void setupDoubleTapListeners() {
-        setupDoubleTap(frameFront, PhotoGroup.POSITION_FRONT, "前");
-        setupDoubleTap(frameBack, PhotoGroup.POSITION_BACK, "后");
-        setupDoubleTap(frameLeft, PhotoGroup.POSITION_LEFT, "左");
-        setupDoubleTap(frameRight, PhotoGroup.POSITION_RIGHT, "右");
+        setupDoubleTap(frameFront, PhotoGroup.POSITION_FRONT, "П");
+        setupDoubleTap(frameBack, PhotoGroup.POSITION_BACK, "З");
+        setupDoubleTap(frameLeft, PhotoGroup.POSITION_LEFT, "Л");
+        setupDoubleTap(frameRight, PhotoGroup.POSITION_RIGHT, "Пр");
 
-        // 单路模式双击返回多路
+        // 单 кам.режим双击返回多 кам.
         if (singleViewLayout != null) {
             GestureDetector detector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
@@ -260,7 +260,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     }
 
     /**
-     * 切换到单路模式
+     * 切换 до 单 кам.режим
      */
     private void switchToSingleMode(String position, String label) {
         isSingleMode = true;
@@ -269,9 +269,9 @@ public class PhotoPlaybackFragmentNew extends Fragment {
         multiViewLayout.setVisibility(View.GONE);
         singleViewLayout.setVisibility(View.VISIBLE);
         labelSingle.setText(label);
-        btnViewMode.setText(label + "摄");
+        btnViewMode.setText(label + "");
 
-        // 加载大图
+        // загрузка大图
         if (currentGroup != null) {
             File photoFile = currentGroup.getPhotoFile(position);
             loadImage(photoFile, imageSingle);
@@ -279,37 +279,37 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     }
 
     /**
-     * 切换到多路模式
+     * 切换 до 多 кам.режим
      */
     private void switchToMultiMode() {
         isSingleMode = false;
 
         multiViewLayout.setVisibility(View.VISIBLE);
         singleViewLayout.setVisibility(View.GONE);
-        btnViewMode.setText("多路");
+        btnViewMode.setText("Все камеры");
     }
 
     /**
-     * 循环切换视图模式：多路 → 前摄 → 后摄 → 左摄 → 右摄 → 多路...
-     * 只切换到有图片的摄像头
+     * 循环切换视图режим：多 кам. → 前 → 后 → 左 → 右 → 多 кам....
+     * 只切换 до 有Изображение Камера
      */
     private void cycleViewMode() {
         if (currentGroup == null) return;
         
-        // 构建可用位置列表
+        // 构建ДоступноПозиция列表
         java.util.List<String> availablePositions = new java.util.ArrayList<>();
-        availablePositions.add("multi"); // 多路始终可用
+        availablePositions.add("multi"); // 多 кам.始终Доступно
         if (currentGroup.hasPhoto(PhotoGroup.POSITION_FRONT)) availablePositions.add(PhotoGroup.POSITION_FRONT);
         if (currentGroup.hasPhoto(PhotoGroup.POSITION_BACK)) availablePositions.add(PhotoGroup.POSITION_BACK);
         if (currentGroup.hasPhoto(PhotoGroup.POSITION_LEFT)) availablePositions.add(PhotoGroup.POSITION_LEFT);
         if (currentGroup.hasPhoto(PhotoGroup.POSITION_RIGHT)) availablePositions.add(PhotoGroup.POSITION_RIGHT);
         
-        // 找到当前位置的索引
+        // 找 до ТекущийПозиция 索引
         String currentPos = isSingleMode ? currentSinglePosition : "multi";
         int currentIndex = availablePositions.indexOf(currentPos);
         if (currentIndex < 0) currentIndex = 0;
         
-        // 切换到下一个位置
+        // 切换 до 一 шт.Позиция
         int nextIndex = (currentIndex + 1) % availablePositions.size();
         String nextPos = availablePositions.get(nextIndex);
         
@@ -322,46 +322,46 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     }
     
     /**
-     * 获取位置对应的标签
+     * ПолучениеПозиция 应 标签
      */
     private String getPositionLabel(String position) {
         switch (position) {
-            case PhotoGroup.POSITION_FRONT: return "前";
-            case PhotoGroup.POSITION_BACK: return "后";
-            case PhotoGroup.POSITION_LEFT: return "左";
-            case PhotoGroup.POSITION_RIGHT: return "右";
+            case PhotoGroup.POSITION_FRONT: return "П";
+            case PhotoGroup.POSITION_BACK: return "З";
+            case PhotoGroup.POSITION_LEFT: return "Л";
+            case PhotoGroup.POSITION_RIGHT: return "Пр";
             default: return "";
         }
     }
 
     /**
-     * 切换单路/多路模式（保留用于双击）
+     * 切换单 кам./多 кам.режим（保留用于双击)
      */
     private void toggleViewMode() {
         cycleViewMode();
     }
 
     /**
-     * 加载图片组进行显示
+     * загрузкаИзображение групп进行显示
      */
     private void loadPhotoGroup(PhotoGroup group) {
         this.currentGroup = group;
         noSelectionHint.setVisibility(View.GONE);
 
-        // 如果在单路模式下，检查当前选择的摄像头是否有图片
+        // Если  单 кам.режим，проверкаТекущийВыбрать Камера 否有Изображение
         if (isSingleMode) {
             if (!group.hasPhoto(currentSinglePosition)) {
-                // 当前摄像头在新图片组中没有图片，切回多路模式
+                // ТекущийКамера 新Изображение групп没有Изображение，切回多 кам.режим
                 isSingleMode = false;
-                btnViewMode.setText("多路");
+                btnViewMode.setText("Все камеры");
             }
         }
 
-        // 显示四宫格（根据当前模式）
+        // 显示四宫格（根据Текущийрежим)
         if (isSingleMode) {
             multiViewLayout.setVisibility(View.GONE);
             singleViewLayout.setVisibility(View.VISIBLE);
-            // 重新加载单路大图
+            // 重新загрузка单 кам.大图
             File photoFile = group.getPhotoFile(currentSinglePosition);
             loadImage(photoFile, imageSingle);
         } else {
@@ -372,15 +372,15 @@ public class PhotoPlaybackFragmentNew extends Fragment {
         // 显示控制栏
         controlsLayout.setVisibility(View.VISIBLE);
 
-        // 更新标题栏日期时间
+        // обновление标题栏 д.期时间
         currentDatetime.setText(group.getFormattedDateTime());
 
-        // 更新四宫格的占位符和图片
+        // обновление四宫格 占位符 и Изображение
         updatePhotoDisplay(group);
     }
 
     /**
-     * 更新图片显示
+     * обновлениеИзображение显示
      */
     private void updatePhotoDisplay(PhotoGroup group) {
         boolean hasFront = group.hasPhoto(PhotoGroup.POSITION_FRONT);
@@ -388,12 +388,12 @@ public class PhotoPlaybackFragmentNew extends Fragment {
         boolean hasLeft = group.hasPhoto(PhotoGroup.POSITION_LEFT);
         boolean hasRight = group.hasPhoto(PhotoGroup.POSITION_RIGHT);
 
-        // 前置
+        // Фронтальная
         imageFront.setVisibility(hasFront ? View.VISIBLE : View.GONE);
         placeholderFront.setVisibility(hasFront ? View.GONE : View.VISIBLE);
         if (hasFront) loadImage(group.getFrontPhoto(), imageFront);
 
-        // 后置
+        // Задняя
         imageBack.setVisibility(hasBack ? View.VISIBLE : View.GONE);
         placeholderBack.setVisibility(hasBack ? View.GONE : View.VISIBLE);
         if (hasBack) loadImage(group.getBackPhoto(), imageBack);
@@ -410,7 +410,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     }
 
     /**
-     * 加载图片
+     * загрузкаИзображение
      */
     private void loadImage(File photoFile, ImageView imageView) {
         if (photoFile == null || !photoFile.exists() || getContext() == null) {
@@ -430,7 +430,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     }
 
     /**
-     * 更新图片列表（按日期分组，然后按时间戳分组）
+     * обновлениеИзображение列表（按 д.期分 групп，然后按时间戳分 групп)
      */
     private void updatePhotoList() {
         dateSections.clear();
@@ -451,7 +451,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
             return;
         }
 
-        // 第一步：按时间戳分组（同一秒拍摄的多路图片）
+        // Первый步：按时间戳分 групп（同一 сек.拍 多 кам.Изображение)
         Map<String, PhotoGroup> groupMap = new HashMap<>();
         for (File file : files) {
             String timestamp = PhotoGroup.extractTimestampPrefix(file.getName());
@@ -463,11 +463,11 @@ public class PhotoPlaybackFragmentNew extends Fragment {
             group.addFile(file);
         }
 
-        // 转为列表并排序（最新的在前）
+        // 转为列表并排序（последний  前)
         List<PhotoGroup> allGroups = new ArrayList<>(groupMap.values());
         Collections.sort(allGroups, (g1, g2) -> g2.getCaptureTime().compareTo(g1.getCaptureTime()));
 
-        // 第二步：按日期分组
+        // Второй步：按 д.期分 групп
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Map<String, DateSection<PhotoGroup>> dateSectionMap = new LinkedHashMap<>();
         
@@ -481,10 +481,10 @@ public class PhotoPlaybackFragmentNew extends Fragment {
             section.addItem(group);
         }
 
-        // 日期分组已按日期排序（LinkedHashMap 保持插入顺序，而 allGroups 已排序）
+        //  д.期分 групп按 д.期排序（LinkedHashMap 保持插入顺序，而 allGroups 排序)
         dateSections.addAll(dateSectionMap.values());
 
-        // 更新UI
+        // обновлениеUI
         if (dateSections.isEmpty()) {
             showEmptyState();
         } else {
@@ -533,7 +533,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
     }
 
     private void updateSelectedCount() {
-        selectedCount.setText("已选择 " + adapter.getSelectedCount() + " 项");
+        selectedCount.setText("Выбрано: " + adapter.getSelectedCount() + "");
     }
 
     private void deleteSelected() {
@@ -543,22 +543,22 @@ public class PhotoPlaybackFragmentNew extends Fragment {
         }
 
         new MaterialAlertDialogBuilder(getContext(), R.style.Theme_Cam_MaterialAlertDialog)
-                .setTitle("确认删除")
-                .setMessage("确定要删除选中的 " + selectedGroups.size() + " 组照片吗？（包含所有摄像头照片）")
-                .setPositiveButton("删除", (dialog, which) -> {
+                .setTitle("Подтвердите удаление")
+                .setMessage("Удалить выбранные " + selectedGroups.size() + " групп(ы) фото? (включая все камеры)")
+                .setPositiveButton("Удалить", (dialog, which) -> {
                     int deletedCount = 0;
                     
-                    // 删除选中的图片组
+                    // 删除选 Изображение групп
                     for (PhotoGroup group : selectedGroups) {
                         deletedCount += group.deleteAll();
                     }
                     
-                    // 从日期分组中移除已删除的组
+                    //  от  д.期分 групп移除Удалено  групп
                     for (DateSection<PhotoGroup> section : dateSections) {
                         section.getItems().removeAll(selectedGroups);
                     }
                     
-                    // 移除空的日期分组
+                    // 移除空  д.期分 групп
                     dateSections.removeIf(section -> section.getItemCount() == 0);
 
                     adapter.clearSelection();
@@ -568,7 +568,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
 
                     if (getContext() != null) {
                         android.widget.Toast.makeText(getContext(),
-                                "已删除 " + deletedCount + " 张照片",
+                                "Удалено " + deletedCount + " фото",
                                 android.widget.Toast.LENGTH_SHORT).show();
                     }
 
@@ -577,7 +577,7 @@ public class PhotoPlaybackFragmentNew extends Fragment {
                         showEmptyState();
                     }
                 })
-                .setNegativeButton("取消", null)
+                .setNegativeButton("Отмена", null)
                 .show();
     }
 

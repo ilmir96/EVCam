@@ -35,22 +35,22 @@ public final class AppLog {
     private static final List<String> BUFFER = new ArrayList<>();
     private static volatile boolean debugToInfo = false;
     
-    // 会话日志文件名
+    // 会话 д.志Файл名
     private static final String CURRENT_SESSION_LOG = "current_session.log";
     private static final String PREVIOUS_SESSION_LOG = "previous_session.log";
     
-    // Application Context 引用（用于崩溃时保存日志）
+    // Application Context 引用（用于崩溃时Сохранить д.志)
     private static Context sAppContext = null;
     
-    // 原始的 UncaughtExceptionHandler
+    // 原始  UncaughtExceptionHandler
     private static Thread.UncaughtExceptionHandler sDefaultHandler = null;
     
-    // Gotify 服务器配置
+    // Gotify Сервис器конфигурация
     private static final String GOTIFY_SERVER_URL = "http://suyunkai.top:40266";
     private static final String GOTIFY_APP_TOKEN = "AXK51-43QvveMDM";
     
     /**
-     * 日志上传回调接口
+     *  д.志传回调接口
      */
     public interface UploadCallback {
         void onSuccess();
@@ -65,40 +65,40 @@ public final class AppLog {
             return;
         }
         
-        // 保存 Application Context（用于崩溃时保存日志）
+        // Сохранить Application Context（用于崩溃时Сохранить д.志)
         sAppContext = context.getApplicationContext();
         
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         debugToInfo = prefs.getBoolean(KEY_DEBUG_TO_INFO, false);
         
-        // 启动时轮换日志文件
+        // Запуск时轮换 д.志Файл
         rotateSessionLogs(context);
         
-        // 设置崩溃处理器，确保闪退时能保存日志
+        // Настройки崩溃处理器，确保闪退时能Сохранить д.志
         setupCrashHandler();
     }
     
     /**
-     * 设置崩溃处理器
-     * 在应用崩溃时自动保存日志，便于排查闪退问题
+     * Настройки崩溃处理器
+     *  Приложение崩溃时автоматическиСохранить д.志，便于排查闪退问题
      */
     private static void setupCrashHandler() {
-        // 保存原始的 handler
+        // Сохранить原始  handler
         sDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             try {
-                // 记录崩溃信息到日志
+                // 记录崩溃Информация до  д.志
                 String crashInfo = "!!! APPLICATION CRASH !!!\n" +
                         "Thread: " + thread.getName() + "\n" +
                         "Exception: " + throwable.getClass().getName() + "\n" +
                         "Message: " + throwable.getMessage() + "\n" +
                         "Stack trace:\n" + Log.getStackTraceString(throwable);
                 
-                // 添加崩溃信息到缓冲区
+                // 添加崩溃Информация до 缓冲区
                 addToBuffer(Log.ERROR, "CRASH", crashInfo);
                 
-                // 保存日志到文件
+                // Сохранить д.志 до Файл
                 if (sAppContext != null) {
                     saveToPersistentLog(sAppContext);
                     Log.e("AppLog", "Crash log saved successfully");
@@ -107,7 +107,7 @@ public final class AppLog {
                 Log.e("AppLog", "Failed to save crash log", e);
             }
             
-            // 调用原始 handler（让系统继续处理崩溃）
+            // 调用原始 handler（让Системапродолжить处理崩溃)
             if (sDefaultHandler != null) {
                 sDefaultHandler.uncaughtException(thread, throwable);
             }
@@ -117,8 +117,8 @@ public final class AppLog {
     }
     
     /**
-     * 轮换会话日志文件
-     * 将当前日志备份为上次日志，清空当前日志
+     * 轮换会话 д.志Файл
+     * 将Текущий д.志резервное копирование为 раз д.志，清空Текущий д.志
      */
     private static void rotateSessionLogs(Context context) {
         if (context == null) return;
@@ -127,15 +127,15 @@ public final class AppLog {
         File currentLog = new File(logDir, CURRENT_SESSION_LOG);
         File previousLog = new File(logDir, PREVIOUS_SESSION_LOG);
         
-        // 如果当前日志存在，将其备份为上次日志
+        // Если Текущий д.志существует，将其резервное копирование为 раз д.志
         if (currentLog.exists() && currentLog.length() > 0) {
-            // 删除旧的上次日志
+            // 删除旧  раз д.志
             if (previousLog.exists()) {
                 if (!previousLog.delete()) {
                     Log.w("AppLog", "Failed to delete old previous session log");
                 }
             }
-            // 重命名当前日志为上次日志
+            // 重命名Текущий д.志为 раз д.志
             boolean renamed = currentLog.renameTo(previousLog);
             if (renamed) {
                 Log.i("AppLog", "Previous session log saved: " + previousLog.getAbsolutePath());
@@ -146,10 +146,10 @@ public final class AppLog {
     }
     
     /**
-     * 获取日志存储目录
+     * Получение д.志Хранилищекаталог
      */
     private static File getLogDirectory(Context context) {
-        // 使用应用私有目录存储会话日志，避免权限问题
+        // использованиеПриложение私有каталогХранилище会话 д.志，避免Разрешение问题
         File logDir = new File(context.getFilesDir(), "logs");
         if (!logDir.exists()) {
             logDir.mkdirs();
@@ -158,8 +158,8 @@ public final class AppLog {
     }
     
     /**
-     * 保存当前日志到持久化文件
-     * 建议在 Activity.onStop() 或 onDestroy() 中调用
+     * СохранитьТекущий д.志 до 持久化Файл
+     * 建议  Activity.onStop() или onDestroy() 调用
      */
     public static void saveToPersistentLog(Context context) {
         if (context == null) return;
@@ -187,7 +187,7 @@ public final class AppLog {
     }
     
     /**
-     * 检查是否有上次运行的日志
+     * проверка 否有предыдущий сеанс  д.志
      */
     public static boolean hasPreviousSessionLogs(Context context) {
         if (context == null) return false;
@@ -198,7 +198,7 @@ public final class AppLog {
     }
     
     /**
-     * 获取上次运行日志的信息（行数和时间）
+     * Получениепредыдущий сеанс д.志 Информация（行数 и 时间)
      */
     public static String getPreviousSessionLogInfo(Context context) {
         if (context == null) return null;
@@ -210,7 +210,7 @@ public final class AppLog {
             return null;
         }
         
-        // 读取文件获取行数和首行时间
+        // 读取ФайлПолучение行数 и 首行时间
         int lineCount = 0;
         String firstLine = null;
         String lastLine = null;
@@ -229,23 +229,23 @@ public final class AppLog {
             return null;
         }
         
-        // 提取时间信息
+        // 提取时间Информация
         String startTime = extractTimeFromLogLine(firstLine);
         String endTime = extractTimeFromLogLine(lastLine);
         
         if (startTime != null && endTime != null) {
-            return lineCount + " 条日志 (" + startTime + " ~ " + endTime + ")";
+            return lineCount + " записей (" + startTime + " ~ " + endTime + ")";
         } else {
-            return lineCount + " 条日志";
+            return lineCount + " записей";
         }
     }
     
     /**
-     * 从日志行中提取时间部分
+     *  от  д.志行提取时间部分
      */
     private static String extractTimeFromLogLine(String line) {
         if (line == null || line.length() < 19) return null;
-        // 日志格式: "2025-01-31 12:34:56.789 ..."
+        //  д.志格式: "2025-01-31 12:34:56.789 ..."
         // 只取时间部分 "12:34:56"
         try {
             return line.substring(11, 19);
@@ -255,7 +255,7 @@ public final class AppLog {
     }
     
     /**
-     * 获取上次运行的日志内容
+     * Получениепредыдущий сеанс  д.志内容
      */
     public static List<String> getPreviousSessionLogs(Context context) {
         List<String> logs = new ArrayList<>();
@@ -305,30 +305,30 @@ public final class AppLog {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
         String fileName = "evcam_log_" + timestamp + ".txt";
 
-        // 保存到 Download/EVCam_Log/ 目录
+        // Сохранить до  Download/EVCam_Log/ каталог
         File logDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "EVCam_Log");
         File logFile = new File(logDir, fileName);
         return writeLogToFile(logFile, snapshot) ? logFile : null;
     }
     
     /**
-     * 一键上传日志到 Gotify 服务器（上传当前运行日志）
-     * @param context 上下文
+     * 一键传 д.志 до  Gotify Сервис器（传ТекущийРабота д.志)
+     * @param context 文
      * @param deviceNickname 设备识别名称
      * @param problemDescription 问题描述
-     * @param callback 上传结果回调
+     * @param callback 传结果回调
      */
     public static void uploadLogsToServer(Context context, String deviceNickname, String problemDescription, UploadCallback callback) {
         uploadLogsToServer(context, deviceNickname, problemDescription, false, callback);
     }
     
     /**
-     * 一键上传日志到 Gotify 服务器
-     * @param context 上下文
+     * 一键传 д.志 до  Gotify Сервис器
+     * @param context 文
      * @param deviceNickname 设备识别名称
      * @param problemDescription 问题描述
-     * @param uploadPreviousSession 是否上传上次运行的日志
-     * @param callback 上传结果回调
+     * @param uploadPreviousSession  否传предыдущий сеанс  д.志
+     * @param callback 传结果回调
      */
     public static void uploadLogsToServer(Context context, String deviceNickname, String problemDescription, 
                                           boolean uploadPreviousSession, UploadCallback callback) {
@@ -339,28 +339,28 @@ public final class AppLog {
             return;
         }
         
-        // 在后台线程执行网络请求
+        //  Фоновый режим线程выполнениеСеть求
         new Thread(() -> {
             HttpURLConnection connection = null;
             try {
-                // 获取日志内容
+                // Получение д.志内容
                 List<String> snapshot;
                 if (uploadPreviousSession) {
-                    // 获取上次运行日志
+                    // Получениепредыдущий сеанс д.志
                     snapshot = getPreviousSessionLogs(context);
                 } else {
-                    // 获取当前运行日志
+                    // ПолучениеТекущийРабота д.志
                     synchronized (LOCK) {
                         snapshot = new ArrayList<>(BUFFER);
                     }
                 }
                 
                 if (snapshot.isEmpty()) {
-                    callback.onError(uploadPreviousSession ? "上次运行日志为空" : "日志为空");
+                    callback.onError(uploadPreviousSession ? "Логи прошлой сессии пусты" : "Логи пусты");
                     return;
                 }
                 
-                // 获取应用版本信息
+                // ПолучениеПриложение版本Информация
                 String versionName = "unknown";
                 int versionCode = 0;
                 try {
@@ -371,31 +371,31 @@ public final class AppLog {
                     // 忽略
                 }
                 
-                // 构建日志内容
-                String logType = uploadPreviousSession ? "上次运行日志" : "本次运行日志";
+                // 构建 д.志内容
+                String logType = uploadPreviousSession ? "Логи прошлой сессии" : "логи текущего сеанса";
                 StringBuilder logContent = new StringBuilder();
-                logContent.append("=== EVCam 日志上传 (").append(logType).append(") ===\n");
-                logContent.append("用户标识: ").append(deviceNickname != null ? deviceNickname : "未知").append("\n");
-                logContent.append("设备型号: ").append(Build.MODEL).append("\n");
-                logContent.append("系统版本: Android ").append(Build.VERSION.RELEASE)
+                logContent.append("=== Отправка логов EVCam (").append(logType).append(") ===\n");
+                logContent.append("Пользователь: ").append(deviceNickname != null ? deviceNickname : "Неизвестно").append("\n");
+                logContent.append("Модель устройства: ").append(Build.MODEL).append("\n");
+                logContent.append("Версия системы: Android ").append(Build.VERSION.RELEASE)
                          .append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
-                logContent.append("应用版本: ").append(versionName)
+                logContent.append("Версия приложения: ").append(versionName)
                          .append(" (").append(versionCode).append(")\n");
-                logContent.append("上传时间: ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date())).append("\n");
-                logContent.append("日志类型: ").append(logType).append("\n");
-                logContent.append("日志条数: ").append(snapshot.size()).append("\n");
+                logContent.append("Время отправки: ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date())).append("\n");
+                logContent.append("Тип логов: ").append(logType).append("\n");
+                logContent.append("Кол-во записей: ").append(snapshot.size()).append("\n");
                 logContent.append("========================\n\n");
                 
                 // 添加问题描述
-                logContent.append("【问题描述】\n");
-                logContent.append(problemDescription != null ? problemDescription : "（无）").append("\n\n");
+                logContent.append("【Описание проблемы】\n");
+                logContent.append(problemDescription != null ? problemDescription : "(нет)").append("\n\n");
                 logContent.append("========================\n\n");
                 
                 for (String line : snapshot) {
                     logContent.append(line).append("\n");
                 }
                 
-                // 构建请求 URL
+                // 构建求 URL
                 URL url = new URL(GOTIFY_SERVER_URL + "/message?token=" + GOTIFY_APP_TOKEN);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
@@ -404,7 +404,7 @@ public final class AppLog {
                 connection.setConnectTimeout(15000);
                 connection.setReadTimeout(15000);
                 
-                // 构建 JSON 请求体 - 标题包含用户标识和日志类型便于识别
+                // 构建 JSON 求体 - 标题содержит用户标识 и  д.志类型便于识别
                 JSONObject jsonBody = new JSONObject();
                 String logTypeShort = uploadPreviousSession ? "[Previous]" : "[Current]";
                 String title = deviceNickname != null ? 
@@ -414,18 +414,18 @@ public final class AppLog {
                 jsonBody.put("message", logContent.toString());
                 jsonBody.put("priority", 5);
                 
-                // 发送请求
+                // Отправка求
                 try (OutputStream os = connection.getOutputStream()) {
                     byte[] input = jsonBody.toString().getBytes(StandardCharsets.UTF_8);
                     os.write(input, 0, input.length);
                 }
                 
-                // 获取响应
+                // Получение响应
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
                     callback.onSuccess();
                 } else {
-                    // 读取错误信息
+                    // 读取ОшибкаИнформация
                     StringBuilder errorResponse = new StringBuilder();
                     try (BufferedReader br = new BufferedReader(
                             new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8))) {
@@ -434,7 +434,7 @@ public final class AppLog {
                             errorResponse.append(line);
                         }
                     } catch (Exception e) {
-                        // 忽略读取错误流的异常
+                        // 忽略读取Ошибка流 аномалия
                     }
                     callback.onError("HTTP " + responseCode + ": " + errorResponse);
                 }

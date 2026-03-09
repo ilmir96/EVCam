@@ -22,7 +22,7 @@ import com.kooo.evcam.camera.SingleCamera;
 
 /**
  * 独立补盲悬浮窗视图
- * 支持拖动和边缘缩放
+ * поддержка拖动 и 边缘缩放
  */
 public class BlindSpotFloatingWindowView extends FrameLayout {
     private static final String TAG = "BlindSpotFloatingWindowView";
@@ -34,7 +34,7 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
     private TextureView textureView;
     private Surface cachedSurface;
     private SingleCamera currentCamera;
-    private String cameraPos = "right"; // 默认用右摄像头测试
+    private String cameraPos = "right"; // По умолчанию用Правая камератестирование
     private boolean isSetupMode = false;
     private int currentRotation = 0;
     private boolean isAdjustPreviewMode = false;
@@ -84,7 +84,7 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
             saveLayout.setVisibility(View.VISIBLE);
             saveButton.setOnClickListener(v -> {
                 hasUnsavedResize = false;
-                // 若宽高因矫正旋转而交换过，保存前还原为基础值
+                // 若宽Высокий因矫正Поворот 而交换过，Сохранить前还原为基础值
                 int saveW = params.width;
                 int saveH = params.height;
                 if (isCurrentlySwapped) {
@@ -240,8 +240,8 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
     }
 
     /**
-     * 仅设置摄像头位置（不触发预览切换）。
-     * 用于 show() 前设定初始摄像头，避免 onSurfaceTextureAvailable 使用默认值。
+     * толькоНастройкиКамераПозиция（不触发预览切换)。
+     * 用于 show() 前设定初始Камера，避免 onSurfaceTextureAvailable использованиеПо умолчанию值。
      */
     public void setCameraPos(String cameraPos) {
         this.cameraPos = cameraPos;
@@ -249,11 +249,11 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
 
     public void setCamera(String cameraPos) {
         this.cameraPos = cameraPos;
-        stopCameraPreview(true); // 切换摄像头时使用紧急模式清除旧surface
+        stopCameraPreview(true); // 切换Камера时использование紧急режимочистка旧surface
         applyTransformNow();
 
-        // 更新 SurfaceTexture 的 buffer size 以匹配新摄像头的预览分辨率
-        // 避免 Surface 尺寸与摄像头配置不匹配导致 session 创建失败
+        // обновление SurfaceTexture   buffer size 以匹配新Камера 预览Разрешение
+        // 避免 Surface 尺寸 и Камераконфигурация不匹配导致 session 创建Ошибка
         if (textureView.isAvailable()) {
             android.graphics.SurfaceTexture st = textureView.getSurfaceTexture();
             if (st != null) {
@@ -297,14 +297,14 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
             scheduleRetryBind();
             return;
         }
-        // 传递 SurfaceTexture 引用，便于 createCameraPreviewSession 统一设置 buffer 尺寸
+        // 传递 SurfaceTexture 引用，便于 createCameraPreviewSession 统一Настройки buffer 尺寸
         android.graphics.SurfaceTexture st = (textureView != null && textureView.isAvailable()) ? textureView.getSurfaceTexture() : null;
         currentCamera.setMainFloatingSurface(surface, st);
 
-        // 如果摄像头硬件还未打开（后台初始化时不打开），先打开
+        // Если Камера硬件还Не открыть（Фоновый режиминициализация时不открыть)，先открыть
         if (!currentCamera.isCameraOpened()) {
             AppLog.d(TAG, "Camera not opened yet, opening now for " + cameraPos);
-            // 确保前台服务就绪后再打开相机（避免冷启动时 CAMERA_DISABLED）
+            // 确保Передний планСервис绪后再открыть相机（避免冷Запуск时 CAMERA_DISABLED)
             final SingleCamera cam = currentCamera;
             CameraForegroundService.whenReady(getContext(), cam::openCamera);
         } else {
@@ -319,7 +319,7 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
 
     private void stopCameraPreview(boolean urgent) {
         if (currentCamera != null) {
-            // 立即停止推帧，防止 Surface 销毁后 queueBuffer abandoned 刷屏
+            // 立т.е.Остановка推帧，防止 Surface 销毁后 queueBuffer abandoned 刷屏
             currentCamera.stopRepeatingNow();
             currentCamera.setMainFloatingSurface(null);
             currentCamera.recreateSession(urgent);
@@ -332,7 +332,7 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
             if (this.getParent() == null) {
                 boolean animEnabled = appConfig.isFloatingWindowAnimationEnabled();
 
-                // 等待首帧画面到达后再显示，避免黑屏闪烁
+                // ожидание首帧画面 до 达后再显示，避免黑屏闪烁
                 if (animEnabled) {
                     setScaleX(0.85f);
                     setScaleY(0.85f);
@@ -346,7 +346,7 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
                 }
                 applyTransformNow();
 
-                // 安全超时：如果摄像头迟迟没有推帧，最多等 800ms 后也直接显示
+                // 安全таймаут：Если Камера迟迟没有推帧，最多等 800ms 后также直接显示
                 showAnimFallback = () -> {
                     if (pendingShowAnimation) {
                         pendingShowAnimation = false;
@@ -396,7 +396,7 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
     }
 
     public void applyTransformNow() {
-        // 矫正旋转更接近竖屏时，悬浮窗宽高互换，让画面自然填满不裁切
+        // 矫正Поворот 更接近竖屏时，悬浮窗宽Высокий互换，让画面自然填满不裁切
         int correctionRotation = 0;
         if (appConfig.isBlindSpotCorrectionEnabled() && cameraPos != null) {
             correctionRotation = appConfig.getBlindSpotCorrectionRotation(cameraPos);
@@ -408,7 +408,7 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
         int targetW = shouldSwap ? baseH : baseW;
         int targetH = shouldSwap ? baseW : baseH;
 
-        // 用户正在拖动缩放或有未保存的缩放时，不覆盖 params，以免打断手势或丢失调整
+        // 用户Выполняется 拖动缩放или有Не Сохранить 缩放时，不覆盖 params，以免打断手势или丢失调整
         if (!isResizing && !hasUnsavedResize
                 && params != null && (params.width != targetW || params.height != targetH)) {
             params.width = targetW;
@@ -496,7 +496,7 @@ public class BlindSpotFloatingWindowView extends FrameLayout {
             return;
         }
 
-        // 关闭动效：缩放 + 淡出
+        // Закрыто动效：缩放 + 淡出
         if (windowAnimator != null) {
             windowAnimator.cancel();
             windowAnimator = null;

@@ -8,19 +8,19 @@ import android.os.Handler;
 import android.os.Looper;
 
 /**
- * 开机启动广播接收器
- * 监听系统开机广播，自动启动必要的服务
+ * Вкл机Запуск广播接收器
+ * 监听СистемаВкл机广播，автоматическиЗапуск必要 Сервис
  * 
- * 关键改进（参考保活效果好的应用）：
- * 1. 直接启动前台服务，不依赖 Activity（Android 10+ 后台启动 Activity 受限）
- * 2. 简化启动逻辑，减少失败点
- * 3. 延迟启动，等待系统稳定
+ * Выкл键改进（参考保活效果好 Приложение)：
+ * 1. 直接ЗапускПередний планСервис，不依赖 Activity（Android 10+ Фоновый режимЗапуск Activity 受限)
+ * 2. 简化Запуск逻辑，减少Ошибка点
+ * 3. 延迟Запуск，ожиданиеСистема稳定
  * 4. 注册 TIME_TICK 广播，建立保活机制
  */
 public class BootReceiver extends BroadcastReceiver {
     private static final String TAG = "BootReceiver";
     
-    // 开机后延迟启动时间（毫秒），等待系统稳定
+    // Вкл机后延迟Запуск时间（毫 сек.)，ожиданиеСистема稳定
     private static final long BOOT_DELAY_MS = 5000;
 
     @Override
@@ -30,18 +30,18 @@ public class BootReceiver extends BroadcastReceiver {
         }
 
         String action = intent.getAction();
-        AppLog.d(TAG, "收到广播: " + action);
+        AppLog.d(TAG, "Получена команда: 广播: " + action);
 
-        // 监听开机完成广播
+        // 监听Вкл机завершение广播
         if (Intent.ACTION_BOOT_COMPLETED.equals(action) || 
             "android.intent.action.QUICKBOOT_POWERON".equals(action)) {
             
-            AppLog.d(TAG, "系统开机完成！");
+            AppLog.d(TAG, "СистемаВкл机завершение！");
             
-            // 立即启动前台服务（最重要！参考应用0的做法）
+            // 立т.е.ЗапускПередний планСервис（最重要！参考Приложение0 做法)
             startForegroundServiceImmediately(context);
             
-            // 延迟执行其他初始化（等待系统稳定）
+            // 延迟выполнениеДругоеинициализация（ожиданиеСистема稳定)
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 performDelayedInit(context);
             }, BOOT_DELAY_MS);
@@ -49,18 +49,18 @@ public class BootReceiver extends BroadcastReceiver {
     }
     
     /**
-     * 立即启动前台服务（关键！）
-     * 参考应用0：收到广播后直接启动服务，不做任何检查
+     * 立т.е.ЗапускПередний планСервис（Выкл键！)
+     * 参考Приложение0：Получена команда: 广播后直接ЗапускСервис，不做任何проверка
      */
     private void startForegroundServiceImmediately(Context context) {
         try {
-            AppLog.d(TAG, "立即启动前台服务...");
+            AppLog.d(TAG, "立т.е.ЗапускПередний планСервис...");
             
-            // 直接启动前台服务，不检查任何配置
-            // 这是保活应用的关键做法：无条件启动
+            // 直接ЗапускПередний планСервис，不проверка任何конфигурация
+            // 这 保活Приложение Выкл键做法：无条件Запуск
             Intent serviceIntent = new Intent(context, CameraForegroundService.class);
-            serviceIntent.putExtra("title", "EVCam 开机启动");
-            serviceIntent.putExtra("content", "服务正在运行");
+            serviceIntent.putExtra("title", "EVCam автозапуск");
+            serviceIntent.putExtra("content", "Сервис работает");
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(serviceIntent);
@@ -68,54 +68,54 @@ public class BootReceiver extends BroadcastReceiver {
                 context.startService(serviceIntent);
             }
             
-            AppLog.d(TAG, "前台服务启动成功");
+            AppLog.d(TAG, "Передний планСервисЗапускУспешно");
         } catch (Exception e) {
-            AppLog.e(TAG, "启动前台服务失败: " + e.getMessage(), e);
+            AppLog.e(TAG, "ЗапускПередний планСервисОшибка: " + e.getMessage(), e);
         }
     }
     
     /**
-     * 延迟执行的初始化任务
-     * 等待系统稳定后再执行复杂的初始化
+     * 延迟выполнение инициализациязадача
+     * ожиданиеСистема稳定后再выполнение复杂 инициализация
      */
     private void performDelayedInit(Context context) {
-        AppLog.d(TAG, "执行延迟初始化...");
+        AppLog.d(TAG, "выполнение延迟инициализация...");
         
         try {
-            // 注册 TIME_TICK 广播（建立每分钟唤醒机制）
+            // 注册 TIME_TICK 广播（建立每 мин.唤醒机制)
             KeepAliveReceiver.registerTimeTick(context);
-            AppLog.d(TAG, "TIME_TICK 广播已注册");
+            AppLog.d(TAG, "TIME_TICK 广播注册");
         } catch (Exception e) {
-            AppLog.e(TAG, "注册 TIME_TICK 失败: " + e.getMessage(), e);
+            AppLog.e(TAG, "注册 TIME_TICK Ошибка: " + e.getMessage(), e);
         }
         
         try {
-            // 检查是否需要启动其他服务
+            // проверка 否необходимоЗапускДругоеСервис
             AppConfig appConfig = new AppConfig(context);
             
-            // 启动 WorkManager 保活任务（车机必需，始终开启）
+            // Запуск WorkManager 保活задача（车机必需，始终Вкл启)
             KeepAliveManager.startKeepAliveWork(context);
-            AppLog.d(TAG, "WorkManager 保活任务已启动");
+            AppLog.d(TAG, "WorkManager 保活задачаЗапущено");
             
-            // 如果用户启用了开机自启动，尝试启动完整应用
+            // Если 用户ВключитьВкл机自Запуск，попыткаЗапуск完整Приложение
             if (appConfig.isAutoStartOnBoot()) {
-                AppLog.d(TAG, "尝试启动完整应用...");
+                AppLog.d(TAG, "попыткаЗапуск完整Приложение...");
                 tryStartMainActivity(context);
             }
         } catch (Exception e) {
-            AppLog.e(TAG, "延迟初始化失败: " + e.getMessage(), e);
+            AppLog.e(TAG, "延迟инициализацияОшибка: " + e.getMessage(), e);
         }
         
-        AppLog.d(TAG, "开机自启动初始化完成");
+        AppLog.d(TAG, "Вкл机自Запускинициализациязавершение");
     }
     
     /**
-     * 尝试启动 MainActivity
-     * Android 10+ 后台启动 Activity 受限，可能失败，但不影响服务运行
+     * попыткаЗапуск MainActivity
+     * Android 10+ Фоновый режимЗапуск Activity 受限，可能Ошибка，但不影响СервисРабота
      */
     private void tryStartMainActivity(Context context) {
         try {
-            // 方案1：尝试启动透明 Activity
+            // 方案1：попыткаЗапуск透明 Activity
             Intent transparentIntent = new Intent(context, TransparentBootActivity.class);
             transparentIntent.addFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK | 
@@ -123,10 +123,10 @@ public class BootReceiver extends BroadcastReceiver {
                 Intent.FLAG_ACTIVITY_CLEAR_TOP
             );
             context.startActivity(transparentIntent);
-            AppLog.d(TAG, "透明 Activity 已启动");
+            AppLog.d(TAG, "透明 Activity Запущено");
         } catch (Exception e) {
-            AppLog.w(TAG, "启动 Activity 失败（Android 10+ 后台限制）: " + e.getMessage());
-            // 失败也没关系，前台服务已经在运行了
+            AppLog.w(TAG, "Запуск Activity Ошибка（Android 10+ Фоновый режим限制): " + e.getMessage());
+            // Ошибкатакже没Выкл系，Передний планСервис经 Работа
         }
     }
 }

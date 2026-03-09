@@ -2,24 +2,24 @@ package com.kooo.evcam.remote.core;
 
 /**
  * 聊天标识接口
- * 统一封装不同平台的聊天 ID
+ * 统一封装不同平台 聊天 ID
  */
 public interface ChatIdentifier {
     
     /**
-     * 获取字符串形式的 ID（用于日志和存储）
+     * Получение字符串形式  ID（用于 д.志 и Хранилище)
      */
     String getId();
     
     /**
-     * 获取所属平台
+     * Получение所属平台
      */
     RemotePlatform getPlatform();
     
     // ==================== 静态工厂方法 ====================
     
     /**
-     * 创建钉钉聊天标识
+     * 创建DingTalk聊天标识
      */
     static DingTalkChatId dingtalk(String conversationId, String conversationType, String userId) {
         return new DingTalkChatId(conversationId, conversationType, userId);
@@ -33,7 +33,7 @@ public interface ChatIdentifier {
     }
     
     /**
-     * 创建飞书聊天标识
+     * 创建Feishu聊天标识
      */
     static FeishuChatId feishu(String chatId) {
         return new FeishuChatId(chatId);
@@ -42,11 +42,11 @@ public interface ChatIdentifier {
     // ==================== 具体实现类 ====================
     
     /**
-     * 钉钉聊天标识
+     * DingTalk聊天标识
      */
     class DingTalkChatId implements ChatIdentifier {
         private final String conversationId;
-        private final String conversationType;  // "1"=单聊, "2"=群聊
+        private final String conversationType;  // "1"=личный чат, "2"=групповой чат
         private final String userId;
         
         public DingTalkChatId(String conversationId, String conversationType, String userId) {
@@ -114,7 +114,7 @@ public interface ChatIdentifier {
     }
     
     /**
-     * 飞书聊天标识
+     * Feishu聊天标识
      */
     class FeishuChatId implements ChatIdentifier {
         private final String chatId;

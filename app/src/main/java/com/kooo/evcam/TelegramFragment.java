@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 import com.kooo.evcam.telegram.TelegramConfig;
 
 /**
- * Telegram Bot 配置界面
+ * Telegram Bot конфигурация界面
  */
 public class TelegramFragment extends Fragment {
     private static final String TAG = "TelegramFragment";
@@ -71,7 +71,7 @@ public class TelegramFragment extends Fragment {
             etBotToken.setText(config.getBotToken());
             etAllowedChatIds.setText(config.getAllowedChatIds());
         }
-        // 加载 API Host（使用原始配置值，未配置时显示空）
+        // загрузка API Host（использование原始конфигурация值，Не конфигурация时显示空)
         etApiHost.setText(config.getRawBotApiHost());
         switchAutoStart.setChecked(config.isAutoStart());
     }
@@ -108,7 +108,7 @@ public class TelegramFragment extends Fragment {
                 etBotToken.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 btnToggleTokenVisibility.setImageResource(R.drawable.ic_visibility);
             }
-            // 保持光标在末尾
+            // 保持光标 末尾
             etBotToken.setSelection(etBotToken.getText().length());
         });
 
@@ -119,7 +119,7 @@ public class TelegramFragment extends Fragment {
         switchAutoStart.setOnCheckedChangeListener((buttonView, isChecked) -> {
             config.setAutoStart(isChecked);
             Toast.makeText(requireContext(),
-                isChecked ? "已启用自动启动" : "已禁用自动启动",
+                isChecked ? "Автозапуск включён" : "Автозапуск выключен",
                 Toast.LENGTH_SHORT).show();
         });
     }
@@ -130,24 +130,24 @@ public class TelegramFragment extends Fragment {
         String apiHost = etApiHost.getText().toString().trim();
 
         if (botToken.isEmpty()) {
-            Toast.makeText(requireContext(), "请填写 Bot Token", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Укажите Bot Token", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 验证 API Host 格式（必须带协议头）
+        // 验证 API Host 格式（必须带协议头)
         if (!TelegramConfig.isValidApiHost(apiHost)) {
-            Toast.makeText(requireContext(), "API 地址格式错误，必须以 http:// 或 https:// 开头", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), "Ошибка формата API-адреса, должен начинаться с http:// или https://", Toast.LENGTH_LONG).show();
             return;
         }
 
         config.saveConfig(botToken, allowedChatIds);
         config.saveBotApiHost(apiHost);
-        Toast.makeText(requireContext(), "配置已保存", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "Настройки сохранены", Toast.LENGTH_SHORT).show();
     }
 
     private void startService() {
         if (!config.isConfigured()) {
-            Toast.makeText(requireContext(), "请先保存配置", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Сначала сохраните настройки", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -163,7 +163,7 @@ public class TelegramFragment extends Fragment {
     }
 
     /**
-     * 更新服务状态显示（由 MainActivity 调用）
+     * обновлениеСервисСтатус显示（由 MainActivity 调用)
      */
     public void updateServiceStatus() {
         if (getActivity() instanceof MainActivity) {
@@ -171,12 +171,12 @@ public class TelegramFragment extends Fragment {
             boolean isRunning = activity.isTelegramServiceRunning();
 
             if (isRunning) {
-                tvConnectionStatus.setText("已连接");
+                tvConnectionStatus.setText("Подключён");
                 tvConnectionStatus.setTextColor(0xFF66FF66);
                 btnStartService.setEnabled(false);
                 btnStopService.setEnabled(true);
             } else {
-                tvConnectionStatus.setText("未连接");
+                tvConnectionStatus.setText("Не подключён");
                 tvConnectionStatus.setTextColor(0xFFFF6666);
                 btnStartService.setEnabled(true);
                 btnStopService.setEnabled(false);
