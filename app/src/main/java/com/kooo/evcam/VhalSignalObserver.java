@@ -302,11 +302,23 @@ public class VhalSignalObserver {
                 }
             });
 
-            // 请求服务器推送所有当前属性值（与 EVCC 一致，立即调用无延迟）
+            // 请求服务器推送所有当前属性值
             // 服务器通过 channel metadata 中的 session_id 关联此请求和 stream
+            // 延迟发送，等待 stream 在服务端注册完成；失败后重试
             new Thread(() -> {
-                try {
-                    if (grpcChannel != null) {
+                final int MAX_RETRIES = 3;
+                final long INITIAL_DELAY_MS = 500;
+                
+                for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                    try {
+                        Thread.sleep(attempt == 1 ? INITIAL_DELAY_MS : INITIAL_DELAY_MS * attempt);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    
+                    if (grpcChannel == null || !running) return;
+                    
+                    try {
                         MethodDescriptor<byte[], byte[]> sendAllMethod = MethodDescriptor.<byte[], byte[]>newBuilder()
                                 .setType(MethodDescriptor.MethodType.UNARY)
                                 .setFullMethodName(VhalNative.getSendAllMethod())
@@ -315,13 +327,16 @@ public class VhalSignalObserver {
                                 .build();
                         var sendCall = grpcChannel.newCall(sendAllMethod, CallOptions.DEFAULT);
                         ClientCalls.blockingUnaryCall(sendCall, new byte[0]);
-                        AppLog.d(TAG, "Requested all property values to stream");
+                        AppLog.d(TAG, "Requested all property values to stream (attempt " + attempt + ")");
+                        return;
+                    } catch (UnsatisfiedLinkError e) {
+                        AppLog.e(TAG, "Native method not found: " + e.getMessage());
+                        return;
+                    } catch (Exception e) {
+                        AppLog.w(TAG, "SendAll attempt " + attempt + "/" + MAX_RETRIES + " failed: " + e.getMessage());
                     }
-                } catch (UnsatisfiedLinkError e) {
-                    AppLog.e(TAG, "Native method not found: " + e.getMessage());
-                } catch (Exception e) {
-                    AppLog.w(TAG, "SendAll failed (non-fatal): " + e.getMessage());
                 }
+                AppLog.e(TAG, "SendAll exhausted all retries");
             }, "VehicleApiSendAll").start();
 
             // 等待流结束（带超时，防止半开连接卡死 reconnect 循环）
