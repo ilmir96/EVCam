@@ -25,6 +25,7 @@ public class AppConfig {
     private static final String KEY_STORAGE_LOCATION = "storage_location";  // ХранилищеПозиция
     private static final String KEY_CUSTOM_SD_CARD_PATH = "custom_sd_card_path";  // вручнуюНастройки USB-накопительПуть
     private static final String KEY_CUSTOM_STORAGE_PATH = "custom_storage_path";  // Произвольный путь хранения
+    private static final String KEY_CUSTOM_STORAGE_URI = "custom_storage_uri";  // SAF URI для выбранной папки
     private static final String KEY_LAST_DETECTED_SD_PATH = "last_detected_sd_path";  //  разавтоматическиОбнаружено USB-накопительПуть（缓存)
     
     // ХранилищеПозиция常量
@@ -321,7 +322,7 @@ public class AppConfig {
     
     // 版本обновлениеконфигурация
     private static final String KEY_UPDATE_SERVER_URL = "update_server_url";  // обновлениеАдрес сервера
-    private static final String DEFAULT_UPDATE_SERVER_URL = "https://evcam.suyunkai.top:9568/update/";  // По умолчаниюобновлениеСервис器
+    private static final String DEFAULT_UPDATE_SERVER_URL = "https://api.github.com/repos/ilmir96/EVCam/releases/latest";  // GitHub Releases API
     
     // 车型常量
     public static final String CAR_MODEL_GALAXY_E5 = "galaxy_e5";  // GalaxyE5
@@ -1224,10 +1225,10 @@ public class AppConfig {
 
     /**
      * 是否使用произвольный путь хранения
-     * @return true 表示使用произвольный путь
+     * @return true 表示使用произвольный путь (включая SAF)
      */
     public boolean isUsingCustomPath() {
-        return STORAGE_CUSTOM.equals(getStorageLocation());
+        return STORAGE_CUSTOM.equals(getStorageLocation()) || isUsingSafStorage();
     }
 
     /**
@@ -1254,6 +1255,36 @@ public class AppConfig {
             return null;
         }
         return path;
+    }
+
+    /**
+     * Сохранить SAF URI выбранной папки
+     * @param uri URI выбранной папки (content://...)
+     */
+    public void setCustomStorageUri(String uri) {
+        if (uri == null || uri.trim().isEmpty()) {
+            prefs.edit().remove(KEY_CUSTOM_STORAGE_URI).apply();
+            AppLog.d(TAG, "Очищен SAF URI");
+        } else {
+            prefs.edit().putString(KEY_CUSTOM_STORAGE_URI, uri.trim()).apply();
+            AppLog.d(TAG, "Сохранён SAF URI: " + uri.trim());
+        }
+    }
+
+    /**
+     * Получить SAF URI выбранной папки
+     * @return SAF URI или null
+     */
+    public String getCustomStorageUri() {
+        return prefs.getString(KEY_CUSTOM_STORAGE_URI, null);
+    }
+
+    /**
+     * Проверить, используется ли SAF для хранилища
+     * @return true если выбрана папка через SAF
+     */
+    public boolean isUsingSafStorage() {
+        return getCustomStorageUri() != null && !getCustomStorageUri().isEmpty();
     }
 
     /**

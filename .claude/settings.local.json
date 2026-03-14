@@ -76,7 +76,8 @@
       "Bash(grep -rn \"暂无录制文件\\\\|无录制\\\\|录制文件\" /Users/ilmiribragimov/projects/EVCam/app/src/main --include=\"*.java\" --include=\"*.xml\" 2>/dev/null | head -20)",
       "Bash(grep -rn \"Пауза\" /Users/ilmiribragimov/projects/EVCam/app/src/main --include=\"*.java\" --include=\"*.xml\" 2>/dev/null | head -20)",
       "Bash(ls gradlew* 2>/dev/null)",
-      "Bash(chmod +x gradlew && ./gradlew assembleDebug 2>&1 | tail -30)"
+      "Bash(chmod +x gradlew && ./gradlew assembleDebug 2>&1 | tail -30)",
+      "Bash(./gradlew assembleDebug 2>&1 | tail -20)"
     ],
     "deny": [],
     "ask": []
