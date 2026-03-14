@@ -77,7 +77,12 @@
       "Bash(grep -rn \"Пауза\" /Users/ilmiribragimov/projects/EVCam/app/src/main --include=\"*.java\" --include=\"*.xml\" 2>/dev/null | head -20)",
       "Bash(ls gradlew* 2>/dev/null)",
       "Bash(chmod +x gradlew && ./gradlew assembleDebug 2>&1 | tail -30)",
-      "Bash(./gradlew assembleDebug 2>&1 | tail -20)"
+      "Bash(./gradlew assembleDebug 2>&1 | tail -20)",
+      "Bash(do echo \"=== $f ===\")",
+      "Read(//Users/ilmiribragimov/projects/EVCam/**)",
+      "Bash(grep -rl \"<<<<<<< HEAD\" app/ 2>/dev/null; echo \"EXIT: $?\")",
+      "Bash(grep -c \"<<<<<<\" app/src/main/java/com/kooo/evcam/*.java app/src/main/res/layout/*.xml app/build.gradle.kts 2>/dev/null || echo \"No conflicts remaining\")",
+      "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nСлияние изменений из upstream: оптимизация иконок контура авто, обновление цветов и толщины линий, упрощение layout-файлов \\(FrameLayout вместо LinearLayout\\), новые настройки статус-бара \\(цвет, прозрачность, стиль анимации\\)\n\nCo-Authored-By: Claude Opus 4.6 \\(1M context\\) <noreply@anthropic.com>\nEOF\n\\)\")"
     ],
     "deny": [],
     "ask": []
