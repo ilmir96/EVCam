@@ -38,7 +38,6 @@
                         android:id="@+id/frame_front"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="2dp"
                         android:background="@android:color/transparent"
                         android:clipChildren="true"
                         android:clipToPadding="true">
@@ -305,7 +304,6 @@
                         android:id="@+id/frame_back"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="2dp"
                         android:background="@android:color/transparent"
                         android:clipChildren="true"
                         android:clipToPadding="true">
@@ -570,7 +568,6 @@
                         android:id="@+id/frame_left"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="2dp"
                         android:background="@android:color/transparent"
                         android:clipChildren="true"
                         android:clipToPadding="true">
@@ -835,7 +832,6 @@
                         android:id="@+id/frame_right"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="2dp"
                         android:background="@android:color/transparent"
                         android:clipChildren="true"
                         android:clipToPadding="true">
@@ -1287,6 +1283,25 @@
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <!-- 调试信息覆盖层（左上角，连点5下空白处显示） -->
+        <TextView
+            android:id="@+id/tv_debug_overlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/camera_label_background"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:text=""
+            android:textColor="#AAFFFFFF"
+            android:textSize="12sp"
+            android:fontFamily="monospace"
             android:visibility="gone" />
 
     </FrameLayout>

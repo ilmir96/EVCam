@@ -32,7 +32,8 @@ public class CustomLayoutManager {
 
     // 多视角布局边距（dp）
     private static final int SIDE_MARGIN_DP = 20;   // 下行左右摄像头外侧边距
-    private static final int GAP_DP = 10;            // 摄像头之间间距
+    private static final int GAP_DP = 20;            // 摄像头之间间距
+    private static final int LAYOUT_VERSION = 3;     // 布局版本，递增时自动清除旧保存数据
 
     private final Context context;
     private final AppConfig appConfig;
@@ -982,6 +983,9 @@ public class CustomLayoutManager {
 
     /**
      * 轮胎模式：纯 View transform，不碰 LayoutParams，不触发 requestLayout。
+     * 使用 setTranslationX/Y 而非 setX/Y，避免与异步 layout pass 竞争：
+     * setX(x) 内部做 setTranslationX(x - mLeft)，如果 mLeft 还是旧值就会算错；
+     * setTranslationX(x) 直接设值，layout pass 完成后 mLeft 归零，最终位置 = 0 + x = x。
      */
     private void applyWheelTextureTransform(TextureView tv, int w, int h, int rotation, int x, int y) {
         if (tv == null) return;
@@ -996,8 +1000,8 @@ public class CustomLayoutManager {
             tv.setScaleX(curSx < 0 ? -1f : 1f);
             tv.setScaleY(1f);
         }
-        tv.setX(x);
-        tv.setY(y);
+        tv.setTranslationX(x);
+        tv.setTranslationY(y);
     }
 
     /**
@@ -1006,19 +1010,17 @@ public class CustomLayoutManager {
     private void resetWheelTextureTransform(TextureView tv, int normalRotation) {
         if (tv == null) return;
         applyRotationWithScale(tv, normalRotation);
-        tv.setX(0);
-        tv.setY(0);
+        tv.setTranslationX(0);
+        tv.setTranslationY(0);
     }
 
     /**
      * 应用普通模式布局（默认模式）
-     * 普通模式下保持车辆控制区域可见
+     * 轮胎模式只改 TextureView 的 transform（旋转、缩放、位移），不改 frame，
+     * 回到普通模式只需重置 TextureView 的 transform，frame 保持原样。
      */
     private void applyNormalModeLayout() {
         if (frameLeft == null || frameRight == null) return;
-
-        int containerWidth = containerCameras.getWidth();
-        int containerHeight = containerCameras.getHeight();
 
         if (frameVehicleControl != null) {
             frameVehicleControl.setVisibility(View.VISIBLE);
@@ -1026,47 +1028,11 @@ public class CustomLayoutManager {
         frameLeft.setVisibility(View.VISIBLE);
         frameRight.setVisibility(View.VISIBLE);
 
-        int side = dp(SIDE_MARGIN_DP);
-        int gap = dp(GAP_DP);
-        int vcw = 280;
-        int topH = (containerHeight - gap) / 2;
-        int botH = containerHeight - topH - gap;
-        int botY = topH + gap;
-        int botContentW = containerWidth - side * 2 - gap * 2 - vcw;
-        int defaultLeftWidth = botContentW / 2;
-        int defaultRightWidth = botContentW - defaultLeftWidth;
-        int defaultHeight = botH;
-        int defaultLeftX = side;
-        int defaultLeftY = botY;
-        int defaultRightX = side + defaultLeftWidth + gap + vcw + gap;
-        int defaultRightY = botY;
-
-        // 获取保存的参数
-        int leftWidth = appConfig.getNormalLeftWidth(defaultLeftWidth);
-        int leftHeight = appConfig.getNormalLeftHeight(defaultHeight);
-        int leftX = appConfig.getNormalLeftX(defaultLeftX);
-        int leftY = appConfig.getNormalLeftY(defaultLeftY);
         int leftRotation = appConfig.getNormalLeftRotation(0);
-
-        int rightWidth = appConfig.getNormalRightWidth(defaultRightWidth);
-        int rightHeight = appConfig.getNormalRightHeight(defaultHeight);
-        int rightX = appConfig.getNormalRightX(defaultRightX);
-        int rightY = appConfig.getNormalRightY(defaultRightY);
         int rightRotation = appConfig.getNormalRightRotation(0);
 
-        // 应用布局到画框
-        setViewPosition(frameLeft, leftX, leftY, leftWidth, leftHeight);
-        setViewPosition(frameRight, rightX, rightY, rightWidth, rightHeight);
-
-        // 恢复画面到普通模式：重置所有 transform 属性
         resetWheelTextureTransform(textureLeft, leftRotation);
-        if (textureLeft != null) {
-            textureLeft.setLayoutParams(new android.widget.FrameLayout.LayoutParams(leftWidth, leftHeight));
-        }
         resetWheelTextureTransform(textureRight, rightRotation);
-        if (textureRight != null) {
-            textureRight.setLayoutParams(new android.widget.FrameLayout.LayoutParams(rightWidth, rightHeight));
-        }
 
         AppLog.d(TAG, "普通模式布局已应用");
     }
@@ -1079,19 +1045,18 @@ public class CustomLayoutManager {
     private int[] getNormalFramePositions() {
         int cw = containerCameras.getWidth();
         int ch = containerCameras.getHeight();
-        int side = dp(SIDE_MARGIN_DP);
         int gap = dp(GAP_DP);
         int vcw = 280;
         int topH = (ch - gap) / 2;
         int botH = ch - topH - gap;
         int botY = topH + gap;
-        int botContentW = cw - side * 2 - gap * 2 - vcw;
+        int botContentW = cw - gap * 2 - vcw;
         int defLW = botContentW / 2;
         int defRW = botContentW - defLW;
         int defH  = botH;
-        int defLX = side;
+        int defLX = 0;
         int defLY = botY;
-        int defRX = side + defLW + gap + vcw + gap;
+        int defRX = defLW + gap + vcw + gap;
         int defRY = botY;
 
         return new int[] {
@@ -1515,6 +1480,7 @@ public class CustomLayoutManager {
         
         // 保存到配置
         appConfig.setCustomLayoutData(layoutData.toJson());
+        appConfig.setCustomLayoutVersion(LAYOUT_VERSION);
         AppLog.d(TAG, "布局已保存: " + layoutData.toJson());
     }
     
@@ -1566,8 +1532,8 @@ public class CustomLayoutManager {
         if (view == null) return;
         
         // 保存位置（四舍五入为整数，避免浮点精度问题）
-        float x = Math.round(view.getX());
-        float y = Math.round(view.getY());
+        float x = Math.round(view.getTranslationX());
+        float y = Math.round(view.getTranslationY());
         layoutData.setPosition(id, x, y);
         
         // 保存尺寸（考虑缩放后的实际尺寸）
@@ -1585,6 +1551,7 @@ public class CustomLayoutManager {
     public void resetLayout() {
         layoutData = new LayoutData();
         appConfig.clearCustomLayoutData();
+        appConfig.setCustomLayoutVersion(LAYOUT_VERSION);
         
         // 重置所有视图缩放和旋转（FrameLayout）
         resetViewTransform(frameFront);
@@ -1734,7 +1701,7 @@ public class CustomLayoutManager {
                 setViewPosition(frameBack, side + camW + gap, 0, camW, containerHeight);
             }
         } else {
-            // 4摄：上行（前/后）无外侧边距，下行（左/车控/右）左右留宽边距
+            // 4摄：所有视图紧贴容器边缘，仅中间留 gap 间距
             int topH = (containerHeight - gap) / 2;
             int botH = containerHeight - topH - gap;
             int topW = (containerWidth - gap) / 2;
@@ -1749,23 +1716,23 @@ public class CustomLayoutManager {
             }
 
             int vcw = 280;
-            int botContentW = containerWidth - side * 2 - gap * 2 - vcw;
+            int botContentW = containerWidth - gap * 2 - vcw;
             int leftW = botContentW / 2;
             int rightW = botContentW - leftW;
             int botY = topH + gap;
 
             if (frameLeft != null) {
                 frameLeft.setVisibility(View.VISIBLE);
-                setViewPosition(frameLeft, side, botY, leftW, botH);
+                setViewPosition(frameLeft, 0, botY, leftW, botH);
             }
             if (frameVehicleControl != null) {
                 frameVehicleControl.setVisibility(View.VISIBLE);
                 int vcH = Math.min(520, botH);
-                setViewPosition(frameVehicleControl, side + leftW + gap, botY + (botH - vcH) / 2, vcw, vcH);
+                setViewPosition(frameVehicleControl, leftW + gap, botY + (botH - vcH) / 2, vcw, vcH);
             }
             if (frameRight != null) {
                 frameRight.setVisibility(View.VISIBLE);
-                setViewPosition(frameRight, side + leftW + gap + vcw + gap, botY, rightW, botH);
+                setViewPosition(frameRight, leftW + gap + vcw + gap, botY, rightW, botH);
             }
         }
     }
@@ -1781,8 +1748,8 @@ public class CustomLayoutManager {
         if (view == null) return;
         android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(width, height);
         view.setLayoutParams(params);
-        view.setX(x);
-        view.setY(y);
+        view.setTranslationX(x);
+        view.setTranslationY(y);
     }
 
     /**
@@ -1813,6 +1780,13 @@ public class CustomLayoutManager {
      * @return 是否有保存的布局数据
      */
     private boolean restoreLayout() {
+        if (appConfig.getCustomLayoutVersion() < LAYOUT_VERSION) {
+            AppLog.d(TAG, "布局版本过旧 (" + appConfig.getCustomLayoutVersion() + " < " + LAYOUT_VERSION + ")，清除旧数据");
+            appConfig.clearCustomLayoutData();
+            appConfig.setCustomLayoutVersion(LAYOUT_VERSION);
+            return false;
+        }
+
         String savedData = appConfig.getCustomLayoutData();
         boolean hasData = savedData != null && !savedData.isEmpty();
         
@@ -1890,9 +1864,10 @@ public class CustomLayoutManager {
         float x = layoutData.getX(id);
         float y = layoutData.getY(id);
         // 只要有保存的位置数据就恢复（包括 0,0 位置）
+        // 使用 translationX/Y 避免与上面 setLayoutParams 触发的异步 layout pass 竞争
         if (layoutData.getWidth(id) > 0) {  // 有保存过数据
-            view.setX(x);
-            view.setY(y);
+            view.setTranslationX(x);
+            view.setTranslationY(y);
             AppLog.d(TAG, id + " 恢复位置: (" + x + ", " + y + ")");
         }
         
@@ -1978,8 +1953,8 @@ public class CustomLayoutManager {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     // 直接记录视图当前的 X/Y 位置和手指位置
-                    startX = targetView.getX();
-                    startY = targetView.getY();
+                    startX = targetView.getTranslationX();
+                    startY = targetView.getTranslationY();
                     startRawX = event.getRawX();
                     startRawY = event.getRawY();
                     isDragging = false;
@@ -2010,22 +1985,22 @@ public class CustomLayoutManager {
                     float[] bounded = applyBoundaryLimits(newX, newY);
                     
                     // 设置位置（每次移动都吸附到 20dp 网格，方便对齐）
-                    targetView.setX(bounded[0]);
-                    targetView.setY(bounded[1]);
+                    targetView.setTranslationX(bounded[0]);
+                    targetView.setTranslationY(bounded[1]);
                     return true;
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     if (isDragging) {
                         // 松手时进行网格吸附
-                        float finalX = snapToGrid(targetView.getX());
-                        float finalY = snapToGrid(targetView.getY());
+                        float finalX = snapToGrid(targetView.getTranslationX());
+                        float finalY = snapToGrid(targetView.getTranslationY());
                         
                         // 边缘吸附并确保在边界内
                         float[] snapped = applyEdgeSnapping(finalX, finalY);
                         
-                        targetView.setX(snapped[0]);
-                        targetView.setY(snapped[1]);
+                        targetView.setTranslationX(snapped[0]);
+                        targetView.setTranslationY(snapped[1]);
                         
                         // 更新布局数据
                         layoutData.setPosition(viewId, snapped[0], snapped[1]);

@@ -273,6 +273,7 @@ public class AppConfig {
     private static final String KEY_CUSTOM_BUTTON_STYLE = "custom_button_style";  // 按钮样式（standard/multi）
     private static final String KEY_CUSTOM_BUTTON_ORIENTATION = "custom_button_orientation";  // 按钮布局方向（horizontal/vertical）
     private static final String KEY_CUSTOM_LAYOUT_DATA = "custom_layout_data";  // 布局位置数据（JSON格式）
+    private static final String KEY_CUSTOM_LAYOUT_VERSION = "custom_layout_version";
 
     // 前轮/后轮模式视图配置（用于自定义车型）
     private static final String KEY_FRONT_WHEEL_LEFT_WIDTH = "front_wheel_left_width";
@@ -2668,6 +2669,14 @@ public class AppConfig {
     public void clearCustomLayoutData() {
         prefs.edit().remove(KEY_CUSTOM_LAYOUT_DATA).apply();
         AppLog.d(TAG, "自定义布局数据已清除");
+    }
+
+    public int getCustomLayoutVersion() {
+        return prefs.getInt(KEY_CUSTOM_LAYOUT_VERSION, 0);
+    }
+
+    public void setCustomLayoutVersion(int version) {
+        prefs.edit().putInt(KEY_CUSTOM_LAYOUT_VERSION, version).apply();
     }
     
     /**

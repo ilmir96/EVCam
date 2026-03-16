@@ -2991,6 +2991,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toggleDebugOverlay() {
+        if (tvDebugOverlay == null) {
+            AppLog.w(TAG, "当前布局不含 tv_debug_overlay，跳过调试信息切换");
+            return;
+        }
         debugOverlayVisible = !debugOverlayVisible;
         if (debugOverlayVisible) {
             tvDebugOverlay.setVisibility(View.VISIBLE);
