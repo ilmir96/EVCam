@@ -104,6 +104,8 @@ public final class BlindSpotCorrection {
                 float scaleY = clamp(appConfig.getBlindSpotCorrectionScaleY(cameraPos), MIN_SCALE, MAX_SCALE);
                 float translateX = clamp(appConfig.getBlindSpotCorrectionTranslateX(cameraPos), MIN_TRANSLATE, MAX_TRANSLATE);
                 float translateY = clamp(appConfig.getBlindSpotCorrectionTranslateY(cameraPos), MIN_TRANSLATE, MAX_TRANSLATE);
+                boolean mirrorH = appConfig.getBlindSpotCorrectionMirrorH(cameraPos);
+                boolean mirrorV = appConfig.getBlindSpotCorrectionMirrorV(cameraPos);
 
                 if (correctionRotation != 0 && windowSwapped && previewW > 0 && previewH > 0) {
                     // 悬浮窗已互换宽高且有旋转 → 在 buffer 空间中旋转，保证画面比例不变形
@@ -149,6 +151,13 @@ public final class BlindSpotCorrection {
                     }
 
                     matrix.postTranslate(translateX * viewWidth, translateY * viewHeight);
+                }
+
+                // 镜像翻转（在所有变换之后应用）
+                if (mirrorH || mirrorV) {
+                    float mx = mirrorH ? -1f : 1f;
+                    float my = mirrorV ? -1f : 1f;
+                    matrix.postScale(mx, my, centerX, centerY);
                 }
             }
 

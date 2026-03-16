@@ -1,6 +1,7 @@
 package com.kooo.evcam;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +41,9 @@ public class BlindSpotCorrectionFragment extends Fragment {
     private TextView tvTranslateX;
     private TextView tvTranslateY;
     private TextView tvRotation;
+
+    private Button btnMirrorH;
+    private Button btnMirrorV;
 
     private Button resetButton;
     private Button saveButton;
@@ -86,6 +90,9 @@ public class BlindSpotCorrectionFragment extends Fragment {
         tvTranslateX = view.findViewById(R.id.tv_translate_x);
         tvTranslateY = view.findViewById(R.id.tv_translate_y);
         tvRotation = view.findViewById(R.id.tv_rotation);
+
+        btnMirrorH = view.findViewById(R.id.btn_mirror_h);
+        btnMirrorV = view.findViewById(R.id.btn_mirror_v);
 
         resetButton = view.findViewById(R.id.btn_reset);
         saveButton = view.findViewById(R.id.btn_save_apply);
@@ -184,6 +191,20 @@ public class BlindSpotCorrectionFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
+        btnMirrorH.setOnClickListener(v -> {
+            boolean current = appConfig.getBlindSpotCorrectionMirrorH(currentCameraPos);
+            appConfig.setBlindSpotCorrectionMirrorH(currentCameraPos, !current);
+            updateMirrorButtonStyles();
+            BlindSpotService.update(requireContext());
+        });
+
+        btnMirrorV.setOnClickListener(v -> {
+            boolean current = appConfig.getBlindSpotCorrectionMirrorV(currentCameraPos);
+            appConfig.setBlindSpotCorrectionMirrorV(currentCameraPos, !current);
+            updateMirrorButtonStyles();
+            BlindSpotService.update(requireContext());
+        });
+
         resetButton.setOnClickListener(v -> {
             appConfig.resetBlindSpotCorrection(currentCameraPos);
             loadFromConfig(currentCameraPos);
@@ -219,6 +240,8 @@ public class BlindSpotCorrectionFragment extends Fragment {
         tvTranslateX.setText(format2(progressToTranslate(tx)));
         tvTranslateY.setText(format2(progressToTranslate(ty)));
         tvRotation.setText(rotation + "°");
+
+        updateMirrorButtonStyles();
     }
 
     private void startPreview(String cameraPos) {
@@ -253,6 +276,21 @@ public class BlindSpotCorrectionFragment extends Fragment {
                 buttons[i].setTextColor(getResources().getColor(R.color.button_text, null));
             }
         }
+    }
+
+    private void updateMirrorButtonStyles() {
+        boolean mirrorH = appConfig.getBlindSpotCorrectionMirrorH(currentCameraPos);
+        boolean mirrorV = appConfig.getBlindSpotCorrectionMirrorV(currentCameraPos);
+
+        int accentColor = getResources().getColor(R.color.button_accent, null);
+        int normalColor = getResources().getColor(R.color.button_background, null);
+        int whiteText = getResources().getColor(R.color.white, null);
+        int normalText = getResources().getColor(R.color.button_text, null);
+
+        btnMirrorH.setBackgroundTintList(ColorStateList.valueOf(mirrorH ? accentColor : normalColor));
+        btnMirrorH.setTextColor(mirrorH ? whiteText : normalText);
+        btnMirrorV.setBackgroundTintList(ColorStateList.valueOf(mirrorV ? accentColor : normalColor));
+        btnMirrorV.setTextColor(mirrorV ? whiteText : normalText);
     }
 
     private int scaleToProgress(float scale) {

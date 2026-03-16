@@ -1664,6 +1664,22 @@ public class AppConfig {
         }
     }
 
+    public void setBlindSpotCorrectionMirrorH(String cameraPos, boolean mirror) {
+        prefs.edit().putBoolean(getBlindSpotCorrectionKey(cameraPos, "mirror_h"), mirror).apply();
+    }
+
+    public boolean getBlindSpotCorrectionMirrorH(String cameraPos) {
+        return prefs.getBoolean(getBlindSpotCorrectionKey(cameraPos, "mirror_h"), false);
+    }
+
+    public void setBlindSpotCorrectionMirrorV(String cameraPos, boolean mirror) {
+        prefs.edit().putBoolean(getBlindSpotCorrectionKey(cameraPos, "mirror_v"), mirror).apply();
+    }
+
+    public boolean getBlindSpotCorrectionMirrorV(String cameraPos) {
+        return prefs.getBoolean(getBlindSpotCorrectionKey(cameraPos, "mirror_v"), false);
+    }
+
     public void resetBlindSpotCorrection(String cameraPos) {
         prefs.edit()
                 .putFloat(getBlindSpotCorrectionKey(cameraPos, "scale_x"), 1.0f)
@@ -1671,6 +1687,8 @@ public class AppConfig {
                 .putFloat(getBlindSpotCorrectionKey(cameraPos, "translate_x"), 0.0f)
                 .putFloat(getBlindSpotCorrectionKey(cameraPos, "translate_y"), 0.0f)
                 .putInt(getBlindSpotCorrectionKey(cameraPos, "rotation"), 0)
+                .putBoolean(getBlindSpotCorrectionKey(cameraPos, "mirror_h"), false)
+                .putBoolean(getBlindSpotCorrectionKey(cameraPos, "mirror_v"), false)
                 .apply();
     }
 
