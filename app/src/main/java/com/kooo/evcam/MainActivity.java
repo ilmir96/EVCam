@@ -2991,6 +2991,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toggleDebugOverlay() {
+        if (tvDebugOverlay == null) {
+            AppLog.w(TAG, "Текущий layout не содержит tv_debug_overlay, пропускаем");
+            return;
+        }
         debugOverlayVisible = !debugOverlayVisible;
         if (debugOverlayVisible) {
             tvDebugOverlay.setVisibility(View.VISIBLE);
