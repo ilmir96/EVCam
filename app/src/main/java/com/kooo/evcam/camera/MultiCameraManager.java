@@ -1920,6 +1920,13 @@ public class MultiCameraManager {
     }
 
     /**
+     * После release() карта cameras пуста — метод позволяет проверить, что экземпляр уже недействителен.
+     */
+    public boolean isReleased() {
+        return cameras.isEmpty();
+    }
+
+    /**
      *  否Выполняется Запись
      */
     public boolean isRecording() {

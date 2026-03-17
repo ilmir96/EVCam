@@ -2053,6 +2053,11 @@ public class MainActivity extends AppCompatActivity {
         // проверка Holder  否有Фоновый режиминициализация 实例
         com.kooo.evcam.camera.CameraManagerHolder holder = com.kooo.evcam.camera.CameraManagerHolder.getInstance();
         MultiCameraManager existingManager = holder.getCameraManager();
+        if (existingManager != null && existingManager.isReleased()) {
+            AppLog.w(TAG, "CameraManager в Holder уже освобождён, сбрасываем");
+            holder.setCameraManager(null);
+            existingManager = null;
+        }
         if (existingManager != null) {
             // Фоновый режиминициализация，复用实例并绑定 TextureView
             AppLog.d(TAG, "复用Фоновый режиминициализация Камерауправление器，绑定 TextureView");
@@ -4706,11 +4711,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // Activity  重建（主题切换、recreate 等)而非постоянно销毁时，
-        // 清掉 Holder  旧 CameraManager，确保新 Activity  от 头инициализацияКамера
-        if (!isFinishing()) {
-            com.kooo.evcam.camera.CameraManagerHolder.getInstance().setCameraManager(null);
-        }
+        // Независимо от recreate или finishing — всегда очищаем старую ссылку в Holder.
+        // При isFinishing()=true (например, смахивание из недавних) release() очищает cameras map,
+        // но процесс может остаться живым из-за Service, и Holder будет хранить недействительный экземпляр.
+        com.kooo.evcam.camera.CameraManagerHolder.getInstance().setCameraManager(null);
 
         // Закрыто预览矫正悬浮窗
         dismissPreviewCorrectionFloating();

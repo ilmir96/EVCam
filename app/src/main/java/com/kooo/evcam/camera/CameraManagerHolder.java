@@ -31,8 +31,13 @@ public class CameraManagerHolder {
      * 可 от  Service или Activity 调用。
      */
     public synchronized MultiCameraManager getOrInit(Context context) {
-        if (cameraManager != null) {
+        if (cameraManager != null && !cameraManager.isReleased()) {
             return cameraManager;
+        }
+
+        if (cameraManager != null) {
+            AppLog.w(TAG, "CameraManager в Holder уже освобождён, пересоздаём");
+            cameraManager = null;
         }
 
         AppLog.d(TAG, "Фоновый режиминициализацияКамера（无 TextureView)...");
