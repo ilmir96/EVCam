@@ -139,6 +139,12 @@ public class AppConfig {
     private static final String KEY_MOCK_TURN_SIGNAL_FLOATING_X = "mock_turn_signal_floating_x";             // 悬浮模拟按钮X
     private static final String KEY_MOCK_TURN_SIGNAL_FLOATING_Y = "mock_turn_signal_floating_y";             // 悬浮模拟按钮Y
 
+    // 悬浮窗圆角半径 (dp)
+    private static final String KEY_FLOATING_WINDOW_CORNER_RADIUS = "floating_window_corner_radius";
+    private static final int DEFAULT_FLOATING_CORNER_RADIUS_DP = 8; // 旧版默认值
+    private static final int MIN_FLOATING_CORNER_RADIUS_DP = 0;
+    private static final int MAX_FLOATING_CORNER_RADIUS_DP = 50;
+
     // 补盲悬浮窗动效
     private static final String KEY_FLOATING_WINDOW_ANIMATION_ENABLED = "floating_window_animation_enabled"; // 悬浮窗开启/关闭动效
     private static final String KEY_BLIND_SPOT_STATUS_BAR_STYLE = "blind_spot_status_bar_style";             // 状态栏动效样式 (0=关, 1-5=五种动效)
@@ -2386,10 +2392,10 @@ public class AppConfig {
     }
 
     /**
-     * @return 0=关闭, 1=序贯灯段, 2=流光彗尾, 3=波纹扩散, 4=呼吸渐变填充, 5=箭头涟漪
+     * @return 0=关闭, 1=序贯灯段, 2=流光彗尾, 3=波纹扩散, 4=呼吸渐变填充, 5=箭头涟漪, 6=转向箭头
      */
     public int getBlindSpotStatusBarStyle() {
-        return prefs.getInt(KEY_BLIND_SPOT_STATUS_BAR_STYLE, 1);
+        return prefs.getInt(KEY_BLIND_SPOT_STATUS_BAR_STYLE, BlindSpotStatusBarView.STYLE_TURN_ARROW);
     }
 
     public void setBlindSpotStatusBarColor(int color) {
@@ -3527,4 +3533,24 @@ public class AppConfig {
         prefs.edit().putInt(KEY_RECORDING_FLOATING_TIME_TEXT_SIZE, sizeSp).apply();
         AppLog.d(TAG, "录制悬浮按钮时间文字大小设置: " + sizeSp + "sp");
     }
+
+    // ======================== 悬浮窗圆角配置 ========================
+
+    /**
+     * 获取悬浮窗圆角半径 (dp)，范围 0~50，默认 8dp
+     */
+    public int getFloatingWindowCornerRadiusDp() {
+        return prefs.getInt(KEY_FLOATING_WINDOW_CORNER_RADIUS, DEFAULT_FLOATING_CORNER_RADIUS_DP);
+    }
+
+    /**
+     * 设置悬浮窗圆角半径 (dp)，自动 clamp 到 0~50
+     */
+    public void setFloatingWindowCornerRadiusDp(int radiusDp) {
+        radiusDp = Math.max(MIN_FLOATING_CORNER_RADIUS_DP, Math.min(MAX_FLOATING_CORNER_RADIUS_DP, radiusDp));
+        prefs.edit().putInt(KEY_FLOATING_WINDOW_CORNER_RADIUS, radiusDp).apply();
+    }
+
+    public int getMinFloatingCornerRadiusDp() { return MIN_FLOATING_CORNER_RADIUS_DP; }
+    public int getMaxFloatingCornerRadiusDp() { return MAX_FLOATING_CORNER_RADIUS_DP; }
 }
