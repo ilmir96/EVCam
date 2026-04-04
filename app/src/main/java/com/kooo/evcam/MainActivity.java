@@ -4173,7 +4173,6 @@ public class MainActivity extends AppCompatActivity {
             public void onConnected() {
                 runOnUiThread(() -> {
                     AppLog.d(TAG, "远程查看服务已连接");
-                    Toast.makeText(MainActivity.this, "钉钉远程已启动", Toast.LENGTH_SHORT).show();
                     // 通知 RemoteViewFragment 更新 UI
                     updateRemoteViewFragmentUI();
                 });
