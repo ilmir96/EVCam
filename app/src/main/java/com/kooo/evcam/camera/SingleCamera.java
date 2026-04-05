@@ -72,6 +72,7 @@ public class SingleCamera {
     
     // 鱼眼矫正
     private FisheyeCorrector fisheyeCorrector;
+    private boolean fisheyePrimaryIsFloating = false; // 鱼眼矫正主输出是否为悬浮窗 Surface（无 TextureView 时）
     
     // 亮度/降噪调节相关
     private CaptureRequest.Builder currentRequestBuilder;  // 当前的请求构建器（用于实时更新参数）
@@ -1266,6 +1267,7 @@ public class SingleCamera {
                     if (fisheyeConfig.isFisheyeCorrectionEnabled()) {
                         try {
                             releaseFisheyeCorrector();
+                            fisheyePrimaryIsFloating = false;
                             int pw = previewSize != null ? previewSize.getWidth() : textureView.getWidth();
                             int ph = previewSize != null ? previewSize.getHeight() : textureView.getHeight();
                             fisheyeCorrector = new FisheyeCorrector(cameraId, cameraPosition, pw, ph);
@@ -1283,6 +1285,29 @@ public class SingleCamera {
                         previewSurface = new Surface(surfaceTexture);
                     }
                     AppLog.d(TAG, "Camera " + cameraId + " Created NEW preview surface: " + previewSurface);
+                }
+            } else if (fisheyeCorrector == null && mainFloatingSurface != null && mainFloatingSurface.isValid()) {
+                // 无 TextureView（补盲等场景），但有悬浮窗 Surface 时，也初始化鱼眼矫正
+                // 解决补盲冷启动时 FisheyeCorrector 未创建导致鱼眼矫正不生效的问题
+                if (previewSurface != null) {
+                    try { previewSurface.release(); } catch (Exception e) {}
+                    previewSurface = null;
+                }
+                AppConfig fisheyeConfig = new AppConfig(context);
+                if (fisheyeConfig.isFisheyeCorrectionEnabled()) {
+                    try {
+                        releaseFisheyeCorrector();
+                        fisheyePrimaryIsFloating = true;
+                        int pw = previewSize != null ? previewSize.getWidth() : 1920;
+                        int ph = previewSize != null ? previewSize.getHeight() : 1080;
+                        fisheyeCorrector = new FisheyeCorrector(cameraId, cameraPosition, pw, ph);
+                        previewSurface = fisheyeCorrector.initialize(mainFloatingSurface, backgroundHandler);
+                        fisheyeCorrector.loadParams(fisheyeConfig);
+                        AppLog.d(TAG, "Camera " + cameraId + " fisheye corrector active (no textureView, using mainFloatingSurface)");
+                    } catch (Exception e) {
+                        AppLog.e(TAG, "Camera " + cameraId + " fisheye init failed (floating surface), falling back", e);
+                        releaseFisheyeCorrector();
+                    }
                 }
             } else {
                 if (previewSurface != null) {
@@ -1365,7 +1390,11 @@ public class SingleCamera {
 
                     // 同步 FisheyeCorrector 的附加输出与当前 Surface 状态
                     // 确保已清除的 Surface 被移除（防止 EGL "already connected" 竞争）
-                    if (mainFloatingSurface != null && mainFloatingSurface.isValid()) {
+                    // 注意：如果 mainFloatingSurface 已经是鱼眼矫正的主输出（无 TextureView 场景），
+                    // 不能再作为附加输出添加，否则同一 Surface 会被 EGL 连接两次导致错误
+                    if (fisheyePrimaryIsFloating) {
+                        fisheyeCorrector.removeOutputSurface("mainFloating");
+                    } else if (mainFloatingSurface != null && mainFloatingSurface.isValid()) {
                         fisheyeCorrector.addOutputSurface("mainFloating", mainFloatingSurface);
                         AppLog.d(TAG, "Registered main floating surface to fisheye GL pipeline");
                     } else {
@@ -1763,6 +1792,11 @@ public class SingleCamera {
 
         // 鱼眼矫正模式：通过 FisheyeCorrector GL 管线输出，无需重建 Camera2 session
         if (fisheyeCorrector != null && fisheyeCorrector.isInitialized()) {
+            // 如果 mainFloatingSurface 已经是鱼眼矫正的主输出，不能再作为附加输出
+            if (isMainFloating && fisheyePrimaryIsFloating) {
+                AppLog.d(TAG, "Camera " + cameraId + " mainFloatingSurface is fisheye primary output, skipping addOutputSurface");
+                return;
+            }
             String tag = isMainFloating ? "mainFloating" : "secondaryDisplay";
             if (backgroundHandler != null) {
                 backgroundHandler.post(() -> {
@@ -2325,6 +2359,7 @@ public class SingleCamera {
             }
             fisheyeCorrector = null;
         }
+        fisheyePrimaryIsFloating = false;
     }
 
     /**
