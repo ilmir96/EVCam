@@ -27,11 +27,13 @@ public class AppConfig {
     // 存储位置配置
     private static final String KEY_STORAGE_LOCATION = "storage_location";  // 存储位置
     private static final String KEY_CUSTOM_SD_CARD_PATH = "custom_sd_card_path";  // 手动设置的U盘路径
+    private static final String KEY_CUSTOM_STORAGE_PATH = "custom_storage_path";  // Произвольный путь хранения
     private static final String KEY_LAST_DETECTED_SD_PATH = "last_detected_sd_path";  // 上次自动检测到的U盘路径（缓存）
-    
+
     // 存储位置常量
     public static final String STORAGE_INTERNAL = "internal";  // 内部存储（默认）
     public static final String STORAGE_EXTERNAL_SD = "external_sd";  // U盘
+    public static final String STORAGE_CUSTOM = "custom";  // Произвольный путь
     
     // U盘回退提示标志（每次冷启动后重置）
     private static boolean sdFallbackShownThisSession = false;
@@ -1254,7 +1256,41 @@ public class AppConfig {
     public boolean hasCustomSdCardPath() {
         return getCustomSdCardPath() != null;
     }
-    
+
+    /**
+     * Использует ли произвольный путь хранения
+     * @return true если выбран режим произвольного пути
+     */
+    public boolean isUsingCustomPath() {
+        return STORAGE_CUSTOM.equals(getStorageLocation());
+    }
+
+    /**
+     * Настройки произвольного пути хранения
+     * @param path произвольный путь; null или пустая строка — очистка
+     */
+    public void setCustomStoragePath(String path) {
+        if (path == null || path.trim().isEmpty()) {
+            prefs.edit().remove(KEY_CUSTOM_STORAGE_PATH).apply();
+            AppLog.d(TAG, "Очистка произвольного пути хранения");
+        } else {
+            prefs.edit().putString(KEY_CUSTOM_STORAGE_PATH, path.trim()).apply();
+            AppLog.d(TAG, "Настройки произвольного пути хранения: " + path.trim());
+        }
+    }
+
+    /**
+     * Получение произвольного пути хранения
+     * @return произвольный путь, либо null если не настроен
+     */
+    public String getCustomStoragePath() {
+        String path = prefs.getString(KEY_CUSTOM_STORAGE_PATH, null);
+        if (path != null && path.trim().isEmpty()) {
+            return null;
+        }
+        return path;
+    }
+
     /**
      * 设置上次自动检测到的U盘路径（缓存）
      * @param path U盘路径

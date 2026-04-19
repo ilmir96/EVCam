@@ -96,7 +96,8 @@
       "Bash(grep -rn:*)",
       "Bash(git:*)",
       "Bash(chmod +x /tmp/msg_filter.sh)",
-      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --msg-filter '/tmp/msg_filter.sh' 683eec8..HEAD)"
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --msg-filter '/tmp/msg_filter.sh' 683eec8..HEAD)",
+      "Bash(./gradlew compileDebugJavaWithJavac)"
     ],
     "deny": [],
     "ask": []
