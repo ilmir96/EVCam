@@ -199,7 +199,7 @@ public class DingTalkStreamManager {
                     reconnectAttempts++;
                     // 指数退避：5s, 10s, 20s, 40s, 60s, 60s, ...
                     long delay = Math.min(RECONNECT_DELAY_MS * (1L << Math.min(reconnectAttempts - 1, 4)), MAX_RECONNECT_DELAY_MS);
-                    AppLog.d(TAG, "将  " + delay + "ms 后попытка第 " + reconnectAttempts + "  раз重连");
+                    AppLog.d(TAG, "将  " + delay + "ms Зпопытка第 " + reconnectAttempts + "  раз重连");
                     mainHandler.postDelayed(() -> {
                         if (autoReconnect) {
                             startConnection();
@@ -324,7 +324,7 @@ public class DingTalkStreamManager {
                 @Override
                 public void onAvailable(Network network) {
                     if (networkWasLost && autoReconnect) {
-                        AppLog.d(TAG, "СетьВосстановление（深度休眠唤醒)，" + RECONNECT_AFTER_NETWORK_DELAY_MS + "ms 后重连");
+                        AppLog.d(TAG, "СетьВосстановление（深度休眠唤醒)，" + RECONNECT_AFTER_NETWORK_DELAY_MS + "ms З重连");
                         networkWasLost = false;
                         mainHandler.postDelayed(() -> forceReconnect("Восстановление сети (пробуждение из сна)"), RECONNECT_AFTER_NETWORK_DELAY_MS);
                     }
@@ -440,7 +440,7 @@ public class DingTalkStreamManager {
 
                 // 解析 JSON 字符串
                 JSONObject message = new JSONObject(messageJson);
-                AppLog.d(TAG, "解析后 消息 象: " + message.toString());
+                AppLog.d(TAG, "解析З 消息 象: " + message.toString());
 
                 String content = null;
                 String conversationId = null;

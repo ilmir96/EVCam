@@ -2,6 +2,7 @@ package com.kooo.evcam;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -43,6 +44,7 @@ import java.util.List;
  * 软件Настройки界面 Fragment
  */
 public class SettingsFragment extends Fragment {
+    private static final String TAG = "SettingsFragment";
 
     private SwitchMaterial debugSwitch;
     private Button saveLogsButton;
@@ -112,6 +114,11 @@ public class SettingsFragment extends Fragment {
     private boolean isInitializingStorageLocation = false;
     private String lastAppliedStorageLocation = null;
     private boolean hasExternalSdCard = false;
+    
+    // 中转写入配置相关
+    private SwitchMaterial relayWriteSwitch;
+    private TextView relayWriteDescText;
+    private boolean isInitializingRelayWrite = false;
     
     
     // ХранилищеОчистка конфигурация相Выкл
@@ -466,7 +473,10 @@ public class SettingsFragment extends Fragment {
         // инициализация悬浮窗Настройки
         initFloatingWindowSettings(view);
 
-        // инициализация定制键唤醒Настройки
+        // Инициализация плавающей кнопки записи
+        initRecordingFloatingSettings(view);
+
+        // Инициализация настроек кастомной клавиши пробуждения
         initCustomKeyWakeupSettings(view);
         
         // 沉浸式Статус栏совместимость
@@ -900,7 +910,137 @@ public class SettingsFragment extends Fragment {
             floatingWindowSettingsLayout.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
     }
-    
+
+    /**
+     * 初始化录制悬浮按钮设置
+     */
+    private void initRecordingFloatingSettings(View view) {
+        SwitchMaterial recordingFloatingSwitch = view.findViewById(R.id.switch_recording_floating);
+        LinearLayout sizeSettingsLayout = view.findViewById(R.id.recording_floating_size_settings);
+        SeekBar buttonSizeSeekBar = view.findViewById(R.id.seekbar_button_size);
+        SeekBar textSizeSeekBar = view.findViewById(R.id.seekbar_text_size);
+        TextView buttonSizeValueText = view.findViewById(R.id.text_button_size_value);
+        TextView textSizeValueText = view.findViewById(R.id.text_time_size_value);
+
+        if (recordingFloatingSwitch == null || getContext() == null || appConfig == null) {
+            return;
+        }
+
+        // 初始化开关状态
+        boolean isEnabled = appConfig.isRecordingFloatingEnabled();
+        recordingFloatingSwitch.setChecked(isEnabled);
+        if (sizeSettingsLayout != null) {
+            sizeSettingsLayout.setVisibility(isEnabled ? View.VISIBLE : View.GONE);
+        }
+
+        // 初始化大小设置
+        if (buttonSizeSeekBar != null && textSizeSeekBar != null) {
+            // 设置当前值
+            int currentButtonSize = appConfig.getRecordingFloatingButtonSizeDp();
+            int currentTextSize = appConfig.getRecordingFloatingTimeTextSizeSp();
+
+            buttonSizeSeekBar.setProgress(currentButtonSize);
+            textSizeSeekBar.setProgress(currentTextSize);
+
+            buttonSizeValueText.setText(currentButtonSize + "dp");
+            textSizeValueText.setText(currentTextSize + "sp");
+
+            // 按钮大小监听器
+            buttonSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    int size = Math.max(32, progress); // 最小32dp
+                    buttonSizeValueText.setText(size + "dp");
+
+                    // 实时发送广播更新悬浮按钮大小
+                    if (getContext() != null) {
+                        Intent intent = new Intent(com.kooo.evcam.service.RecordingFloatingService.ACTION_UPDATE_SIZE);
+                        intent.putExtra(com.kooo.evcam.service.RecordingFloatingService.EXTRA_BUTTON_SIZE, size);
+                        intent.putExtra(com.kooo.evcam.service.RecordingFloatingService.EXTRA_TEXT_SIZE, -1);
+                        getContext().sendBroadcast(intent);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    int size = Math.max(32, seekBar.getProgress());
+                    appConfig.setRecordingFloatingButtonSizeDp(size);
+                }
+            });
+
+            // 文字大小监听器
+            textSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    int size = Math.max(8, progress); // 最小8sp
+                    textSizeValueText.setText(size + "sp");
+
+                    // 实时发送广播更新文字大小
+                    if (getContext() != null) {
+                        Intent intent = new Intent(com.kooo.evcam.service.RecordingFloatingService.ACTION_UPDATE_SIZE);
+                        intent.putExtra(com.kooo.evcam.service.RecordingFloatingService.EXTRA_BUTTON_SIZE, -1);
+                        intent.putExtra(com.kooo.evcam.service.RecordingFloatingService.EXTRA_TEXT_SIZE, size);
+                        getContext().sendBroadcast(intent);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    int size = Math.max(8, seekBar.getProgress());
+                    appConfig.setRecordingFloatingTimeTextSizeSp(size);
+                }
+            });
+        }
+
+        // 设置开关监听器
+        recordingFloatingSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (getContext() == null) {
+                return;
+            }
+
+            // 保存开关状态
+            appConfig.setRecordingFloatingEnabled(isChecked);
+
+            // 显示/隐藏大小设置
+            if (sizeSettingsLayout != null) {
+                sizeSettingsLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            }
+
+            // 检查悬浮窗权限
+            if (isChecked && !WakeUpHelper.hasOverlayPermission(getContext())) {
+                Toast.makeText(getContext(), "Сначала выдайте разрешение на оверлей в настройках разрешений", Toast.LENGTH_SHORT).show();
+                buttonView.setChecked(false);
+                appConfig.setRecordingFloatingEnabled(false);
+                WakeUpHelper.requestOverlayPermission(getContext());
+                return;
+            }
+
+            // 在后台线程启动或停止服务，避免ANR
+            new Thread(() -> {
+                try {
+                    Intent intent = new Intent(getContext(), com.kooo.evcam.service.RecordingFloatingService.class);
+                    if (isChecked) {
+                        intent.setAction(com.kooo.evcam.service.RecordingFloatingService.ACTION_SHOW);
+                        getContext().startService(intent);
+                    } else {
+                        intent.setAction(com.kooo.evcam.service.RecordingFloatingService.ACTION_HIDE);
+                        getContext().startService(intent);
+                    }
+                } catch (Exception e) {
+                    AppLog.e(TAG, "启动/Стоп录制悬浮服务失败", e);
+                }
+            }).start();
+
+            Toast.makeText(getContext(), isChecked ? "Плавающая кнопка записи включена" : "录制悬浮按钮Закрыто", Toast.LENGTH_SHORT).show();
+        });
+    }
+
     /**
      * обновление息屏ЗаписьВклВыкл 可见性
      * только当ЗапускавтоматическиЗаписьВкл启时才显示
@@ -1484,6 +1624,9 @@ public class SettingsFragment extends Fragment {
                 lastAppliedStorageLocation = newLocation;
                 appConfig.setStorageLocation(newLocation);
 
+                // Обновить видимость переключателя промежуточной записи
+                updateRelayWriteVisibility();
+
                 if (getContext() != null) {
                     Toast.makeText(getContext(), "Место хранения: " + locationName, Toast.LENGTH_SHORT).show();
                     // 异步ПолучениеПуть描述
@@ -1550,6 +1693,80 @@ public class SettingsFragment extends Fragment {
                 });
             }
         }).start();
+        
+        // 初始化中转写入开关
+        initRelayWriteConfig(view);
+    }
+    
+    /**
+     * 初始化中转写入配置
+     */
+    private void initRelayWriteConfig(View view) {
+        relayWriteSwitch = view.findViewById(R.id.switch_relay_write);
+        relayWriteDescText = view.findViewById(R.id.tv_relay_write_desc);
+        
+        if (relayWriteSwitch == null || getContext() == null) {
+            return;
+        }
+        
+        isInitializingRelayWrite = true;
+        
+        // 加载当前设置
+        boolean relayWriteEnabled = appConfig.isRelayWriteEnabled();
+        relayWriteSwitch.setChecked(relayWriteEnabled);
+        updateRelayWriteDescription(relayWriteEnabled);
+        
+        // 根据存储位置显示/隐藏中转写入选项
+        updateRelayWriteVisibility();
+        
+        relayWriteSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isInitializingRelayWrite) {
+                return;
+            }
+            
+            appConfig.setRelayWriteEnabled(isChecked);
+            updateRelayWriteDescription(isChecked);
+            
+            String message = isChecked ? 
+                    "中转写入Включено: видео сначала пишется во внутреннее хранилище, затем переносится на USB — это устраняет рывки записи" : 
+                    "中转写入Закрыто：视频直接写入U盘，可能因U盘速度慢导致录制卡顿";
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        });
+        
+        isInitializingRelayWrite = false;
+    }
+    
+    /**
+     * 更新中转写入开关的可见性
+     * 仅在U盘存储时显示
+     */
+    private void updateRelayWriteVisibility() {
+        if (relayWriteSwitch == null || relayWriteDescText == null) {
+            return;
+        }
+        
+        ViewGroup parent = (ViewGroup) relayWriteSwitch.getParent();
+        if (parent != null) {
+            boolean useExternalSd = appConfig.isUsingExternalSdCard();
+            parent.setVisibility(useExternalSd ? View.VISIBLE : View.GONE);
+        }
+    }
+    
+    /**
+     * 更新中转写入描述文字
+     */
+    private void updateRelayWriteDescription(boolean enabled) {
+        if (relayWriteDescText == null) {
+            return;
+        }
+        
+        if (enabled) {
+            relayWriteDescText.setText("Включено: видео сначала пишется во внутреннее хранилище, затем переносится на USB — это устраняет рывки записи");
+            relayWriteDescText.setTextColor(ContextCompat.getColor(getContext(), R.color.button_accent));
+        } else {
+            relayWriteDescText.setText("Закрыто：视频直接写入U盘，可能因U盘速度慢导致录制卡顿");
+            relayWriteDescText.setTextColor(ContextCompat.getColor(getContext(), R.color.text_secondary));
+        }
     }
     
     /**

@@ -685,7 +685,7 @@ public class FeishuBotManager {
     private void handleConnectionError(String errorMsg) {
         if (!shouldStop && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
             reconnectAttempts++;
-            AppLog.d(TAG, "将  " + RECONNECT_DELAY_MS + "ms 后попытка第 " + reconnectAttempts + "  раз重连");
+            AppLog.d(TAG, "将  " + RECONNECT_DELAY_MS + "ms Зпопытка第 " + reconnectAttempts + "  раз重连");
             mainHandler.postDelayed(() -> {
                 if (!shouldStop) {
                     startConnection();
@@ -703,7 +703,7 @@ public class FeishuBotManager {
     private void attemptReconnect() {
         if (!shouldStop && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
             reconnectAttempts++;
-            AppLog.d(TAG, "Подключениеотключено，将  " + RECONNECT_DELAY_MS + "ms 后попытка第 " + reconnectAttempts + "  раз重连");
+            AppLog.d(TAG, "Подключениеотключено，将  " + RECONNECT_DELAY_MS + "ms Зпопытка第 " + reconnectAttempts + "  раз重连");
             mainHandler.postDelayed(() -> {
                 if (!shouldStop) {
                     startConnection();

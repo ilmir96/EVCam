@@ -16,32 +16,32 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Своя модель布局управление器
- * управлениеКамера窗口 и 按钮区域 自由操控функция：拖动、缩放、隐藏、Поворот 、镜像
+ * 自定义车型布局管理器
+ * 管理摄像头窗口和按钮区域的自由操控功能：拖动、缩放、隐藏、旋转、镜像
  */
 public class CustomLayoutManager {
     private static final String TAG = "CustomLayoutManager";
 
     // 尺寸调整比例
-    private static final float SCALE_STEP = 0.05f;  // 每 раз5%
-    private static final float MIN_SCALE = 0.2f;    // минимум20%
-    private static final float MAX_SCALE = 3.0f;    // максимум300%
+    private static final float SCALE_STEP = 0.05f;  // 每次5%
+    private static final float MIN_SCALE = 0.2f;    // 最小20%
+    private static final float MAX_SCALE = 3.0f;    // 最大300%
     
     // 网格吸附像素
     private static final int GRID_SIZE = 10;
 
-    // Мульти-камерный вид边距（dp)
-    private static final int SIDE_MARGIN_DP = 20;   // 行左Правая камера外侧边距
-    private static final int GAP_DP = 20;            // Камера之间间距
-    private static final int LAYOUT_VERSION = 3;
+    // 多视角布局边距（dp）
+    private static final int SIDE_MARGIN_DP = 20;   // 下行左右摄像头外侧边距
+    private static final int GAP_DP = 20;            // 摄像头之间间距
+    private static final int LAYOUT_VERSION = 3;     // 布局版本，递增时自动清除旧保存数据
 
     private final Context context;
     private final AppConfig appConfig;
     
-    // 编辑режимСтатус
+    // 编辑模式状态
     private boolean editModeEnabled = false;
     
-    // управление 视图
+    // 管理的视图
     private FrameLayout frameFront;
     private FrameLayout frameBack;
     private FrameLayout frameLeft;
@@ -49,7 +49,7 @@ public class CustomLayoutManager {
     private FrameLayout frameVehicleControl;
     private ViewGroup buttonContainer;
     
-    // TextureView 引用（用于Поворот  и 镜像)
+    // TextureView 引用（用于旋转和镜像）
     private TextureView textureFront;
     private TextureView textureBack;
     private TextureView textureLeft;
@@ -58,10 +58,10 @@ public class CustomLayoutManager {
     // 编辑控制视图
     private View editControlsView;
     
-    // Камера总容器（用于计算拖动边界)
+    // 摄像头总容器（用于计算拖动边界）
     private View containerCameras;
     
-    // конфигурация Камера数量
+    // 配置的摄像头数量
     private int cameraCount = 4;
     
     // 按钮布局变更回调
@@ -85,33 +85,33 @@ public class CustomLayoutManager {
     }
 
     /**
-     * Настройки按钮布局变更监听器
+     * 设置按钮布局变更监听器
      */
     public void setOnButtonLayoutChangeListener(OnButtonLayoutChangeListener listener) {
         this.buttonLayoutChangeListener = listener;
     }
     
     /**
-     * НастройкиКамера数量
+     * 设置摄像头数量
      */
     public void setCameraCount(int count) {
         this.cameraCount = count;
     }
     
     /**
-     * обновление按钮容器引用（当按钮方 к 切换时调用)
-     * @param newContainer 新 按钮容器
+     * 更新按钮容器引用（当按钮方向切换时调用）
+     * @param newContainer 新的按钮容器
      */
     public void updateButtonContainer(ViewGroup newContainer) {
         this.buttonContainer = newContainer;
         if (newContainer != null) {
             setupButtonContainer(newContainer);
         }
-        AppLog.d(TAG, "按钮容器обновление");
+        AppLog.d(TAG, "按钮容器已更新");
     }
     
     /**
-     * инициализация自由操控функция
+     * 初始化自由操控功能
      */
     public void setupFloatingViews(FrameLayout frameFront, FrameLayout frameBack,
                                    FrameLayout frameLeft, FrameLayout frameRight, FrameLayout frameVehicleControl,
@@ -132,13 +132,13 @@ public class CustomLayoutManager {
         this.textureLeft = textureLeft;
         this.textureRight = textureRight;
         
-        // ВосстановлениеСохранить 布局илиНастройкиПо умолчаниюПозиция
+        // 恢复保存的布局或设置默认位置
         if (!restoreLayout()) {
-            // 没有Сохранить 布局，НастройкиПо умолчаниюПозиция
+            // 没有保存的布局，设置默认位置
             containerCameras.post(this::setupDefaultPositions);
         }
         
-        // Настройки拖动 и 缩放функция
+        // 设置拖动和缩放功能
         if (frameFront != null) {
             setupCameraFrame(frameFront, "front");
             setupRotateMirrorButtons(frameFront, "front", textureFront);
@@ -162,21 +162,21 @@ public class CustomLayoutManager {
             setupButtonContainer(buttonContainer);
         }
         
-        // Настройки编辑控制面板 按钮
+        // 设置编辑控制面板的按钮
         setupEditControlButtons();
         
-        // инициализация编辑режим
+        // 初始化编辑模式
         setEditMode(appConfig.isCustomFreeControlEnabled());
         
-        // 延迟ПриложениеСохранить Поворот  и 镜像конфигурация（необходимоожидание视图布局завершение)
+        // 延迟应用保存的旋转和镜像配置（需要等待视图布局完成）
         if (containerCameras != null) {
             containerCameras.post(this::applySavedRotationAndMirror);
         }
     }
     
     /**
-     * ПриложениеСохранить Поворот  и 镜像конфигурация
-     *  视图布局завершение后调用，以确保 TextureView 有正确 尺寸
+     * 应用保存的旋转和镜像配置
+     * 在视图布局完成后调用，以确保 TextureView 有正确的尺寸
      */
     private void applySavedRotationAndMirror() {
         if (textureFront != null) {
@@ -220,20 +220,20 @@ public class CustomLayoutManager {
             }
         }
         
-        // ПриложениеСохранить 裁剪конфигурация
+        // 应用保存的裁剪配置
         applySavedCrops();
     }
     
     /**
-     * ПриложениеПоворот 并调整缩放，使画面填满容器
-     * 当Поворот 90°или270°时，необходимо缩放画面以填满原来 容器
+     * 应用旋转并调整缩放，使画面填满容器
+     * 当旋转90°或270°时，需要缩放画面以填满原来的容器
      */
     private void applyRotationWithScale(TextureView textureView, int rotation) {
         textureView.setRotation(rotation);
 
         if (rotation == 90 || rotation == 270) {
-            // 优先использование LayoutParams  目标尺寸（setLayoutParams 后布局尚Не Обновить时
-            // getWidth/Height 仍返回旧值，导致缩放比例算错)
+            // 优先使用 LayoutParams 中的目标尺寸（setLayoutParams 后布局尚未刷新时
+            // getWidth/Height 仍返回旧值，导致缩放比例算错）
             android.view.ViewGroup.LayoutParams lp = textureView.getLayoutParams();
             int width = (lp != null && lp.width > 0) ? lp.width : textureView.getWidth();
             int height = (lp != null && lp.height > 0) ? lp.height : textureView.getHeight();
@@ -253,13 +253,13 @@ public class CustomLayoutManager {
     }
     
     /**
-     * Приложение镜像，同时考虑Текущий Поворот Статус
+     * 应用镜像，同时考虑当前的旋转状态
      */
     private void applyMirrorWithRotation(TextureView textureView, String cameraKey, boolean mirror) {
         int rotation = appConfig.getCameraRotation(cameraKey);
         
         float baseScale = 1.0f;
-        // Если Текущий 90°или270°Поворот ，необходимо保持缩放
+        // 如果当前是90°或270°旋转，需要保持缩放
         if (rotation == 90 || rotation == 270) {
             int width = textureView.getWidth();
             int height = textureView.getHeight();
@@ -268,15 +268,15 @@ public class CustomLayoutManager {
             }
         }
         
-        // Приложение镜像（负值表示镜像)
+        // 应用镜像（负值表示镜像）
         textureView.setScaleX(mirror ? -baseScale : baseScale);
     }
     
     /**
-     * НастройкиПоворот  и 镜像按钮
+     * 设置旋转和镜像按钮
      */
     private void setupRotateMirrorButtons(FrameLayout frame, String cameraKey, TextureView textureView) {
-        // Поворот 按钮
+        // 旋转按钮
         int rotateBtnId = context.getResources().getIdentifier(
                 "btn_rotate_" + cameraKey, "id", context.getPackageName());
         View rotateBtn = frame.findViewById(rotateBtnId);
@@ -292,7 +292,7 @@ public class CustomLayoutManager {
                 
                 Toast.makeText(context, cameraKey + " Поворот: " + newRotation + "°", 
                         Toast.LENGTH_SHORT).show();
-                AppLog.d(TAG, cameraKey + " Поворот Настройки为: " + newRotation + "°");
+                AppLog.d(TAG, cameraKey + " 旋转设置为: " + newRotation + "°");
             });
         }
         
@@ -312,24 +312,24 @@ public class CustomLayoutManager {
                 
                 Toast.makeText(context, cameraKey + " Зеркало: " + (newMirror ? "Вкл" : "Выкл"), 
                         Toast.LENGTH_SHORT).show();
-                AppLog.d(TAG, cameraKey + " 镜像Настройки为: " + newMirror);
+                AppLog.d(TAG, cameraKey + " 镜像设置为: " + newMirror);
             });
         }
         
-        // Настройки裁剪按钮
+        // 设置裁剪按钮
         setupCropButtons(frame, cameraKey, textureView);
     }
     
     /**
-     * Настройки裁剪按钮
-     * 每 шт.方 к 点击一 раз裁剪 10 像素
+     * 设置裁剪按钮
+     * 每个方向点击一次裁剪 10 像素
      */
     private void setupCropButtons(FrameLayout frame, String cameraKey, TextureView textureView) {
-        final int CROP_STEP = 10;  // 每 раз裁剪 10 像素
+        final int CROP_STEP = 10;  // 每次裁剪 10 像素
         
-        // ========== 往里裁剪按钮（黄色) ==========
+        // ========== 往里裁剪按钮（黄色） ==========
         
-        // 裁剪按钮
+        // 上裁剪按钮
         int cropTopBtnId = context.getResources().getIdentifier(
                 "btn_crop_top_" + cameraKey, "id", context.getPackageName());
         View cropTopBtn = frame.findViewById(cropTopBtnId);
@@ -339,11 +339,11 @@ public class CustomLayoutManager {
                 int newValue = current + CROP_STEP;
                 appConfig.setCameraCrop(cameraKey, "top", newValue);
                 applyCrop(textureView, cameraKey);
-                AppLog.d(TAG, cameraKey + " 裁剪+: " + newValue + "px");
+                AppLog.d(TAG, cameraKey + " 上裁剪+: " + newValue + "px");
             });
         }
         
-        // 裁剪按钮
+        // 下裁剪按钮
         int cropBottomBtnId = context.getResources().getIdentifier(
                 "btn_crop_bottom_" + cameraKey, "id", context.getPackageName());
         View cropBottomBtn = frame.findViewById(cropBottomBtnId);
@@ -353,7 +353,7 @@ public class CustomLayoutManager {
                 int newValue = current + CROP_STEP;
                 appConfig.setCameraCrop(cameraKey, "bottom", newValue);
                 applyCrop(textureView, cameraKey);
-                AppLog.d(TAG, cameraKey + " 裁剪+: " + newValue + "px");
+                AppLog.d(TAG, cameraKey + " 下裁剪+: " + newValue + "px");
             });
         }
         
@@ -367,7 +367,7 @@ public class CustomLayoutManager {
                 int newValue = current + CROP_STEP;
                 appConfig.setCameraCrop(cameraKey, "left", newValue);
                 applyCrop(textureView, cameraKey);
-                AppLog.d(TAG, cameraKey + " 左裁剪+: " + newValue + "px");
+                AppLog.d(TAG, cameraKey + " Л裁剪+: " + newValue + "px");
             });
         }
         
@@ -381,13 +381,13 @@ public class CustomLayoutManager {
                 int newValue = current + CROP_STEP;
                 appConfig.setCameraCrop(cameraKey, "right", newValue);
                 applyCrop(textureView, cameraKey);
-                AppLog.d(TAG, cameraKey + " 右裁剪+: " + newValue + "px");
+                AppLog.d(TAG, cameraKey + " Пр裁剪+: " + newValue + "px");
             });
         }
         
-        // ========== 往外Восстановление按钮（绿色) ==========
+        // ========== 往外恢复按钮（绿色） ==========
         
-        // Восстановление按钮
+        // 上恢复按钮
         int uncropTopBtnId = context.getResources().getIdentifier(
                 "btn_uncrop_top_" + cameraKey, "id", context.getPackageName());
         View uncropTopBtn = frame.findViewById(uncropTopBtnId);
@@ -397,11 +397,11 @@ public class CustomLayoutManager {
                 int newValue = Math.max(0, current - CROP_STEP);
                 appConfig.setCameraCrop(cameraKey, "top", newValue);
                 applyCrop(textureView, cameraKey);
-                AppLog.d(TAG, cameraKey + " 裁剪-: " + newValue + "px");
+                AppLog.d(TAG, cameraKey + " 上裁剪-: " + newValue + "px");
             });
         }
         
-        // Восстановление按钮
+        // 下恢复按钮
         int uncropBottomBtnId = context.getResources().getIdentifier(
                 "btn_uncrop_bottom_" + cameraKey, "id", context.getPackageName());
         View uncropBottomBtn = frame.findViewById(uncropBottomBtnId);
@@ -411,11 +411,11 @@ public class CustomLayoutManager {
                 int newValue = Math.max(0, current - CROP_STEP);
                 appConfig.setCameraCrop(cameraKey, "bottom", newValue);
                 applyCrop(textureView, cameraKey);
-                AppLog.d(TAG, cameraKey + " 裁剪-: " + newValue + "px");
+                AppLog.d(TAG, cameraKey + " 下裁剪-: " + newValue + "px");
             });
         }
         
-        // 左Восстановление按钮
+        // 左恢复按钮
         int uncropLeftBtnId = context.getResources().getIdentifier(
                 "btn_uncrop_left_" + cameraKey, "id", context.getPackageName());
         View uncropLeftBtn = frame.findViewById(uncropLeftBtnId);
@@ -425,11 +425,11 @@ public class CustomLayoutManager {
                 int newValue = Math.max(0, current - CROP_STEP);
                 appConfig.setCameraCrop(cameraKey, "left", newValue);
                 applyCrop(textureView, cameraKey);
-                AppLog.d(TAG, cameraKey + " 左裁剪-: " + newValue + "px");
+                AppLog.d(TAG, cameraKey + " Л裁剪-: " + newValue + "px");
             });
         }
         
-        // 右Восстановление按钮
+        // 右恢复按钮
         int uncropRightBtnId = context.getResources().getIdentifier(
                 "btn_uncrop_right_" + cameraKey, "id", context.getPackageName());
         View uncropRightBtn = frame.findViewById(uncropRightBtnId);
@@ -439,14 +439,14 @@ public class CustomLayoutManager {
                 int newValue = Math.max(0, current - CROP_STEP);
                 appConfig.setCameraCrop(cameraKey, "right", newValue);
                 applyCrop(textureView, cameraKey);
-                AppLog.d(TAG, cameraKey + " 右裁剪-: " + newValue + "px");
+                AppLog.d(TAG, cameraKey + " Пр裁剪-: " + newValue + "px");
             });
         }
     }
     
     /**
-     * Настройки车辆控制按钮
-     * 前轮 и 后轮按键 选/Не 选Статус切换（互斥Выбрать)
+     * 设置车辆控制按钮
+     * 前轮和后轮按键的选中/未选中状态切换（互斥选择）
      */
     private void setupVehicleControlButtons() {
         if (frameVehicleControl == null) return;
@@ -460,40 +460,40 @@ public class CustomLayoutManager {
                 boolean isSelected = btnFrontWheel.getTag() != null && (Boolean) btnFrontWheel.getTag();
 
                 if (isSelected) {
-                    // 选，Отмена选
+                    // 已选中，取消选中
                     isSelected = false;
                     btnFrontWheel.setTag(isSelected);
                     setButtonUnselected(btnFrontWheel);
-                    // 切换 до 普通режим，ВосстановлениеПо умолчанию车辆轮廓
+                    // 切换到普通模式，恢复默认车辆轮廓
                     if (ivVehicleOutline != null) {
                         ivVehicleOutline.setImageResource(R.drawable.ic_vehicle_outline_normal);
                     }
                     applyNormalModeLayout();
                 } else {
-                    // Не 选，选前轮并Отмена后轮选
+                    // 未选中，选中前轮并取消后轮选中
                     isSelected = true;
                     btnFrontWheel.setTag(isSelected);
                     setButtonSelected(btnFrontWheel);
 
-                    // Отмена后轮选Статус
+                    // 取消后轮选中状态
                     if (btnRearWheel != null) {
                         btnRearWheel.setTag(false);
                         setButtonUnselected(btnRearWheel);
                     }
 
-                    // обновление车辆轮廓示意图，前轮显示绿色
+                    // 更新车辆轮廓示意图，前轮显示绿色
                     if (ivVehicleOutline != null) {
                         ivVehicleOutline.setImageResource(R.drawable.ic_vehicle_outline_front);
                     }
 
-                    // 切换 до 前轮режим
+                    // 切换到前轮模式
                     applyFrontWheelModeLayout();
                 }
 
-                AppLog.d(TAG, "前轮按键Статус: " + (isSelected ? "选" : "Не 选"));
+                AppLog.d(TAG, "П轮按键状态: " + (isSelected ? "选中" : "未选中"));
             });
 
-            // 长按事件：弹出Настройки передних колёс弹窗
+            // 长按事件：弹出前轮模式设置弹窗
             btnFrontWheel.setOnLongClickListener(v -> {
                 showWheelSettingsDialog("front");
                 return true;
@@ -505,40 +505,40 @@ public class CustomLayoutManager {
                 boolean isSelected = btnRearWheel.getTag() != null && (Boolean) btnRearWheel.getTag();
 
                 if (isSelected) {
-                    // 选，Отмена选
+                    // 已选中，取消选中
                     isSelected = false;
                     btnRearWheel.setTag(isSelected);
                     setButtonUnselected(btnRearWheel);
-                    // 切换 до 普通режим，ВосстановлениеПо умолчанию车辆轮廓
+                    // 切换到普通模式，恢复默认车辆轮廓
                     if (ivVehicleOutline != null) {
                         ivVehicleOutline.setImageResource(R.drawable.ic_vehicle_outline_normal);
                     }
                     applyNormalModeLayout();
                 } else {
-                    // Не 选，选后轮并Отмена前轮选
+                    // 未选中，选中后轮并取消前轮选中
                     isSelected = true;
                     btnRearWheel.setTag(isSelected);
                     setButtonSelected(btnRearWheel);
 
-                    // Отмена前轮选Статус
+                    // 取消前轮选中状态
                     if (btnFrontWheel != null) {
                         btnFrontWheel.setTag(false);
                         setButtonUnselected(btnFrontWheel);
                     }
 
-                    // обновление车辆轮廓示意图，后轮显示绿色
+                    // 更新车辆轮廓示意图，后轮显示绿色
                     if (ivVehicleOutline != null) {
                         ivVehicleOutline.setImageResource(R.drawable.ic_vehicle_outline_rear);
                     }
 
-                    // 切换 до 后轮режим
+                    // 切换到后轮模式
                     applyRearWheelModeLayout();
                 }
 
-                AppLog.d(TAG, "后轮按键Статус: " + (isSelected ? "选" : "Не 选"));
+                AppLog.d(TAG, "З轮按键状态: " + (isSelected ? "选中" : "未选中"));
             });
 
-            // 长按事件：弹出Настройки задних колёс弹窗
+            // 长按事件：弹出后轮模式设置弹窗
             btnRearWheel.setOnLongClickListener(v -> {
                 showWheelSettingsDialog("rear");
                 return true;
@@ -547,8 +547,8 @@ public class CustomLayoutManager {
     }
 
     /**
-     * 显示车轮режимНастройки弹窗
-     * @param mode "front" 前轮режим, "rear" 后轮режим
+     * 显示车轮模式设置弹窗
+     * @param mode "front" 前轮模式, "rear" 后轮模式
      */
     private void showWheelSettingsDialog(String mode) {
         if (containerCameras == null) return;
@@ -558,15 +558,15 @@ public class CustomLayoutManager {
         View dialogView = android.view.LayoutInflater.from(context).inflate(R.layout.dialog_wheel_settings, null);
         builder.setView(dialogView);
 
-        // Настройки标题
+        // 设置标题
         TextView tvTitle = dialogView.findViewById(R.id.tv_title);
         tvTitle.setText(mode.equals("front") ? "Настройки передних колёс" : "Настройки задних колёс");
 
-        // ПолучениеТекущий容器尺寸
+        // 获取当前容器尺寸
         int containerWidth = containerCameras.getWidth();
         int containerHeight = containerCameras.getHeight();
         
-        // 普通режим画框Позиция — 前/后轮режим复用，确保画框不跳变
+        // 普通模式画框位置 — 前/后轮模式复用，确保画框不跳变
         int[] fp = getNormalFramePositions();
 
         int frontLeftWidth = 1200;
@@ -591,7 +591,7 @@ public class CustomLayoutManager {
         int rearRightY = -702;
         int rearRightRotation = 90;
 
-        // ПолучениеSeekBar и TextView引用
+        // 获取SeekBar和TextView引用
         android.widget.SeekBar sbLeftWidth = dialogView.findViewById(R.id.sb_left_width);
         android.widget.SeekBar sbLeftHeight = dialogView.findViewById(R.id.sb_left_height);
         android.widget.SeekBar sbLeftX = dialogView.findViewById(R.id.sb_left_x);
@@ -614,8 +614,8 @@ public class CustomLayoutManager {
         TextView tvRightYValue = dialogView.findViewById(R.id.tv_right_y_value);
         TextView tvRightRotationValue = dialogView.findViewById(R.id.tv_right_rotation_value);
 
-        // загрузкаТекущийСохранить 值
-        // использование各自режим По умолчанию值
+        // 加载当前保存的值
+        // 使用各自模式的默认值
         int[] leftValues = new int[5];
         int[] rightValues = new int[5];
         
@@ -643,8 +643,8 @@ public class CustomLayoutManager {
             rightValues[4] = appConfig.getRearWheelRightRotation(rearRightRotation);
         }
 
-        // НастройкиSeekBar初始值 и максимум值
-        // X и YПозиция 范围为-1000 до 1000，SeekBar 0-2000 应实际值-1000 до 1000
+        // 设置SeekBar初始值和最大值
+        // X和Y位置的范围为-1000到1000，SeekBar的0-2000对应实际值-1000到1000
         final int POSITION_OFFSET = 1000;
         final int POSITION_MAX = 2000;
         
@@ -661,7 +661,7 @@ public class CustomLayoutManager {
 
         sbLeftWidth.setProgress(leftValues[0]);
         sbLeftHeight.setProgress(leftValues[1]);
-        // X и YПозиция：实际值+OFFSET作为SeekBar progress
+        // X和Y位置：实际值+OFFSET作为SeekBar的progress
         sbLeftX.setProgress(leftValues[2] + POSITION_OFFSET);
         sbLeftY.setProgress(leftValues[3] + POSITION_OFFSET);
         sbLeftRotation.setProgress(leftValues[4]);
@@ -671,7 +671,7 @@ public class CustomLayoutManager {
         sbRightY.setProgress(rightValues[3] + POSITION_OFFSET);
         sbRightRotation.setProgress(rightValues[4]);
 
-        // обновлениеTextView显示（X и Y显示实际值：progress-OFFSET)
+        // 更新TextView显示（X和Y显示实际值：progress-OFFSET）
         tvLeftWidthValue.setText(String.valueOf(leftValues[0]));
         tvLeftHeightValue.setText(String.valueOf(leftValues[1]));
         tvLeftXValue.setText(String.valueOf(leftValues[2]));
@@ -683,7 +683,7 @@ public class CustomLayoutManager {
         tvRightYValue.setText(String.valueOf(rightValues[3]));
         tvRightRotationValue.setText(rightValues[4] + "°");
 
-        // 画框Позиция始终использование普通режим值，画框不跳变
+        // 画框位置始终使用普通模式值，画框不跳变
         final int defaultLeftX = fp[0];
         final int defaultLeftY = fp[1];
         final int defaultLeftWidth = fp[2];
@@ -696,7 +696,7 @@ public class CustomLayoutManager {
         // 创建弹窗
         android.app.AlertDialog dialog = builder.create();
 
-        // 实时预览обновление Runnable
+        // 实时预览更新的Runnable
         final Runnable previewUpdateRunnable = new Runnable() {
             @Override
             public void run() {
@@ -704,7 +704,7 @@ public class CustomLayoutManager {
                 
                 int leftWidth = sbLeftWidth.getProgress();
                 int leftHeight = sbLeftHeight.getProgress();
-                // X и YПозиция：SeekBar progress-OFFSET作为实际值
+                // X和Y位置：SeekBar的progress-OFFSET作为实际值
                 int leftX = sbLeftX.getProgress() - POSITION_OFFSET;
                 int leftY = sbLeftY.getProgress() - POSITION_OFFSET;
                 int leftRotation = sbLeftRotation.getProgress();
@@ -724,7 +724,7 @@ public class CustomLayoutManager {
         android.widget.SeekBar.OnSeekBarChangeListener seekBarChangeListener = new android.widget.SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(android.widget.SeekBar seekBar, int progress, boolean fromUser) {
-                // обновление 应 TextView
+                // 更新对应的TextView
                 int id = seekBar.getId();
                 if (id == R.id.sb_left_width) {
                     tvLeftWidthValue.setText(String.valueOf(progress));
@@ -748,7 +748,7 @@ public class CustomLayoutManager {
                     tvRightRotationValue.setText(progress + "°");
                 }
 
-                // 实时обновление预览
+                // 实时更新预览
                 previewUpdateRunnable.run();
             }
 
@@ -759,7 +759,7 @@ public class CustomLayoutManager {
             public void onStopTrackingTouch(android.widget.SeekBar seekBar) {}
         };
 
-        // Настройки所有SeekBar 监听器
+        // 设置所有SeekBar的监听器
         sbLeftWidth.setOnSeekBarChangeListener(seekBarChangeListener);
         sbLeftHeight.setOnSeekBarChangeListener(seekBarChangeListener);
         sbLeftX.setOnSeekBarChangeListener(seekBarChangeListener);
@@ -771,12 +771,12 @@ public class CustomLayoutManager {
         sbRightY.setOnSeekBarChangeListener(seekBarChangeListener);
         sbRightRotation.setOnSeekBarChangeListener(seekBarChangeListener);
 
-        // НастройкиСохранить按钮点击事件
+        // 设置保存按钮点击事件
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         btnSave.setOnClickListener(v -> {
             int leftWidth = sbLeftWidth.getProgress();
             int leftHeight = sbLeftHeight.getProgress();
-            // X и YПозиция：SeekBar progress-OFFSET作为实际值
+            // X和Y位置：SeekBar的progress-OFFSET作为实际值
             int leftX = sbLeftX.getProgress() - POSITION_OFFSET;
             int leftY = sbLeftY.getProgress() - POSITION_OFFSET;
             int leftRotation = sbLeftRotation.getProgress();
@@ -799,10 +799,10 @@ public class CustomLayoutManager {
             dialog.dismiss();
         });
 
-        // НастройкиСброс按钮点击事件
+        // 设置重置按钮点击事件
         Button btnReset = dialogView.findViewById(R.id.btn_reset);
         btnReset.setOnClickListener(v -> {
-            // Сброс为 应режим По умолчанию值
+            // 重置为对应模式的默认值
             int resetLeftWidth, resetLeftHeight, resetLeftX, resetLeftY, resetLeftRotation;
             int resetRightWidth, resetRightHeight, resetRightX, resetRightY, resetRightRotation;
             
@@ -832,7 +832,7 @@ public class CustomLayoutManager {
 
             sbLeftWidth.setProgress(resetLeftWidth);
             sbLeftHeight.setProgress(resetLeftHeight);
-            // X и YПозиция：实际值+OFFSET作为SeekBar progress
+            // X和Y位置：实际值+OFFSET作为SeekBar的progress
             sbLeftX.setProgress(resetLeftX + POSITION_OFFSET);
             sbLeftY.setProgress(resetLeftY + POSITION_OFFSET);
             sbLeftRotation.setProgress(resetLeftRotation);
@@ -842,7 +842,7 @@ public class CustomLayoutManager {
             sbRightY.setProgress(resetRightY + POSITION_OFFSET);
             sbRightRotation.setProgress(resetRightRotation);
 
-            // обновлениеTextView（X и Y显示实际值)
+            // 更新TextView（X和Y显示实际值）
             tvLeftWidthValue.setText(String.valueOf(resetLeftWidth));
             tvLeftHeightValue.setText(String.valueOf(resetLeftHeight));
             tvLeftXValue.setText(String.valueOf(resetLeftX));
@@ -854,21 +854,21 @@ public class CustomLayoutManager {
             tvRightYValue.setText(String.valueOf(resetRightY));
             tvRightRotationValue.setText(resetRightRotation + "°");
 
-            // 实时ПриложениеСброс后 值
+            // 实时应用重置后的值
             previewUpdateRunnable.run();
 
             Toast.makeText(context, "Сброшено до значений по умолчанию", Toast.LENGTH_SHORT).show();
         });
 
-        // Настройки弹窗背景透明度为15%
+        // 设置弹窗背景透明度为15%
         dialog.setOnShowListener(d -> {
             View rootView = dialog.getWindow().getDecorView();
             rootView.setBackgroundColor(android.graphics.Color.parseColor("#26000000"));
         });
 
-        // 弹窗Закрыто时Восстановление原始布局（Если Не Сохранить)
+        // 弹窗关闭时恢复原始布局（如果未保存）
         dialog.setOnDismissListener(d -> {
-            // 重新ПриложениеТекущийрежим Сохранить值
+            // 重新应用当前模式的保存值
             if (mode.equals("front")) {
                 Button btnFrontWheel = frameVehicleControl.findViewById(R.id.btn_front_wheel);
                 if (btnFrontWheel != null && btnFrontWheel.getTag() != null && (Boolean) btnFrontWheel.getTag()) {
@@ -890,8 +890,8 @@ public class CustomLayoutManager {
     }
 
     /**
-     * Приложение前轮режим布局
-     * 初始值 и 普通режим相同
+     * 应用前轮模式布局
+     * 初始值与普通模式相同
      */
     private void applyFrontWheelModeLayout() {
         if (frameLeft == null || frameRight == null) return;
@@ -899,10 +899,10 @@ public class CustomLayoutManager {
         int containerWidth = containerCameras.getWidth();
         int containerHeight = containerCameras.getHeight();
 
-        AppLog.d(TAG, "前轮режим - 容器尺寸: " + containerWidth + "x" + containerHeight);
+        AppLog.d(TAG, "П轮模式 - 容器尺寸: " + containerWidth + "x" + containerHeight);
 
         if (containerWidth == 0 || containerHeight == 0) {
-            AppLog.e(TAG, "前轮режим - 容器尺寸为0，延迟重试");
+            AppLog.e(TAG, "П轮模式 - 容器尺寸为0，延迟重试");
             containerCameras.post(this::applyFrontWheelModeLayout);
             return;
         }
@@ -913,9 +913,9 @@ public class CustomLayoutManager {
         frameLeft.setVisibility(View.VISIBLE);
         frameRight.setVisibility(View.VISIBLE);
 
-        // 画框完全不动，只операция画面纹理
+        // 画框完全不动，只操作画面纹理
 
-        // 前轮режим画面По умолчанию值（相 画框内偏移 + Поворот )
+        // 前轮模式画面默认值（相对画框内偏移 + 旋转）
         int leftRotation  = appConfig.getFrontWheelLeftRotation(270);
         int rightRotation = appConfig.getFrontWheelRightRotation(90);
         int leftWidth  = appConfig.getFrontWheelLeftWidth(1200);
@@ -930,14 +930,14 @@ public class CustomLayoutManager {
         applyWheelTextureTransform(textureLeft, leftWidth, leftHeight, leftRotation, leftX, leftY);
         applyWheelTextureTransform(textureRight, rightWidth, rightHeight, rightRotation, rightX, rightY);
 
-        AppLog.d(TAG, "前轮режим布局Приложение - 左: (" + leftX + "," + leftY + ") " + leftWidth + "x" + leftHeight
+        AppLog.d(TAG, "П轮模式布局已应用 - Л: (" + leftX + "," + leftY + ") " + leftWidth + "x" + leftHeight
                 + " rot=" + leftRotation + ", Пр: (" + rightX + "," + rightY + ") " + rightWidth + "x" + rightHeight
                 + " rot=" + rightRotation);
     }
 
     /**
-     * Приложение后轮режим布局
-     * 初始值 и 普通режим相同
+     * 应用后轮模式布局
+     * 初始值与普通模式相同
      */
     private void applyRearWheelModeLayout() {
         if (frameLeft == null || frameRight == null) return;
@@ -945,10 +945,10 @@ public class CustomLayoutManager {
         int containerWidth = containerCameras.getWidth();
         int containerHeight = containerCameras.getHeight();
 
-        AppLog.d(TAG, "后轮режим - 容器尺寸: " + containerWidth + "x" + containerHeight);
+        AppLog.d(TAG, "З轮模式 - 容器尺寸: " + containerWidth + "x" + containerHeight);
 
         if (containerWidth == 0 || containerHeight == 0) {
-            AppLog.e(TAG, "后轮режим - 容器尺寸为0，延迟重试");
+            AppLog.e(TAG, "З轮模式 - 容器尺寸为0，延迟重试");
             containerCameras.post(this::applyRearWheelModeLayout);
             return;
         }
@@ -959,9 +959,9 @@ public class CustomLayoutManager {
         frameLeft.setVisibility(View.VISIBLE);
         frameRight.setVisibility(View.VISIBLE);
 
-        // 画框完全不动，只операция画面纹理
+        // 画框完全不动，只操作画面纹理
 
-        // 后轮режим画面По умолчанию值（相 画框内偏移 + Поворот )
+        // 后轮模式画面默认值（相对画框内偏移 + 旋转）
         int leftRotation  = appConfig.getRearWheelLeftRotation(270);
         int rightRotation = appConfig.getRearWheelRightRotation(90);
         int leftWidth  = appConfig.getRearWheelLeftWidth(1200);
@@ -976,16 +976,16 @@ public class CustomLayoutManager {
         applyWheelTextureTransform(textureLeft, leftWidth, leftHeight, leftRotation, leftX, leftY);
         applyWheelTextureTransform(textureRight, rightWidth, rightHeight, rightRotation, rightX, rightY);
 
-        AppLog.d(TAG, "后轮режим布局Приложение - 左: (" + leftX + "," + leftY + ") " + leftWidth + "x" + leftHeight
+        AppLog.d(TAG, "З轮模式布局已应用 - Л: (" + leftX + "," + leftY + ") " + leftWidth + "x" + leftHeight
                 + " rot=" + leftRotation + ", Пр: (" + rightX + "," + rightY + ") " + rightWidth + "x" + rightHeight
                 + " rot=" + rightRotation);
     }
 
     /**
-     * 轮胎режим：纯 View transform，不碰 LayoutParams，不触发 requestLayout。
-     * Используется setTranslationX/Y вместо setX/Y, чтобы избежать гонки с асинхронным layout pass:
-     * setX(x) внутри делает setTranslationX(x - mLeft), и если mLeft ещё старый — результат неверный;
-     * setTranslationX(x) устанавливает значение напрямую, после layout pass mLeft обнулится, итого позиция = 0 + x = x.
+     * 轮胎模式：纯 View transform，不碰 LayoutParams，不触发 requestLayout。
+     * 使用 setTranslationX/Y 而非 setX/Y，避免与异步 layout pass 竞争：
+     * setX(x) 内部做 setTranslationX(x - mLeft)，如果 mLeft 还是旧值就会算错；
+     * setTranslationX(x) 直接设值，layout pass 完成后 mLeft 归零，最终位置 = 0 + x = x。
      */
     private void applyWheelTextureTransform(TextureView tv, int w, int h, int rotation, int x, int y) {
         if (tv == null) return;
@@ -1005,7 +1005,7 @@ public class CustomLayoutManager {
     }
 
     /**
-     * Выход轮胎режим：Сброс transform 属性 до 普通режим。
+     * 退出轮胎模式：重置 transform 属性到普通模式。
      */
     private void resetWheelTextureTransform(TextureView tv, int normalRotation) {
         if (tv == null) return;
@@ -1015,8 +1015,9 @@ public class CustomLayoutManager {
     }
 
     /**
-     * Приложение普通режим布局（По умолчаниюрежим)
-     * 普通режим保持车辆控制区域可见
+     * 应用普通模式布局（默认模式）
+     * 轮胎模式只改 TextureView 的 transform（旋转、缩放、位移），不改 frame，
+     * 回到普通模式只需重置 TextureView 的 transform，frame 保持原样。
      */
     private void applyNormalModeLayout() {
         if (frameLeft == null || frameRight == null) return;
@@ -1030,16 +1031,15 @@ public class CustomLayoutManager {
         int leftRotation = appConfig.getNormalLeftRotation(0);
         int rightRotation = appConfig.getNormalRightRotation(0);
 
-        // Восстановление画面 до 普通режим：Сброс所有 transform 属性
         resetWheelTextureTransform(textureLeft, leftRotation);
         resetWheelTextureTransform(textureRight, rightRotation);
 
-        AppLog.d(TAG, "普通режим布局Приложение");
+        AppLog.d(TAG, "普通模式布局已应用");
     }
 
     /**
-     * Получение普通режим左右画框 Позиция и 大小（ от  appConfig или计算По умолчанию值)。
-     * 前/后轮режим复用这 групп值，确保画框Позиция不跳变。
+     * 获取普通模式下左右画框的位置和大小（从 appConfig 或计算默认值）。
+     * 前/后轮模式复用这组值，确保画框位置不跳变。
      * @return int[8]: leftX, leftY, leftW, leftH, rightX, rightY, rightW, rightH
      */
     private int[] getNormalFramePositions() {
@@ -1072,7 +1072,7 @@ public class CustomLayoutManager {
     }
 
     /**
-     * Настройки按钮为选Статус
+     * 设置按钮为选中状态
      */
     private void setButtonSelected(Button button) {
         button.setTextColor(android.graphics.Color.parseColor("#FFFFFF"));
@@ -1081,7 +1081,7 @@ public class CustomLayoutManager {
     }
 
     /**
-     * Настройки按钮为Не 选Статус
+     * 设置按钮为未选中状态
      */
     private void setButtonUnselected(Button button) {
         button.setTextColor(android.graphics.Color.parseColor("#808080"));
@@ -1090,21 +1090,21 @@ public class CustomLayoutManager {
     }
 
     /**
-     * Приложение裁剪效果
-     * использование clipBounds 来裁剪 TextureView  显示区域
+     * 应用裁剪效果
+     * 使用 clipBounds 来裁剪 TextureView 的显示区域
      */
     private void applyCrop(TextureView textureView, String cameraKey) {
         applyCropWithRetry(textureView, cameraKey, 0);
     }
     
     /**
-     * 带重试 裁剪Приложение
-     * @param retryCount Текущий重试 раз数
+     * 带重试的裁剪应用
+     * @param retryCount 当前重试次数
      */
     private void applyCropWithRetry(TextureView textureView, String cameraKey, int retryCount) {
         if (textureView == null) return;
         
-        // 最多重试 10  раз，每 раз延迟 100ms
+        // 最多重试 10 次，每次延迟 100ms
         final int MAX_RETRY = 10;
         
         int cropTop = appConfig.getCameraCrop(cameraKey, "top");
@@ -1112,7 +1112,7 @@ public class CustomLayoutManager {
         int cropLeft = appConfig.getCameraCrop(cameraKey, "left");
         int cropRight = appConfig.getCameraCrop(cameraKey, "right");
         
-        // Если 没有裁剪конфигурация，直接返回
+        // 如果没有裁剪配置，直接返回
         if (cropTop == 0 && cropBottom == 0 && cropLeft == 0 && cropRight == 0) {
             textureView.setClipBounds(null);
             return;
@@ -1122,12 +1122,12 @@ public class CustomLayoutManager {
         int height = textureView.getHeight();
         
         if (width <= 0 || height <= 0) {
-            // 视图尚Не 布局завершение，延迟Приложение
+            // 视图尚未布局完成，延迟应用
             if (retryCount < MAX_RETRY) {
                 textureView.postDelayed(() -> applyCropWithRetry(textureView, cameraKey, retryCount + 1), 100);
-                AppLog.d(TAG, cameraKey + " 裁剪ожидание布局，重试 " + (retryCount + 1));
+                AppLog.d(TAG, cameraKey + " 裁剪等待布局，重试 " + (retryCount + 1));
             } else {
-                AppLog.w(TAG, cameraKey + " 裁剪ПриложениеОшибка：视图尺寸为 0，达максимум重试 раз数");
+                AppLog.w(TAG, cameraKey + " 裁剪应用失败：视图尺寸为 0，已达最大重试次数");
             }
             return;
         }
@@ -1138,65 +1138,65 @@ public class CustomLayoutManager {
         int right = width - cropRight;
         int bottom = height - cropBottom;
         
-        // 确保裁剪区域действует
+        // 确保裁剪区域有效
         if (left >= right || top >= bottom) {
-            // 裁剪区域недействительно，Сброс
+            // 裁剪区域无效，重置
             appConfig.resetCameraCrop(cameraKey);
             textureView.setClipBounds(null);
             Toast.makeText(context, "Обрезка слишком большая, сброшена", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        // Приложение裁剪
+        // 应用裁剪
         android.graphics.Rect clipBounds = new android.graphics.Rect(left, top, right, bottom);
         textureView.setClipBounds(clipBounds);
         
-        AppLog.d(TAG, cameraKey + " 裁剪ПриложениеУспешно: left=" + cropLeft + ", top=" + cropTop + 
+        AppLog.d(TAG, cameraKey + " 裁剪应用成功: left=" + cropLeft + ", top=" + cropTop + 
                 ", right=" + cropRight + ", bottom=" + cropBottom + " (Размер вида: " + width + "x" + height + ")");
     }
     
     /**
-     * 立т.е.Приложение所有裁剪（用于布局Восстановление时， 容器显示до调用)
+     * 立即应用所有裁剪（用于布局恢复时，在容器显示之前调用）
      */
     private void applyAllCropsImmediately() {
         if (textureFront != null) applyCrop(textureFront, "front");
         if (textureBack != null) applyCrop(textureBack, "back");
         if (textureLeft != null) applyCrop(textureLeft, "left");
         if (textureRight != null) applyCrop(textureRight, "right");
-        AppLog.d(TAG, "立т.е.Приложение裁剪конфигурация");
+        AppLog.d(TAG, "已立即应用裁剪配置");
     }
     
     /**
-     * Приложение所有Камера Сохранить 裁剪конфигурация
-     * использование更长 延迟确保 TextureView 经有正确 尺寸
-     * только 没有通过 restoreLayout Восстановление时использование
+     * 应用所有摄像头的保存的裁剪配置
+     * 使用更长的延迟确保 TextureView 已经有正确的尺寸
+     * 仅在没有通过 restoreLayout 恢复时使用
      */
     private void applySavedCrops() {
-        // Если 经有布局数据（会  restoreLayout Приложение裁剪)，则跳过
+        // 如果已经有布局数据（会在 restoreLayout 中应用裁剪），则跳过
         String savedData = appConfig.getCustomLayoutData();
         if (savedData != null && !savedData.isEmpty()) {
-            AppLog.d(TAG, "布局数据существует，裁剪将 布局Восстановление时Приложение");
+            AppLog.d(TAG, "布局数据存在，裁剪将在布局恢复时应用");
             return;
         }
         
-        // 延迟 500ms 后Приложение裁剪，确保Камера预览经Вкл始
+        // 延迟 500ms 后应用裁剪，确保摄像头预览已经开始
         android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
         handler.postDelayed(() -> {
             if (textureFront != null) applyCrop(textureFront, "front");
             if (textureBack != null) applyCrop(textureBack, "back");
             if (textureLeft != null) applyCrop(textureLeft, "left");
             if (textureRight != null) applyCrop(textureRight, "right");
-            AppLog.d(TAG, "触发裁剪конфигурацияВосстановление（无布局数据режим)");
+            AppLog.d(TAG, "已触发裁剪配置恢复（无布局数据模式）");
         }, 500);
     }
     
     /**
-     * Настройки编辑控制面板 按钮
+     * 设置编辑控制面板的按钮
      */
     private void setupEditControlButtons() {
         if (editControlsView == null) return;
         
-        // Сохранить按钮
+        // 保存按钮
         Button btnSave = editControlsView.findViewById(
                 context.getResources().getIdentifier("btn_save_layout", "id", context.getPackageName()));
         if (btnSave != null) {
@@ -1206,7 +1206,7 @@ public class CustomLayoutManager {
             });
         }
         
-        // Сброс按钮
+        // 重置按钮
         Button btnReset = editControlsView.findViewById(
                 context.getResources().getIdentifier("btn_reset_layout", "id", context.getPackageName()));
         if (btnReset != null) {
@@ -1216,7 +1216,7 @@ public class CustomLayoutManager {
             });
         }
         
-        // перезагрузка按钮
+        // 重启按钮
         Button btnRestart = editControlsView.findViewById(
                 context.getResources().getIdentifier("btn_restart_app", "id", context.getPackageName()));
         if (btnRestart != null) {
@@ -1239,7 +1239,7 @@ public class CustomLayoutManager {
             btnButtonsEnlarge.setOnClickListener(v -> adjustButtonSize(true));
         }
         
-        // 按钮方 к 切换
+        // 按钮方向切换
         Button btnButtonsRotate = editControlsView.findViewById(
                 context.getResources().getIdentifier("btn_buttons_rotate", "id", context.getPackageName()));
         if (btnButtonsRotate != null) {
@@ -1249,23 +1249,23 @@ public class CustomLayoutManager {
                         AppConfig.BUTTON_ORIENTATION_HORIZONTAL : AppConfig.BUTTON_ORIENTATION_VERTICAL;
                 appConfig.setCustomButtonOrientation(newOrientation);
                 
-                // Уведомление监听器重新загрузка按钮布局
+                // 通知监听器重新加载按钮布局
                 if (buttonLayoutChangeListener != null) {
                     buttonLayoutChangeListener.onButtonLayoutChange(newOrientation);
                 }
                 
                 Toast.makeText(context, "Направление кнопок: " + 
-                        (newOrientation.equals(AppConfig.BUTTON_ORIENTATION_VERTICAL) ? "Вертикальная" : "Горизонтальная"), 
+                        (newOrientation.equals(AppConfig.BUTTON_ORIENTATION_VERTICAL) ? "Вертикальный" : "Горизонтальный"), 
                         Toast.LENGTH_SHORT).show();
             });
         }
     }
     
     /**
-     * Настройки单 шт.Камера容器 自由操控
+     * 设置单个摄像头容器的自由操控
      */
     private void setupCameraFrame(FrameLayout frame, String cameraId) {
-        // 直接использование整 шт.frame作为拖动区域（不необходимо角标)
+        // 直接使用整个frame作为拖动区域（不需要角标）
         frame.setOnTouchListener(new DragTouchListener(frame, cameraId));
         
         // 查找缩小按钮
@@ -1294,16 +1294,16 @@ public class CustomLayoutManager {
     }
     
     /**
-     * Настройки按钮容器 自由操控
+     * 设置按钮容器的自由操控
      */
     private void setupButtonContainer(ViewGroup container) {
         // 按钮容器可以整体拖动
-        // необходимо先移除 layout_gravity，否则ПозицияНастройки会 覆盖
+        // 需要先移除 layout_gravity，否则位置设置会被覆盖
         if (container.getLayoutParams() instanceof FrameLayout.LayoutParams) {
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) container.getLayoutParams();
-            // 移除 gravity，改为использование绝 Позиция
+            // 移除 gravity，改为使用绝对位置
             params.gravity = android.view.Gravity.NO_GRAVITY;
-            // Если 宽度  match_parent，改为 wrap_content 以поддержка拖动
+            // 如果宽度是 match_parent，改为 wrap_content 以支持拖动
             if (params.width == FrameLayout.LayoutParams.MATCH_PARENT) {
                 params.width = FrameLayout.LayoutParams.WRAP_CONTENT;
             }
@@ -1322,7 +1322,7 @@ public class CustomLayoutManager {
     }
 
     /**
-     * Настройки编辑режим
+     * 设置编辑模式
      * @param enabled true 显示编辑控制按钮，false 隐藏
      */
     public void setEditMode(boolean enabled) {
@@ -1333,24 +1333,24 @@ public class CustomLayoutManager {
             editControlsView.setVisibility(enabled ? View.VISIBLE : View.GONE);
         }
         
-        // 显示/隐藏各 шт.Камера 控制按钮
+        // 显示/隐藏各个摄像头的控制按钮
         setControlButtonsVisibility(frameFront, "front", enabled);
         setControlButtonsVisibility(frameBack, "back", enabled);
         setControlButtonsVisibility(frameLeft, "left", enabled);
         setControlButtonsVisibility(frameRight, "right", enabled);
         
-        AppLog.d(TAG, "编辑режим: " + (enabled ? "Вкл启" : "Закрыть"));
+        AppLog.d(TAG, "编辑模式: " + (enabled ? "Вкл启" : "Выкл"));
     }
     
     /**
-     * Настройки控制按钮 可见性
+     * 设置控制按钮的可见性
      */
     private void setControlButtonsVisibility(FrameLayout frame, String cameraId, boolean visible) {
         if (frame == null) return;
         
         int visibility = visible ? View.VISIBLE : View.GONE;
         
-        // 控制按钮容器（controls_front, controls_back 等)
+        // 控制按钮容器（controls_front, controls_back 等）
         int controlsId = context.getResources().getIdentifier(
                 "controls_" + cameraId, "id", context.getPackageName());
         View controlsContainer = frame.findViewById(controlsId);
@@ -1358,10 +1358,10 @@ public class CustomLayoutManager {
             controlsContainer.setVisibility(visibility);
             AppLog.d(TAG, "控制按钮容器 controls_" + cameraId + " 可见性: " + visible);
         } else {
-            AppLog.w(TAG, "Не 找 до 控制按钮容器: controls_" + cameraId);
+            AppLog.w(TAG, "未找到控制按钮容器: controls_" + cameraId);
         }
         
-        // 拖动手柄（Если 有 话)
+        // 拖动手柄（如果有的话）
         int dragHandleId = context.getResources().getIdentifier(
                 "drag_handle_" + cameraId, "id", context.getPackageName());
         View dragHandle = frame.findViewById(dragHandleId);
@@ -1372,7 +1372,7 @@ public class CustomLayoutManager {
 
     /**
      * 切换视图可见性
-     * использование透明度而不 GONE，避免TextureViewинициализация问题
+     * 使用透明度而不是GONE，避免TextureView初始化问题
      */
     private void toggleVisibility(View view, String id) {
         boolean isCurrentlyVisible = layoutData.isVisible(id);
@@ -1383,14 +1383,14 @@ public class CustomLayoutManager {
             view.setClickable(false);
             view.setFocusable(false);
             layoutData.setVisible(id, false);
-            AppLog.d(TAG, id + " 隐藏");
+            AppLog.d(TAG, id + " 已隐藏");
         } else {
             // 显示
             view.setAlpha(1f);
             view.setClickable(true);
             view.setFocusable(true);
             layoutData.setVisible(id, true);
-            AppLog.d(TAG, id + " 显示");
+            AppLog.d(TAG, id + " 已显示");
         }
     }
 
@@ -1418,29 +1418,29 @@ public class CustomLayoutManager {
     }
     
     /**
-     * Приложение缩放比例
-     *  от 左角Вкл始缩放，使角标始终保持 左角Позиция
-     * 同时反 к 缩放控制按钮使其保持固定大小
+     * 应用缩放比例
+     * 从左上角开始缩放，使角标始终保持在左上角位置
+     * 同时反向缩放控制按钮使其保持固定大小
      */
     private void applyScale(View view, float scale) {
-        // Настройки缩放心点为左角 (0, 0)
-        // 这样缩放时左角保持不动，角标自然 正确Позиция
+        // 设置缩放中心点为左上角 (0, 0)
+        // 这样缩放时左上角保持不动，角标自然在正确位置
         view.setPivotX(0);
         view.setPivotY(0);
         view.setScaleX(scale);
         view.setScaleY(scale);
         
-        // 反 к 缩放控制按钮，使其保持固定大小
+        // 反向缩放控制按钮，使其保持固定大小
         if (view instanceof FrameLayout) {
             compensateControlButtonsScale((FrameLayout) view, scale);
         }
     }
     
     /**
-     * 反 к 缩放控制按钮 и 角标，使其 画面缩放时保持固定大小
+     * 反向缩放控制按钮和角标，使其在画面缩放时保持固定大小
      */
     private void compensateControlButtonsScale(FrameLayout frame, float parentScale) {
-        // 查找控制按钮容器 и 角标
+        // 查找控制按钮容器和角标
         for (int i = 0; i < frame.getChildCount(); i++) {
             View child = frame.getChildAt(i);
             String resourceName = "";
@@ -1450,7 +1450,7 @@ public class CustomLayoutManager {
                 continue;
             }
             
-            // 只反 к 缩放控制按钮，角标跟随画面缩放（小画面配小角标更直观)
+            // 只反向缩放控制按钮，角标跟随画面缩放（小画面配小角标更直观）
             if (resourceName.startsWith("controls_")) {
                 float compensateScale = 1.0f / parentScale;
                 child.setScaleX(compensateScale);
@@ -1461,10 +1461,10 @@ public class CustomLayoutManager {
     }
 
     /**
-     * СохранитьТекущий布局
+     * 保存当前布局
      */
     public void saveLayout() {
-        // обновление布局数据 Позиция и 尺寸Информация
+        // 更新布局数据中的位置和尺寸信息
         saveViewLayout(frameFront, "front");
         saveViewLayout(frameBack, "back");
         saveViewLayout(frameLeft, "left");
@@ -1472,20 +1472,20 @@ public class CustomLayoutManager {
         saveViewLayout(frameVehicleControl, "vehicle");
         saveViewLayout(buttonContainer, "buttons");
         
-        // Сохранить裁剪数据
+        // 保存裁剪数据
         saveCropData("front");
         saveCropData("back");
         saveCropData("left");
         saveCropData("right");
         
-        // Сохранить до конфигурация
+        // 保存到配置
         appConfig.setCustomLayoutData(layoutData.toJson());
         appConfig.setCustomLayoutVersion(LAYOUT_VERSION);
-        AppLog.d(TAG, "布局Сохранить: " + layoutData.toJson());
+        AppLog.d(TAG, "Макет сохранён: " + layoutData.toJson());
     }
     
     /**
-     * Сохранить单 шт.Камера 裁剪数据 до 布局数据
+     * 保存单个摄像头的裁剪数据到布局数据
      */
     private void saveCropData(String cameraKey) {
         int top = appConfig.getCameraCrop(cameraKey, "top");
@@ -1496,7 +1496,7 @@ public class CustomLayoutManager {
     }
     
     /**
-     *  от 布局数据Восстановление裁剪конфигурация до  AppConfig
+     * 从布局数据恢复裁剪配置到 AppConfig
      */
     private void restoreCropDataFromLayout() {
         restoreCropForCamera("front");
@@ -1506,7 +1506,7 @@ public class CustomLayoutManager {
     }
     
     /**
-     * Восстановление单 шт.Камера 裁剪数据
+     * 恢复单个摄像头的裁剪数据
      */
     private void restoreCropForCamera(String cameraKey) {
         if (layoutData.hasCrop(cameraKey)) {
@@ -1520,53 +1520,53 @@ public class CustomLayoutManager {
             if (left >= 0) appConfig.setCameraCrop(cameraKey, "left", left);
             if (right >= 0) appConfig.setCameraCrop(cameraKey, "right", right);
             
-            AppLog.d(TAG, cameraKey + " 裁剪Восстановление: top=" + top + ", bottom=" + bottom + 
+            AppLog.d(TAG, cameraKey + " 裁剪恢复: top=" + top + ", bottom=" + bottom + 
                     ", left=" + left + ", right=" + right);
         }
     }
     
     /**
-     * Сохранить单 шт.视图 布局数据（Позиция и 尺寸)
+     * 保存单个视图的布局数据（位置和尺寸）
      */
     private void saveViewLayout(View view, String id) {
         if (view == null) return;
         
-        // СохранитьПозиция（四舍五入为整数，避免浮点精度问题)
+        // 保存位置（四舍五入为整数，避免浮点精度问题）
         float x = Math.round(view.getTranslationX());
         float y = Math.round(view.getTranslationY());
         layoutData.setPosition(id, x, y);
         
-        // Сохранить尺寸（考虑缩放后 实际尺寸)
+        // 保存尺寸（考虑缩放后的实际尺寸）
         int width = view.getWidth();
         int height = view.getHeight();
         if (width > 0 && height > 0) {
             layoutData.setSize(id, width, height);
-            AppLog.d(TAG, id + " Сохранить尺寸: " + width + "x" + height + " Позиция: (" + x + ", " + y + ")");
+            AppLog.d(TAG, id + " 保存尺寸: " + width + "x" + height + " Позиция: (" + x + ", " + y + ")");
         }
     }
 
     /**
-     * Сброс布局 до По умолчаниюСтатус
+     * 重置布局到默认状态
      */
     public void resetLayout() {
         layoutData = new LayoutData();
         appConfig.clearCustomLayoutData();
         appConfig.setCustomLayoutVersion(LAYOUT_VERSION);
-
-        // Сброс所有视图缩放 и Поворот （FrameLayout)
+        
+        // 重置所有视图缩放和旋转（FrameLayout）
         resetViewTransform(frameFront);
         resetViewTransform(frameBack);
         resetViewTransform(frameLeft);
         resetViewTransform(frameRight);
         resetViewTransform(buttonContainer);
         
-        // Сброс所有裁剪конфигурация
+        // 重置所有裁剪配置
         resetAllCrops();
         
-        // СбросКамераПоворот  и 镜像конфигурация
+        // 重置摄像头旋转和镜像配置
         resetAllRotationAndMirror();
         
-        // 重新Настройки初始Позиция（四宫格/双/单)
+        // 重新设置初始位置（四宫格/双摄/单摄）
         if (containerCameras != null) {
             setupDefaultPositions();
         }
@@ -1578,27 +1578,27 @@ public class CustomLayoutManager {
     }
     
     /**
-     * перезагрузкаПриложение
+     * 重启应用
      */
     /**
-     * 重载界面（重新创建 Activity)
+     * 重载界面（重新创建 Activity）
      */
     private void restartApp() {
         if (context instanceof android.app.Activity) {
             android.app.Activity activity = (android.app.Activity) context;
 
             Toast.makeText(context, "Перезагрузка интерфейса...", Toast.LENGTH_SHORT).show();
-            // 清掉 Holder  旧 CameraManager，避免新 Activity 复用处于不一致Статус 实例
+            // 清掉 Holder 中的旧 CameraManager，避免新 Activity 复用处于不一致状态的实例
             com.kooo.evcam.camera.CameraManagerHolder.getInstance().setCameraManager(null);
             activity.recreate();
         }
     }
     
     /**
-     * Сброс所有Камера Поворот  и 镜像конфигурация
+     * 重置所有摄像头的旋转和镜像配置
      */
     private void resetAllRotationAndMirror() {
-        // Сброс AppConfig  конфигурация
+        // 重置 AppConfig 中的配置
         appConfig.setCameraRotation("front", 0);
         appConfig.setCameraRotation("back", 0);
         appConfig.setCameraRotation("left", 0);
@@ -1608,17 +1608,17 @@ public class CustomLayoutManager {
         appConfig.setCameraMirror("left", false);
         appConfig.setCameraMirror("right", false);
         
-        // Сброс TextureView  Поворот  и 缩放
+        // 重置 TextureView 的旋转和缩放
         resetTextureViewTransform(textureFront);
         resetTextureViewTransform(textureBack);
         resetTextureViewTransform(textureLeft);
         resetTextureViewTransform(textureRight);
         
-        AppLog.d(TAG, "КамераПоворот  и 镜像Сброс");
+        AppLog.d(TAG, "Камера旋转和镜像已重置");
     }
     
     /**
-     * Сброс单 шт. TextureView  变换
+     * 重置单个 TextureView 的变换
      */
     private void resetTextureViewTransform(TextureView textureView) {
         if (textureView == null) return;
@@ -1628,7 +1628,7 @@ public class CustomLayoutManager {
     }
     
     /**
-     * Сброс所有Камера 裁剪конфигурация
+     * 重置所有摄像头的裁剪配置
      */
     private void resetAllCrops() {
         appConfig.resetCameraCrop("front");
@@ -1636,7 +1636,7 @@ public class CustomLayoutManager {
         appConfig.resetCameraCrop("left");
         appConfig.resetCameraCrop("right");
         
-        // очистка裁剪效果
+        // 清除裁剪效果
         if (textureFront != null) textureFront.setClipBounds(null);
         if (textureBack != null) textureBack.setClipBounds(null);
         if (textureLeft != null) textureLeft.setClipBounds(null);
@@ -1644,7 +1644,7 @@ public class CustomLayoutManager {
     }
     
     /**
-     * Сброс单 шт.视图 变换（缩放、Поворот )
+     * 重置单个视图的变换（缩放、旋转）
      */
     private void resetViewTransform(View view) {
         if (view == null) return;
@@ -1652,7 +1652,7 @@ public class CustomLayoutManager {
         view.setScaleY(1.0f);
         view.setRotation(0f);
         
-        // Если   FrameLayout，такженеобходимоСбросВнутреннее控制按钮容器 缩放
+        // 如果是 FrameLayout，也需要重置内部控制按钮容器的缩放
         if (view instanceof FrameLayout) {
             FrameLayout frame = (FrameLayout) view;
             for (int i = 0; i < frame.getChildCount(); i++) {
@@ -1662,7 +1662,7 @@ public class CustomLayoutManager {
                     if (resourceName.startsWith("controls_")) {
                         child.setScaleX(1.0f);
                         child.setScaleY(1.0f);
-                        AppLog.d(TAG, "Сброс控制按钮容器缩放: " + resourceName);
+                        AppLog.d(TAG, "重置控制按钮容器缩放: " + resourceName);
                     }
                 } catch (Exception e) {
                     // ignore
@@ -1672,7 +1672,7 @@ public class CustomLayoutManager {
     }
     
     /**
-     * НастройкиПо умолчанию КамераПозиция
+     * 设置默认的摄像头位置
      */
     private void setupDefaultPositions() {
         int containerWidth = containerCameras.getWidth();
@@ -1701,7 +1701,7 @@ public class CustomLayoutManager {
                 setViewPosition(frameBack, side + camW + gap, 0, camW, containerHeight);
             }
         } else {
-            // 4摄: все视图прижаты к краям контейнера, только gap между ними
+            // 4摄：所有视图紧贴容器边缘，仅中间留 gap 间距
             int topH = (containerHeight - gap) / 2;
             int botH = containerHeight - topH - gap;
             int topW = (containerWidth - gap) / 2;
@@ -1738,7 +1738,7 @@ public class CustomLayoutManager {
     }
     
     /**
-     * Настройки视图Позиция и 大小
+     * 设置视图位置和大小
      */
     private int dp(int dp) {
         return (int) (dp * context.getResources().getDisplayMetrics().density + 0.5f);
@@ -1765,7 +1765,7 @@ public class CustomLayoutManager {
     }
     
     /**
-     * 显示单 шт.视图
+     * 显示单个视图
      */
     private void showView(View view, String id) {
         if (view == null) return;
@@ -1776,8 +1776,8 @@ public class CustomLayoutManager {
     }
 
     /**
-     * ВосстановлениеСохранить 布局
-     * @return  否有Сохранить 布局数据
+     * 恢复保存的布局
+     * @return 是否有保存的布局数据
      */
     private boolean restoreLayout() {
         if (appConfig.getCustomLayoutVersion() < LAYOUT_VERSION) {
@@ -1786,28 +1786,29 @@ public class CustomLayoutManager {
             appConfig.setCustomLayoutVersion(LAYOUT_VERSION);
             return false;
         }
+
         String savedData = appConfig.getCustomLayoutData();
         boolean hasData = savedData != null && !savedData.isEmpty();
         
         if (hasData) {
             layoutData = LayoutData.fromJson(savedData);
             
-            // проверка 否有完整 尺寸数据（至少有一 шт.Камера有尺寸数据)
+            // 检查是否有完整的尺寸数据（至少有一个摄像头有尺寸数据）
             boolean hasCompleteData = layoutData.getWidth("front") > 0 || 
                                       layoutData.getWidth("back") > 0 ||
                                       layoutData.getWidth("left") > 0 ||
                                       layoutData.getWidth("right") > 0;
             
             if (hasCompleteData) {
-                // 先Настройки容器透明（保持布局但不可见)，避免Восстановление过程 闪烁
+                // 先设置容器透明（保持布局但不可见），避免恢复过程中的闪烁
                 containerCameras.setAlpha(0f);
                 
-                //  от 布局数据Восстановление裁剪конфигурация до  AppConfig
+                // 从布局数据恢复裁剪配置到 AppConfig
                 restoreCropDataFromLayout();
                 
-                // ожидание容器布局завершение后直接ВосстановлениеСохранить 布局
+                // 等待容器布局完成后直接恢复保存的布局
                 containerCameras.post(() -> {
-                    // 直接ВосстановлениеСохранить Позиция、尺寸 и ДругоеСтатус
+                    // 直接恢复保存的位置、尺寸和其他状态
                     restoreViewState(frameFront, "front");
                     restoreViewState(frameBack, "back");
                     restoreViewState(frameLeft, "left");
@@ -1815,18 +1816,18 @@ public class CustomLayoutManager {
                     restoreViewState(frameVehicleControl, "vehicle");
                     restoreViewState(buttonContainer, "buttons");
                     
-                    // 延迟Приложение裁剪并显示容器（ожидание TextureView 有действует尺寸)
+                    // 延迟应用裁剪并显示容器（等待 TextureView 有有效尺寸）
                     android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
                     handler.postDelayed(() -> {
                         applyAllCropsImmediately();
-                        // 裁剪Приложение后显示容器
+                        // 裁剪应用后显示容器
                         containerCameras.setAlpha(1f);
-                        AppLog.d(TAG, "布局 и 裁剪Восстановлениезавершение");
+                        AppLog.d(TAG, "布局和裁剪恢复完成");
                     }, 300);
                 });
             } else {
-                // 没有完整 尺寸数据，использованиеПо умолчанию布局
-                AppLog.d(TAG, "Сохранить 布局数据不完整，использованиеПо умолчанию布局");
+                // 没有完整的尺寸数据，使用默认布局
+                AppLog.d(TAG, "保存的布局数据不完整，使用По умолчанию布局");
                 return false;
             }
         }
@@ -1835,23 +1836,23 @@ public class CustomLayoutManager {
     }
     
     /**
-     * Восстановление单 шт.视图 Статус
+     * 恢复单个视图的状态
      */
     private void restoreViewState(View view, String id) {
         if (view == null) return;
         
-        // Восстановление尺寸（Если 有Сохранить 尺寸)
+        // 恢复尺寸（如果有保存的尺寸）
         int savedWidth = layoutData.getWidth(id);
         int savedHeight = layoutData.getHeight(id);
         if (savedWidth > 0 && savedHeight > 0) {
             android.widget.FrameLayout.LayoutParams params = 
                     new android.widget.FrameLayout.LayoutParams(savedWidth, savedHeight);
-            // 移除 gravity，использование绝 Позиция
+            // 移除 gravity，使用绝对位置
             params.gravity = android.view.Gravity.NO_GRAVITY;
             view.setLayoutParams(params);
-            AppLog.d(TAG, id + " Восстановление尺寸: " + savedWidth + "x" + savedHeight);
+            AppLog.d(TAG, id + " 恢复尺寸: " + savedWidth + "x" + savedHeight);
         } else if (view.getLayoutParams() instanceof FrameLayout.LayoutParams) {
-            // т.е.使没有Сохранить尺寸，такженеобходимо移除 gravity 以поддержкаПозицияВосстановление
+            // 即使没有保存尺寸，也需要移除 gravity 以支持位置恢复
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
             if (params.gravity != android.view.Gravity.NO_GRAVITY) {
                 params.gravity = android.view.Gravity.NO_GRAVITY;
@@ -1859,22 +1860,22 @@ public class CustomLayoutManager {
             }
         }
         
-        // ВосстановлениеПозиция
+        // 恢复位置
         float x = layoutData.getX(id);
         float y = layoutData.getY(id);
-        // 只要有Сохранить Позиция数据Восстановление（包括 0,0 Позиция)
-        // Используем translationX/Y чтобы избежать гонки с асинхронным layout pass от setLayoutParams выше
-        if (layoutData.getWidth(id) > 0) {  // 有Сохранить过数据
+        // 只要有保存的位置数据就恢复（包括 0,0 位置）
+        // 使用 translationX/Y 避免与上面 setLayoutParams 触发的异步 layout pass 竞争
+        if (layoutData.getWidth(id) > 0) {  // 有保存过数据
             view.setTranslationX(x);
             view.setTranslationY(y);
             AppLog.d(TAG, id + " ВосстановлениеПозиция: (" + x + ", " + y + ")");
         }
         
-        // Восстановление缩放（始终Приложение，包括По умолчанию值1.0，以确保控制按钮补偿正确)
+        // 恢复缩放（始终应用，包括默认值1.0，以确保控制按钮补偿正确）
         float scale = layoutData.getScale(id);
         applyScale(view, scale);
         
-        // Восстановление可见性
+        // 恢复可见性
         boolean visible = layoutData.isVisible(id);
         if (visible) {
             view.setAlpha(1f);
@@ -1888,7 +1889,7 @@ public class CustomLayoutManager {
     }
 
     /**
-     * загрузка布局数据
+     * 加载布局数据
      */
     private void loadLayoutData() {
         String json = appConfig.getCustomLayoutData();
@@ -1898,28 +1899,28 @@ public class CustomLayoutManager {
     }
 
     /**
-     * обновлениеКамера 宽Высокий比（根据实际Разрешение и Поворот 角度)
-     * @param position Позиция（front/back/left/right)
+     * 更新摄像头的宽高比（根据实际分辨率和旋转角度）
+     * @param position 位置（front/back/left/right）
      * @param width 原始宽度
-     * @param height 原始Высокий度
-     * @param rotation Поворот 角度
+     * @param height 原始高度
+     * @param rotation 旋转角度
      */
     public void updateCameraAspectRatio(String position, int width, int height, int rotation) {
         int[] displayRatio = AppConfig.calculateDisplayRatio(width, height, rotation);
         layoutData.setAspectRatio(position, displayRatio[0], displayRatio[1]);
-        AppLog.d(TAG, position + " 宽Высокий比: " + displayRatio[0] + ":" + displayRatio[1] + 
+        AppLog.d(TAG, position + " 宽Высокое比: " + displayRatio[0] + ":" + displayRatio[1] + 
                 " (Поворот " + rotation + "°)");
     }
     
     /**
-     * ПолучениеКамера 显示宽Высокий比
+     * 获取摄像头的显示宽高比
      */
     public float getDisplayAspectRatio(String position) {
         return layoutData.getAspectRatio(position);
     }
     
     /**
-     *  否处于编辑режим
+     * 是否处于编辑模式
      */
     public boolean isEditModeEnabled() {
         return editModeEnabled;
@@ -1932,10 +1933,10 @@ public class CustomLayoutManager {
     private class DragTouchListener implements View.OnTouchListener {
         private final View targetView;
         private final String viewId;
-        private float startX, startY;      // 触摸Вкл始时视图 Позиция
-        private float startRawX, startRawY; // 触摸Вкл始时手指 屏幕Позиция
+        private float startX, startY;      // 触摸开始时视图的位置
+        private float startRawX, startRawY; // 触摸开始时手指的屏幕位置
         private boolean isDragging = false;
-        private static final float TOUCH_SLOP = 10f;  // 触发拖动 минимум移动距离
+        private static final float TOUCH_SLOP = 10f;  // 触发拖动的最小移动距离
 
         public DragTouchListener(View targetView, String viewId) {
             this.targetView = targetView;
@@ -1944,14 +1945,14 @@ public class CustomLayoutManager {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            // 只有 编辑режим才处理拖动
+            // 只有在编辑模式下才处理拖动
             if (!editModeEnabled) {
                 return false;
             }
             
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    // 直接记录视图Текущий  X/Y Позиция и 手指Позиция
+                    // 直接记录视图当前的 X/Y 位置和手指位置
                     startX = targetView.getTranslationX();
                     startY = targetView.getTranslationY();
                     startRawX = event.getRawX();
@@ -1960,30 +1961,30 @@ public class CustomLayoutManager {
                     return true;
 
                 case MotionEvent.ACTION_MOVE:
-                    // 计算手指移动 距离
+                    // 计算手指移动的距离
                     float deltaX = event.getRawX() - startRawX;
                     float deltaY = event.getRawY() - startRawY;
                     
-                    // проверка 否超过触发阈值（避免误触)
+                    // 检查是否超过触发阈值（避免误触）
                     if (!isDragging) {
                         if (Math.abs(deltaX) > TOUCH_SLOP || Math.abs(deltaY) > TOUCH_SLOP) {
                             isDragging = true;
-                            // 将起始Позиция吸附 до 网格，确保移动基于网格 齐 Позиция
+                            // 将起始位置吸附到网格，确保移动基于网格对齐的位置
                             startX = snapToGrid(startX);
                             startY = snapToGrid(startY);
                         } else {
-                            return true;  // 还Не Вкл始拖动，ожидание
+                            return true;  // 还未开始拖动，等待
                         }
                     }
                     
-                    // 计算新Позиция = 初始Позиция + 移动距离，然后吸附 до 网格
+                    // 计算新位置 = 初始位置 + 移动距离，然后吸附到网格
                     float newX = snapToGrid(startX + deltaX);
                     float newY = snapToGrid(startY + deltaY);
                     
-                    // Приложение边界限制
+                    // 应用边界限制
                     float[] bounded = applyBoundaryLimits(newX, newY);
                     
-                    // НастройкиПозиция（每 раз移动все吸附 до  20dp 网格，方便 齐)
+                    // 设置位置（每次移动都吸附到 20dp 网格，方便对齐）
                     targetView.setTranslationX(bounded[0]);
                     targetView.setTranslationY(bounded[1]);
                     return true;
@@ -1995,20 +1996,20 @@ public class CustomLayoutManager {
                         float finalX = snapToGrid(targetView.getTranslationX());
                         float finalY = snapToGrid(targetView.getTranslationY());
                         
-                        // 边缘吸附并确保 边界内
+                        // 边缘吸附并确保在边界内
                         float[] snapped = applyEdgeSnapping(finalX, finalY);
                         
                         targetView.setTranslationX(snapped[0]);
                         targetView.setTranslationY(snapped[1]);
                         
-                        // обновление布局数据
+                        // 更新布局数据
                         layoutData.setPosition(viewId, snapped[0], snapped[1]);
                         
-                        // Сохранить до  应режим  appConfig 参数
+                        // 保存到对应模式的 appConfig 参数
                         savePositionToCurrentMode(viewId, (int) snapped[0], (int) snapped[1], 
                                 targetView.getWidth(), targetView.getHeight());
                         
-                        AppLog.d(TAG, viewId + " 移动 до  (" + (int) snapped[0] + ", " + (int) snapped[1] + ")");
+                        AppLog.d(TAG, viewId + " 移动到 (" + (int) snapped[0] + ", " + (int) snapped[1] + ")");
                     }
                     return true;
 
@@ -2018,8 +2019,8 @@ public class CustomLayoutManager {
         }
         
         /**
-         * Приложение边界限制（Отключено)
-         * разрешить视图自由移动 до 任意Позиция，包括边界外
+         * 应用边界限制（已禁用）
+         * 允许视图自由移动到任意位置，包括边界外
          */
         private float[] applyBoundaryLimits(float x, float y) {
             // 不做任何边界限制，直接返回原始坐标
@@ -2027,17 +2028,17 @@ public class CustomLayoutManager {
         }
         
         /**
-         * 边缘吸附处理（Отключено边界限制)
-         * 只保留网格 齐функция，разрешить自由移动 до 边界外
+         * 边缘吸附处理（已禁用边界限制）
+         * 只保留网格对齐功能，允许自由移动到边界外
          */
         private float[] applyEdgeSnapping(float x, float y) {
             // 只做网格吸附，不做边界限制
-            // 坐标经  ACTION_MOVE 吸附过网格，这里直接返回
+            // 坐标已经在 ACTION_MOVE 中吸附过网格，这里直接返回
             return new float[]{x, y};
         }
         
         /**
-         * 吸附 до 网格
+         * 吸附到网格
          */
         private float snapToGrid(float value) {
             return Math.round(value / GRID_SIZE) * GRID_SIZE;
@@ -2045,11 +2046,11 @@ public class CustomLayoutManager {
     }
 
     /**
-     * СохранитьПозиция до Текущийрежим  appConfig 参数
-     * 根据Текущий选 режим（前轮/后轮/普通)Сохранить до  应 参数
+     * 保存位置到当前模式的 appConfig 参数
+     * 根据当前选中的模式（前轮/后轮/普通）保存到对应的参数
      */
     private void savePositionToCurrentMode(String viewId, int x, int y, int width, int height) {
-        // 判断Текущийрежим
+        // 判断当前模式
         Button btnFrontWheel = null;
         Button btnRearWheel = null;
         if (frameVehicleControl != null) {
@@ -2060,28 +2061,28 @@ public class CustomLayoutManager {
         boolean isFrontWheelMode = btnFrontWheel != null && btnFrontWheel.getTag() != null && (Boolean) btnFrontWheel.getTag();
         boolean isRearWheelMode = btnRearWheel != null && btnRearWheel.getTag() != null && (Boolean) btnRearWheel.getTag();
 
-        // 只Сохранить左视图 и 右视图 Позиция
+        // 只保存左视图和右视图的位置
         if ("left".equals(viewId)) {
             if (isFrontWheelMode) {
                 appConfig.setFrontWheelLeftViewParams(width, height, x, y, appConfig.getFrontWheelLeftRotation(0));
-                AppLog.d(TAG, "前轮режим左视图参数Сохранить");
+                AppLog.d(TAG, "П轮模式Л视图参数已保存");
             } else if (isRearWheelMode) {
                 appConfig.setRearWheelLeftViewParams(width, height, x, y, appConfig.getRearWheelLeftRotation(0));
-                AppLog.d(TAG, "后轮режим左视图参数Сохранить");
+                AppLog.d(TAG, "З轮模式Л视图参数已保存");
             } else {
                 appConfig.setNormalLeftViewParams(width, height, x, y, appConfig.getNormalLeftRotation(0));
-                AppLog.d(TAG, "普通режим左视图参数Сохранить");
+                AppLog.d(TAG, "普通模式Л视图参数已保存");
             }
         } else if ("right".equals(viewId)) {
             if (isFrontWheelMode) {
                 appConfig.setFrontWheelRightViewParams(width, height, x, y, appConfig.getFrontWheelRightRotation(0));
-                AppLog.d(TAG, "前轮режим右视图参数Сохранить");
+                AppLog.d(TAG, "П轮模式Пр视图参数已保存");
             } else if (isRearWheelMode) {
                 appConfig.setRearWheelRightViewParams(width, height, x, y, appConfig.getRearWheelRightRotation(0));
-                AppLog.d(TAG, "后轮режим右视图参数Сохранить");
+                AppLog.d(TAG, "З轮模式Пр视图参数已保存");
             } else {
                 appConfig.setNormalRightViewParams(width, height, x, y, appConfig.getNormalRightRotation(0));
-                AppLog.d(TAG, "普通режим右视图参数Сохранить");
+                AppLog.d(TAG, "普通模式Пр视图参数已保存");
             }
         }
     }
@@ -2101,7 +2102,7 @@ public class CustomLayoutManager {
             try {
                 layoutData.data = new JSONObject(json);
             } catch (JSONException e) {
-                AppLog.e(TAG, "解析布局数据Ошибка", e);
+                AppLog.e(TAG, "解析布局数据失败", e);
             }
             return layoutData;
         }
@@ -2158,7 +2159,7 @@ public class CustomLayoutManager {
                 JSONObject obj = getOrCreateObject(id);
                 obj.put("scale", scale);
             } catch (JSONException e) {
-                AppLog.e(TAG, "Сохранить缩放Ошибка", e);
+                AppLog.e(TAG, "保存缩放失败", e);
             }
         }
 
@@ -2178,7 +2179,7 @@ public class CustomLayoutManager {
                 JSONObject obj = getOrCreateObject(id);
                 obj.put("visible", visible);
             } catch (JSONException e) {
-                AppLog.e(TAG, "Сохранить可见性Ошибка", e);
+                AppLog.e(TAG, "保存可见性失败", e);
             }
         }
 
@@ -2199,7 +2200,7 @@ public class CustomLayoutManager {
                 obj.put("ratioWidth", width);
                 obj.put("ratioHeight", height);
             } catch (JSONException e) {
-                AppLog.e(TAG, "Сохранить宽Высокий比Ошибка", e);
+                AppLog.e(TAG, "保存宽Высокое比失败", e);
             }
         }
 
@@ -2214,11 +2215,11 @@ public class CustomLayoutManager {
             } catch (JSONException e) {
                 // ignore
             }
-            return 16f / 9f;  // По умолчанию16:9
+            return 16f / 9f;  // 默认16:9
         }
 
         /**
-         * Сохранить视图 宽Высокий
+         * 保存视图的宽高
          */
         public void setSize(String id, int width, int height) {
             try {
@@ -2226,13 +2227,13 @@ public class CustomLayoutManager {
                 obj.put("width", width);
                 obj.put("height", height);
             } catch (JSONException e) {
-                AppLog.e(TAG, "Сохранить尺寸Ошибка", e);
+                AppLog.e(TAG, "保存尺寸失败", e);
             }
         }
 
         /**
-         * ПолучениеСохранить 宽度
-         * @return 宽度，-1 表示Не Настройки
+         * 获取保存的宽度
+         * @return 宽度，-1 表示未设置
          */
         public int getWidth(String id) {
             try {
@@ -2246,8 +2247,8 @@ public class CustomLayoutManager {
         }
 
         /**
-         * ПолучениеСохранить Высокий度
-         * @return Высокий度，-1 表示Не Настройки
+         * 获取保存的高度
+         * @return 高度，-1 表示未设置
          */
         public int getHeight(String id) {
             try {
@@ -2261,10 +2262,10 @@ public class CustomLayoutManager {
         }
         
         /**
-         * Сохранить裁剪数据
-         * @param id Камера标识（front/back/left/right)
-         * @param top 裁剪像素
-         * @param bottom 裁剪像素
+         * 保存裁剪数据
+         * @param id 摄像头标识（front/back/left/right）
+         * @param top 上裁剪像素
+         * @param bottom 下裁剪像素
          * @param left 左裁剪像素
          * @param right 右裁剪像素
          */
@@ -2278,15 +2279,15 @@ public class CustomLayoutManager {
                 cropObj.put("right", right);
                 obj.put("crop", cropObj);
             } catch (JSONException e) {
-                AppLog.e(TAG, "Сохранить裁剪数据Ошибка", e);
+                AppLog.e(TAG, "保存裁剪数据失败", e);
             }
         }
         
         /**
-         * Получение裁剪数据
-         * @param id Камера标识
-         * @param direction 方 к （top/bottom/left/right)
-         * @return 裁剪像素值，-1 表示Не Настройки
+         * 获取裁剪数据
+         * @param id 摄像头标识
+         * @param direction 方向（top/bottom/left/right）
+         * @return 裁剪像素值，-1 表示未设置
          */
         public int getCrop(String id, String direction) {
             try {
@@ -2303,7 +2304,7 @@ public class CustomLayoutManager {
         }
         
         /**
-         * проверка 否有裁剪数据
+         * 检查是否有裁剪数据
          */
         public boolean hasCrop(String id) {
             try {

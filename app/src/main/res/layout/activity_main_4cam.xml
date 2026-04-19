@@ -53,7 +53,7 @@
                     android:layout_marginTop="8dp"
                     android:background="@drawable/camera_label_background"
                     android:gravity="center"
-                    android:text="П"
+                    android:text="Перед"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp" />
             </FrameLayout>
@@ -86,7 +86,7 @@
                     android:layout_marginTop="8dp"
                     android:background="@drawable/camera_label_background"
                     android:gravity="center"
-                    android:text="З"
+                    android:text="Зад"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp" />
             </FrameLayout>
@@ -205,7 +205,7 @@
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/camera_label_background"
                     android:gravity="center"
-                    android:text="Л"
+                    android:text="Лево"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp" />
             </FrameLayout>
@@ -236,7 +236,7 @@
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/camera_label_background"
                     android:gravity="center"
-                    android:text="Пр"
+                    android:text="Право"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp" />
             </FrameLayout>
@@ -262,7 +262,14 @@
             android:textSize="18sp"
             android:visibility="gone" />
 
-        <!-- Оверлей отладочной информации (левый верхний угол, показывается при 5 нажатиях) -->
+        <!-- Fragment container for playback -->
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <!-- 调试信息覆盖层（左上角，连点5下空白处显示） -->
         <TextView
             android:id="@+id/tv_debug_overlay"
             android:layout_width="wrap_content"
@@ -279,13 +286,6 @@
             android:textColor="#AAFFFFFF"
             android:textSize="12sp"
             android:fontFamily="monospace"
-            android:visibility="gone" />
-
-        <!-- Fragment container for playback -->
-        <FrameLayout
-            android:id="@+id/fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:visibility="gone" />
 
     </FrameLayout>

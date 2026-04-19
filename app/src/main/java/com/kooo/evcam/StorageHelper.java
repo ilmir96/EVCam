@@ -332,7 +332,7 @@ public class StorageHelper {
                     return dir;
                 }
             }
-            AppLog.w(TAG, "произвольный путь不可用，回退到内部存储: " + customPath);
+            AppLog.w(TAG, "произвольный путь不可用，回退到Внутреннее存储: " + customPath);
         }
         // fallback到内部存储
         File dir = new File(Environment.getExternalStoragePublicDirectory(parentDirType), dirName);

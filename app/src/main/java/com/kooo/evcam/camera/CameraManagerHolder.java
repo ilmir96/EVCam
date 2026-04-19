@@ -36,11 +36,11 @@ public class CameraManagerHolder {
         }
 
         if (cameraManager != null) {
-            AppLog.w(TAG, "CameraManager в Holder уже освобождён, пересоздаём");
+            AppLog.w(TAG, "CameraManager в Holder уже освобождён — пересоздаём");
             cameraManager = null;
         }
 
-        AppLog.d(TAG, "Фоновый режиминициализацияКамера（无 TextureView)...");
+        AppLog.d(TAG, "Фоновая инициализация камеры (без TextureView)...");
         AppConfig appConfig = new AppConfig(context);
 
         cameraManager = new MultiCameraManager(context.getApplicationContext());

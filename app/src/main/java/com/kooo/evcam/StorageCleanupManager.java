@@ -80,7 +80,7 @@ public class StorageCleanupManager {
             TimeUnit.MILLISECONDS
         );
         
-        AppLog.d(TAG, "ХранилищеОчистка задачаЗапущено：30 сек.后首 раз检测，после每1小时检测一 раз");
+        AppLog.d(TAG, "ХранилищеОчистка задачаЗапущено：30 сек.З首 раз检测，после每1小时检测一 раз");
         AppLog.d(TAG, "Видео限制: " + appConfig.getVideoStorageLimitGb() + " GB, Изображение限制: " + appConfig.getPhotoStorageLimitGb() + " GB");
     }
     
@@ -235,7 +235,7 @@ public class StorageCleanupManager {
             if (file.delete()) {
                 deletedSize += fileSize;
                 deletedCount++;
-                AppLog.d(TAG, "强制删除旧Файл: " + file.getName() + " (" + StorageHelper.formatSize(fileSize) + ")");
+                AppLog.d(TAG, "强制Удалить旧Файл: " + file.getName() + " (" + StorageHelper.formatSize(fileSize) + ")");
             }
         }
         
@@ -303,7 +303,7 @@ public class StorageCleanupManager {
         long targetSize = (long) (limitBytes * (1 - EXTRA_DELETE_RATIO));
         long needToDelete = totalSize - targetSize;
         
-        AppLog.d(TAG, typeName + "超过限制，необходимо删除: " + StorageHelper.formatSize(needToDelete) + 
+        AppLog.d(TAG, typeName + "超过限制，необходимоУдалить: " + StorageHelper.formatSize(needToDelete) + 
                 ", целевой размер: " + StorageHelper.formatSize(targetSize));
         
         // 按изменение时间排序（最旧  前)

@@ -87,7 +87,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="П"
+                        android:text="Перед"
                         android:textSize="16sp"
                         android:backgroundTint="@color/button_accent"
                         android:textColor="@color/white" />
@@ -98,7 +98,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
-                        android:text="З"
+                        android:text="Зад"
                         android:textSize="16sp"
                         android:backgroundTint="@color/button_background"
                         android:textColor="@color/button_text" />
@@ -109,7 +109,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
-                        android:text="Л"
+                        android:text="Лево"
                         android:textSize="16sp"
                         android:backgroundTint="@color/button_background"
                         android:textColor="@color/button_text" />
@@ -120,7 +120,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
-                        android:text="Пр"
+                        android:text="Право"
                         android:textSize="16sp"
                         android:backgroundTint="@color/button_background"
                         android:textColor="@color/button_text" />

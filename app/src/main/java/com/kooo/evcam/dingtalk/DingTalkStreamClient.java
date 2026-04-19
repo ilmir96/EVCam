@@ -108,7 +108,7 @@ public class DingTalkStreamClient extends WebSocketListener {
             return;
         }
 
-        AppLog.d(TAG, "将  " + RECONNECT_DELAY_MS + "ms 后重连");
+        AppLog.d(TAG, "将  " + RECONNECT_DELAY_MS + "ms З重连");
         new Thread(() -> {
             try {
                 Thread.sleep(RECONNECT_DELAY_MS);
@@ -186,7 +186,7 @@ public class DingTalkStreamClient extends WebSocketListener {
             AppLog.d(TAG, "data 字内容: " + dataStr);
 
             JsonObject data = gson.fromJson(dataStr, JsonObject.class);
-            AppLog.d(TAG, "解析后  data: " + data.toString());
+            AppLog.d(TAG, "解析З  data: " + data.toString());
 
             // проверка 否 机器人  @  消息
             if (data.has("conversationType") && data.has("text")) {

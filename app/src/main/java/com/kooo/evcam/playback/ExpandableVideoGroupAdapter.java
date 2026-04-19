@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 可展Вкл Видео分 групп适配器
- * поддержка按 д.期分 групп显示，点击 д.期头部可展Вкл/收起
+ * 可展开的视频分组适配器
+ * 支持按日期分组显示，点击日期头部可展开/收起
  */
 public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -34,10 +34,10 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     private final Context context;
     private final List<DateSection<VideoGroup>> dateSections;
     
-    /** 扁平化后 列表项（用于 RecyclerView 显示) */
+    /** 扁平化后的列表项（用于 RecyclerView 显示） */
     private final List<Object> flattenedItems = new ArrayList<>();
     
-    /** 多选режим选  VideoGroup Позиция（ 原始列表 Позиция) */
+    /** 多选模式下选中的 VideoGroup 位置（在原始列表中的位置） */
     private Set<VideoGroup> selectedGroups = new HashSet<>();
     
     private int selectedPosition = -1;
@@ -46,6 +46,7 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     private OnItemClickListener itemClickListener;
     private OnItemSelectedListener itemSelectedListener;
     private OnDateHeaderClickListener dateHeaderClickListener;
+    private OnItemLongClickListener itemLongClickListener;
 
     public interface OnItemClickListener {
         void onItemClick(VideoGroup group, int position);
@@ -59,6 +60,10 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
         void onDateHeaderClick(DateSection<VideoGroup> section, int position);
     }
 
+    public interface OnItemLongClickListener {
+        void onItemLongClick(VideoGroup group, int position);
+    }
+
     public ExpandableVideoGroupAdapter(Context context, List<DateSection<VideoGroup>> dateSections) {
         this.context = context;
         this.dateSections = dateSections;
@@ -67,7 +72,7 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
 
     /**
      * 构建扁平化列表
-     * 根据展ВклСтатус将 д.期头部 и Видео项转换为扁平列表
+     * 根据展开状态将日期头部和视频项转换为扁平列表
      */
     public void buildFlattenedList() {
         flattenedItems.clear();
@@ -89,6 +94,10 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
 
     public void setOnDateHeaderClickListener(OnDateHeaderClickListener listener) {
         this.dateHeaderClickListener = listener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.itemLongClickListener = listener;
     }
 
     public void setMultiSelectMode(boolean multiSelectMode) {
@@ -119,7 +128,7 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     /**
-     * 全选所有Видео групп
+     * 全选所有视频组
      */
     public void selectAll() {
         selectedGroups.clear();
@@ -129,7 +138,7 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     /**
-     * Получение所有 VideoGroup  总数
+     * 获取所有 VideoGroup 的总数
      */
     public int getTotalGroupCount() {
         int count = 0;
@@ -176,17 +185,17 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     private void bindDateHeader(DateHeaderViewHolder holder, DateSection<VideoGroup> section, int position) {
-        // Настройки д.期文字
+        // 设置日期文字
         holder.dateText.setText(section.getFullDateDisplay());
         
-        // Настройки групп数量
+        // 设置组数量
         holder.itemCount.setText(section.getItemCount() + " групп");
         
-        // Настройки展Вкл/收起图标
+        // 设置展开/收起图标
         int iconRes = section.isExpanded() ? R.drawable.ic_expand_less : R.drawable.ic_expand_more;
         holder.expandIcon.setImageResource(iconRes);
         
-        // 点击切换展ВклСтатус
+        // 点击切换展开状态
         holder.itemView.setOnClickListener(v -> {
             section.toggleExpanded();
             buildFlattenedList();
@@ -199,29 +208,34 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     private void bindVideoGroup(VideoGroupViewHolder holder, VideoGroup group, int position) {
-        // Настройки д.期时间（只显示时间，因为 д.期 头部显示)
+        // 设置日期时间（只显示时间，因为日期已在头部显示）
         holder.videoDate.setVisibility(View.GONE);
         holder.videoTime.setText(group.getFormattedTime());
         holder.videoSize.setText(group.getFormattedSize());
 
-        // Видео кам.数标签
+        // 视频路数标签
         int count = group.getVideoCount();
         holder.videoCountBadge.setText(count + " кам.");
 
-        // загрузка四 шт.Позиция 缩略图
+        // 加载四个位置的缩略图
         loadThumbnail(group.getFrontVideo(), holder.thumbFront);
         loadThumbnail(group.getBackVideo(), holder.thumbBack);
         loadThumbnail(group.getLeftVideo(), holder.thumbLeft);
         loadThumbnail(group.getRightVideo(), holder.thumbRight);
 
-        // 选Статус样式
-        boolean isSelected = selectedGroups.contains(group);
+        // 选中状态样式
+        boolean isSelected;
+        if (isMultiSelectMode) {
+            isSelected = selectedGroups.contains(group);
+        } else {
+            isSelected = (position == selectedPosition);
+        }
         updateSelectionStyle(holder, isSelected);
 
-        // 多选режим 选指示器
+        // 多选模式的选中指示器
         if (isMultiSelectMode) {
             holder.checkIndicator.setVisibility(View.VISIBLE);
-            holder.checkIndicator.setChecked(isSelected);
+            holder.checkIndicator.setChecked(selectedGroups.contains(group));
         } else {
             holder.checkIndicator.setVisibility(View.GONE);
         }
@@ -229,7 +243,7 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
         // 点击事件
         holder.itemView.setOnClickListener(v -> {
             if (isMultiSelectMode) {
-                // 多选режим：切换选Статус
+                // 多选模式：切换选中状态
                 if (selectedGroups.contains(group)) {
                     selectedGroups.remove(group);
                 } else {
@@ -240,11 +254,27 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
                     itemSelectedListener.onItemSelected(group);
                 }
             } else {
-                // 单选режим：选并Воспр.
+                // 单选模式：更新选中位置并播放
+                int oldPosition = selectedPosition;
+                selectedPosition = position;
+                // 刷新旧选中项和新选中项
+                if (oldPosition != -1 && oldPosition != position) {
+                    notifyItemChanged(oldPosition);
+                }
+                notifyItemChanged(position);
                 if (itemClickListener != null) {
                     itemClickListener.onItemClick(group, position);
                 }
             }
+        });
+
+        // 长按事件 - 分享视频（单选和多选模式都支持）
+        holder.itemView.setOnLongClickListener(v -> {
+            if (itemLongClickListener != null) {
+                itemLongClickListener.onItemLongClick(group, position);
+                return true;
+            }
+            return false;
         });
     }
 
@@ -284,7 +314,7 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     /**
-     *  д.期头部 ViewHolder
+     * 日期头部 ViewHolder
      */
     static class DateHeaderViewHolder extends RecyclerView.ViewHolder {
         ImageView expandIcon;
@@ -300,7 +330,7 @@ public class ExpandableVideoGroupAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     /**
-     * Видео групп ViewHolder
+     * 视频组 ViewHolder
      */
     static class VideoGroupViewHolder extends RecyclerView.ViewHolder {
         ImageView thumbFront, thumbBack, thumbLeft, thumbRight;

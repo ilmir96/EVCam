@@ -282,6 +282,41 @@
                         android:layout_marginStart="16dp" />
                 </LinearLayout>
 
+                <!-- 悬浮窗圆角调节 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Скругление"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <SeekBar
+                        android:id="@+id/seekbar_corner_radius"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:max="50"
+                        android:progress="8" />
+
+                    <TextView
+                        android:id="@+id/text_corner_radius_value"
+                        android:layout_width="40dp"
+                        android:layout_height="wrap_content"
+                        android:text="8dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:gravity="end" />
+                </LinearLayout>
+
                 <Button
                     android:id="@+id/btn_reset_main_floating"
                     android:layout_width="match_parent"
@@ -336,6 +371,57 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp" />
                 </LinearLayout>
+
+                <!-- 长视模式开关 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Длинный обзор"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tv_long_view_mode_desc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="При включении поворотника показывать обе слепые зоны; при выключении — авто-выход"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_long_view_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp" />
+                </LinearLayout>
+
+                <!-- 长视模式位置和大小调整按钮 -->
+                <Button
+                    android:id="@+id/btn_long_view_adjust"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Регулировка позиции и размера"
+                    android:textSize="14sp"
+                    android:minHeight="40dp"
+                    android:backgroundTint="@color/button_background"
+                    android:textColor="@color/button_text"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
 
                 <!-- 悬浮窗动效开关 -->
                 <LinearLayout
@@ -448,6 +534,16 @@
 
                         <RadioButton
                             android:id="@+id/rb_style_arrow_ripple"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="36dp"
+                            android:text="E. Стрелки-волны"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:buttonTint="@color/colorPrimary" />
+
+                        <RadioButton
+                            android:id="@+id/rb_style_turn_arrow"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:minHeight="36dp"

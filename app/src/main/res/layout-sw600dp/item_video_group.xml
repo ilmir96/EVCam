@@ -41,7 +41,7 @@
                         android:layout_weight="1"
                         android:scaleType="centerCrop"
                         android:background="#1A1A1A"
-                        android:contentDescription="前置" />
+                        android:contentDescription="Перед" />
 
                     <View
                         android:layout_width="1dp"
@@ -55,7 +55,7 @@
                         android:layout_weight="1"
                         android:scaleType="centerCrop"
                         android:background="#1A1A1A"
-                        android:contentDescription="后置" />
+                        android:contentDescription="Зад" />
                 </LinearLayout>
 
                 <View
@@ -76,7 +76,7 @@
                         android:layout_weight="1"
                         android:scaleType="centerCrop"
                         android:background="#1A1A1A"
-                        android:contentDescription="左侧" />
+                        android:contentDescription="Лево" />
 
                     <View
                         android:layout_width="1dp"
@@ -90,7 +90,7 @@
                         android:layout_weight="1"
                         android:scaleType="centerCrop"
                         android:background="#1A1A1A"
-                        android:contentDescription="右侧" />
+                        android:contentDescription="Право" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -157,7 +157,7 @@
             android:focusable="false"
             android:checked="true"
             android:visibility="gone"
-            android:contentDescription="选中" />
+            android:contentDescription="Выбрано" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

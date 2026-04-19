@@ -457,7 +457,7 @@ public class HeartbeatFragment extends Fragment implements HeartbeatManager.Hear
         if (isAdded()) {
             updateStatisticsDisplay();
             // 可选：显示ОшибкаУведомление
-            // Toast.makeText(requireContext(), "心跳Ошибка: " + error, Toast.LENGTH_SHORT).show();
+            // Toast.makeText(requireContext(), "Ошибка heartbeat: " + error, Toast.LENGTH_SHORT).show();
         }
     }
 }

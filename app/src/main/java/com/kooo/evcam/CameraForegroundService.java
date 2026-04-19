@@ -408,23 +408,33 @@ public class CameraForegroundService extends Service {
         intent.putExtra("content", content);
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Android 13+  КамераПередний планСервис有特殊要求
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // проверкаПриложение 否 Передний план
-                if (!isAppInForeground(context)) {
-                    // Приложение不 Передний план，无法ЗапускКамераПередний планСервис
-                    // 记录 д.志，ожиданиеПриложение进入Передний план后再Запуск
-                    AppLog.d(TAG, "Приложение不 Передний план，跳过ЗапускКамераПередний планСервис（ожидание进入Передний план)");
-                    return;
+            // Android 13+ имеет особые требования к запуску foreground-сервиса камеры:
+            // если приложение не в foreground — пропускаем запуск, иначе система выкинет
+            // ForegroundServiceStartNotAllowedException.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                    && !isAppInForeground(context)) {
+                AppLog.d(TAG, "Приложение не в foreground — пропуск запуска CameraForegroundService");
+                return;
+            }
+            // На запуск foreground-сервиса есть ограничения, но при записи нужно стартовать принудительно.
+            // startForegroundService обязывает сервис вызвать startForeground в течение 5 секунд.
+            try {
+                context.startForegroundService(intent);
+                AppLog.d(TAG, "Starting foreground service: " + title);
+            } catch (Exception e) {
+                AppLog.e(TAG, "Не удалось запустить foreground-сервис: " + e.getMessage(), e);
+                // Резервный вариант — обычный startService
+                try {
+                    context.startService(intent);
+                    AppLog.d(TAG, "Резервный запуск обычного сервиса");
+                } catch (Exception e2) {
+                    AppLog.e(TAG, "Обычный запуск также не удался: " + e2.getMessage(), e2);
                 }
-                context.startForegroundService(intent);
-            } else {
-                context.startForegroundService(intent);
             }
         } else {
             context.startService(intent);
+            AppLog.d(TAG, "Starting service: " + title);
         }
-        AppLog.d(TAG, "Starting foreground service: " + title);
     }
     
     /**

@@ -302,9 +302,9 @@ public class VhalSignalObserver {
                 }
             });
 
-            // Запрос у сервера всех текущих значений свойств
-            // Сервер связывает запрос и stream через session_id в channel metadata
-            // Отправка с задержкой, ожидание регистрации stream на сервере; при ошибке — повтор
+            // Запрос у сервера всех текущих значений свойств.
+            // Сервер связывает запрос и stream через session_id в channel metadata.
+            // Отправка с задержкой — ждём, пока stream зарегистрируется на сервере; при ошибке — повтор.
             new Thread(() -> {
                 final int MAX_RETRIES = 3;
                 final long INITIAL_DELAY_MS = 500;
@@ -317,6 +317,7 @@ public class VhalSignalObserver {
                     }
 
                     if (grpcChannel == null || !running) return;
+
 
                     try {
                         MethodDescriptor<byte[], byte[]> sendAllMethod = MethodDescriptor.<byte[], byte[]>newBuilder()

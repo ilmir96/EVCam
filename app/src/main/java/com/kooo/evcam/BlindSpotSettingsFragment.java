@@ -1,5 +1,6 @@
 package com.kooo.evcam;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -44,6 +45,11 @@ public class BlindSpotSettingsFragment extends Fragment {
     private LinearLayout doorLinkageSectionLayout; // 车门联动区域
     private SwitchMaterial doorLinkageSwitch; // 车门联动ВклВыкл
 
+    // 长视模式UI控件
+    private SwitchMaterial longViewModeSwitch; // 长视模式开关
+    private TextView tvLongViewModeDesc; // 长视模式描述
+    private Button longViewAdjustButton; // 长视模式位置和大小调整按钮
+
     // 全景影像避让UI控件
     private SwitchMaterial avmAvoidanceSwitch;
     private LinearLayout avmAvoidanceDetailLayout;
@@ -73,6 +79,8 @@ public class BlindSpotSettingsFragment extends Fragment {
     private SwitchMaterial mainFloatingAspectRatioLockSwitch;
     private SwitchMaterial mainFloatingLongPressDragSwitch;
     private Button resetMainFloatingButton;
+    private SeekBar cornerRadiusSeekBar;
+    private TextView tvCornerRadiusValue;
     private Button logcatDebugButton;
     private android.widget.EditText logFilterEditText;
     private Button menuButton;
@@ -121,7 +129,25 @@ public class BlindSpotSettingsFragment extends Fragment {
         doorLinkageSectionLayout = view.findViewById(R.id.ll_door_linkage_section);
         doorLinkageSwitch = view.findViewById(R.id.switch_door_linkage);
 
-        // 全景影像避让UIинициализация
+        // Инициализация UI режима «Длинный обзор»
+        longViewModeSwitch = view.findViewById(R.id.switch_long_view_mode);
+        tvLongViewModeDesc = view.findViewById(R.id.tv_long_view_mode_desc);
+        longViewAdjustButton = view.findViewById(R.id.btn_long_view_adjust);
+
+        // Кнопка регулировки режима «Длинный обзор»
+        if (longViewAdjustButton != null) {
+            longViewAdjustButton.setOnClickListener(v -> {
+                if (!WakeUpHelper.hasOverlayPermission(requireContext())) {
+                    Toast.makeText(requireContext(), "Сначала выдайте разрешение на оверлей", Toast.LENGTH_SHORT).show();
+                    WakeUpHelper.requestOverlayPermission(requireContext());
+                    return;
+                }
+                // Открыть экран настройки режима «Длинный обзор»
+                openLongViewSetupMode();
+            });
+        }
+
+        // Инициализация UI обхода панорамного изображения
         avmAvoidanceSwitch = view.findViewById(R.id.switch_avm_avoidance);
         avmAvoidanceDetailLayout = view.findViewById(R.id.layout_avm_avoidance_detail);
         avmAvoidanceActivityEditText = view.findViewById(R.id.et_avm_avoidance_activity);
@@ -140,6 +166,10 @@ public class BlindSpotSettingsFragment extends Fragment {
         mainFloatingAspectRatioLockSwitch = view.findViewById(R.id.switch_main_floating_aspect_ratio_lock);
         mainFloatingLongPressDragSwitch = view.findViewById(R.id.switch_main_floating_long_press_drag);
         resetMainFloatingButton = view.findViewById(R.id.btn_reset_main_floating);
+
+        // 圆角调节
+        cornerRadiusSeekBar = view.findViewById(R.id.seekbar_corner_radius);
+        tvCornerRadiusValue = view.findViewById(R.id.text_corner_radius_value);
 
         carApiStatusText = view.findViewById(R.id.tv_car_api_status);
 
@@ -183,6 +213,13 @@ public class BlindSpotSettingsFragment extends Fragment {
         String currentRight = appConfig.getTurnSignalRightTriggerLog();
         turnSignalLeftLogEditText.setText(currentLeft);
         turnSignalRightLogEditText.setText(currentRight);
+        
+        // 长视模式配置加载
+        boolean longViewEnabled = appConfig.isLongViewModeEnabled();
+        longViewModeSwitch.setChecked(longViewEnabled);
+        if (longViewAdjustButton != null) {
+            longViewAdjustButton.setVisibility(longViewEnabled ? View.VISIBLE : View.GONE);
+        }
 
         // 根据触发режим и ТекущийВыкл键词匹配预设
         if (appConfig.isCarSignalManagerTriggerMode()) {
@@ -228,7 +265,8 @@ public class BlindSpotSettingsFragment extends Fragment {
             case BlindSpotStatusBarView.STYLE_RIPPLE:        statusBarStyleGroup.check(R.id.rb_style_ripple); break;
             case BlindSpotStatusBarView.STYLE_GRADIENT_FILL: statusBarStyleGroup.check(R.id.rb_style_gradient_fill); break;
             case BlindSpotStatusBarView.STYLE_ARROW_RIPPLE:  statusBarStyleGroup.check(R.id.rb_style_arrow_ripple); break;
-            default:                                         statusBarStyleGroup.check(R.id.rb_style_sequential); break;
+            case BlindSpotStatusBarView.STYLE_TURN_ARROW:    statusBarStyleGroup.check(R.id.rb_style_turn_arrow); break;
+            default:                                         statusBarStyleGroup.check(R.id.rb_style_turn_arrow); break;
         }
 
         updateColorPreview(appConfig.getBlindSpotStatusBarColor());
@@ -241,6 +279,11 @@ public class BlindSpotSettingsFragment extends Fragment {
 
         mainFloatingAspectRatioLockSwitch.setChecked(appConfig.isMainFloatingAspectRatioLocked());
         mainFloatingLongPressDragSwitch.setChecked(appConfig.isMainFloatingLongPressDragEnabled());
+
+        int cornerRadius = appConfig.getFloatingWindowCornerRadiusDp();
+        cornerRadiusSeekBar.setMax(appConfig.getMaxFloatingCornerRadiusDp());
+        cornerRadiusSeekBar.setProgress(cornerRadius);
+        tvCornerRadiusValue.setText(cornerRadius + "dp");
         
         // 车门联动конфигурациязагрузка
         doorLinkageSwitch.setChecked(appConfig.isDoorLinkageEnabled());
@@ -312,6 +355,26 @@ public class BlindSpotSettingsFragment extends Fragment {
                 return;
             }
             appConfig.setTurnSignalLinkageEnabled(isChecked);
+            BlindSpotService.update(requireContext());
+        });
+
+        // 长视模式监听器
+        longViewModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && !WakeUpHelper.hasOverlayPermission(requireContext())) {
+                longViewModeSwitch.setChecked(false);
+                Toast.makeText(requireContext(), "Сначала выдайте разрешение на оверлей", Toast.LENGTH_SHORT).show();
+                WakeUpHelper.requestOverlayPermission(requireContext());
+                return;
+            }
+            appConfig.setLongViewModeEnabled(isChecked);
+            // 显示/隐藏调整按钮
+            if (longViewAdjustButton != null) {
+                longViewAdjustButton.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            }
+            // 长视模式启用时，显示提示
+            if (isChecked) {
+                Toast.makeText(requireContext(), "Режим «Длинный обзор» включён: при включении поворотника будет двойной экран", Toast.LENGTH_SHORT).show();
+            }
             BlindSpotService.update(requireContext());
         });
 
@@ -436,6 +499,7 @@ public class BlindSpotSettingsFragment extends Fragment {
             else if (checkedId == R.id.rb_style_ripple)        style = BlindSpotStatusBarView.STYLE_RIPPLE;
             else if (checkedId == R.id.rb_style_gradient_fill) style = BlindSpotStatusBarView.STYLE_GRADIENT_FILL;
             else if (checkedId == R.id.rb_style_arrow_ripple)  style = BlindSpotStatusBarView.STYLE_ARROW_RIPPLE;
+            else if (checkedId == R.id.rb_style_turn_arrow)    style = BlindSpotStatusBarView.STYLE_TURN_ARROW;
             else                                               style = BlindSpotStatusBarView.STYLE_SEQUENTIAL;
             appConfig.setBlindSpotStatusBarStyle(style);
             BlindSpotService.update(requireContext());
@@ -494,6 +558,20 @@ public class BlindSpotSettingsFragment extends Fragment {
             appConfig.setMainFloatingLongPressDragEnabled(isChecked);
         });
 
+        cornerRadiusSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tvCornerRadiusValue.setText(progress + "dp");
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                appConfig.setFloatingWindowCornerRadiusDp(seekBar.getProgress());
+                BlindSpotService.update(requireContext());
+            }
+        });
+
         resetMainFloatingButton.setOnClickListener(v -> {
             appConfig.resetMainFloatingBounds();
             BlindSpotService.update(requireContext());
@@ -533,7 +611,7 @@ public class BlindSpotSettingsFragment extends Fragment {
                 // 没有ВвестиВыкл键词时弹窗Уведомление
                 new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Cam_MaterialAlertDialog)
                     .setTitle("Подсказка")
-                    .setMessage("Не Ввести过滤Выкл键字， д.志量可能很大，可能导致界面卡顿。\n\n建议ВвестиВыкл键字进行过滤， 否продолжить？")
+                    .setMessage("Без ключевого слова логов будет очень много и интерфейс может тормозить.\n\nРекомендуется ввести ключевое слово для фильтрации. Продолжить без фильтра?")
                     .setPositiveButton("Продолжить", (dialog, which) -> {
                         android.content.Intent intent = new android.content.Intent(requireContext(), LogcatViewerActivity.class);
                         intent.putExtra("filter_keyword", "");
@@ -711,5 +789,43 @@ public class BlindSpotSettingsFragment extends Fragment {
                     BlindSpotService.update(requireContext());
                 })
                 .show();
+    }
+    
+    /**
+     * 打开长视模式设置界面
+     * 使用超视模式的配置，显示左右两个画面供用户调整位置和大小
+     */
+    private void openLongViewSetupMode() {
+        if (getContext() == null) return;
+        
+        Context context = getContext();
+        
+        // 创建左视悬浮窗（设置模式）
+        BlindSpotFloatingWindowView leftWindow = new BlindSpotFloatingWindowView(context, true);
+        leftWindow.setCameraPos("left");
+        leftWindow.show();
+        leftWindow.setCamera("left");
+        leftWindow.updateStatusLabel("left");
+        leftWindow.setSupervisionMode(true); // 启用超视模式交互
+        
+        // 创建右视悬浮窗（设置模式）
+        BlindSpotFloatingWindowView rightWindow = new BlindSpotFloatingWindowView(context, true);
+        rightWindow.setCameraPos("right");
+        rightWindow.show();
+        rightWindow.setCamera("right");
+        rightWindow.updateStatusLabel("right");
+        rightWindow.setSupervisionMode(true); // 启用超视模式交互
+        
+        // 设置配对关系，确保调整时同步
+        leftWindow.setSupervisionPartner(rightWindow);
+        rightWindow.setSupervisionPartner(leftWindow);
+        
+        // 启动前台服务（确保摄像头可用）
+        CameraForegroundService.start(context, "长视模式设置", "正在调整长视模式Позиция和大小");
+        
+        // 确保摄像头已初始化
+        com.kooo.evcam.camera.CameraManagerHolder.getInstance().getOrInit(context);
+        
+        Toast.makeText(context, "Перетащите окно — измените позицию; перетащите край — измените размер.\nЗавершив, нажмите «Сохранить»", Toast.LENGTH_LONG).show();
     }
 }

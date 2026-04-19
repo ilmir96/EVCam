@@ -68,8 +68,8 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="top|end"
-                                    android:layout_marginEnd="6dp"
+                                    android:layout_gravity="top|start"
+                                    android:layout_marginStart="6dp"
                                     android:layout_marginTop="6dp"
                                     android:paddingStart="8dp"
                                     android:paddingEnd="8dp"
@@ -81,6 +81,16 @@
                                     android:background="@drawable/camera_corner_label_bg" />
                             </FrameLayout>
                         </androidx.cardview.widget.CardView>
+
+                        <!-- 前摄像头开关 -->
+                        <com.kooo.evcam.view.MacOSToggleButton
+                            android:id="@+id/toggle_front"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|end"
+                            android:layout_marginEnd="6dp"
+                            android:layout_marginTop="6dp"
+                            android:alpha="0.75" />
 
                         <!-- 摄像头控制按钮（居中显示，两行布局） -->
                         <LinearLayout
@@ -368,8 +378,8 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="top|start"
-                                    android:layout_marginStart="6dp"
+                                    android:layout_gravity="top|end"
+                                    android:layout_marginEnd="6dp"
                                     android:layout_marginTop="6dp"
                                     android:paddingStart="8dp"
                                     android:paddingEnd="8dp"
@@ -381,6 +391,16 @@
                                     android:background="@drawable/camera_corner_label_bg" />
                             </FrameLayout>
                         </androidx.cardview.widget.CardView>
+
+                        <!-- 后摄像头开关（左上角，方便操作） -->
+                        <com.kooo.evcam.view.MacOSToggleButton
+                            android:id="@+id/toggle_back"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|start"
+                            android:layout_marginStart="6dp"
+                            android:layout_marginTop="6dp"
+                            android:alpha="0.75" />
 
                         <!-- 摄像头控制按钮（居中显示，两行布局） -->
                         <LinearLayout
@@ -666,8 +686,8 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="top|end"
-                                    android:layout_marginEnd="6dp"
+                                    android:layout_gravity="top|start"
+                                    android:layout_marginStart="6dp"
                                     android:layout_marginTop="6dp"
                                     android:paddingStart="8dp"
                                     android:paddingEnd="8dp"
@@ -679,6 +699,16 @@
                                     android:background="@drawable/camera_corner_label_bg" />
                             </FrameLayout>
                         </androidx.cardview.widget.CardView>
+
+                        <!-- 左摄像头开关 -->
+                        <com.kooo.evcam.view.MacOSToggleButton
+                            android:id="@+id/toggle_left"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|end"
+                            android:layout_marginEnd="6dp"
+                            android:layout_marginTop="6dp"
+                            android:alpha="0.75" />
 
                         <!-- 摄像头控制按钮（居中显示，两行布局） -->
                         <LinearLayout
@@ -1018,8 +1048,8 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="top|start"
-                                    android:layout_marginStart="6dp"
+                                    android:layout_gravity="top|end"
+                                    android:layout_marginEnd="6dp"
                                     android:layout_marginTop="6dp"
                                     android:paddingStart="8dp"
                                     android:paddingEnd="8dp"
@@ -1031,6 +1061,16 @@
                                     android:background="@drawable/camera_corner_label_bg" />
                             </FrameLayout>
                         </androidx.cardview.widget.CardView>
+
+                        <!-- 右摄像头开关（左上角，方便操作） -->
+                        <com.kooo.evcam.view.MacOSToggleButton
+                            android:id="@+id/toggle_right"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|start"
+                            android:layout_marginStart="6dp"
+                            android:layout_marginTop="6dp"
+                            android:alpha="0.75" />
 
                         <!-- 摄像头控制按钮（居中显示，两行布局） -->
                         <LinearLayout
@@ -1492,6 +1532,25 @@
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <!-- 调试信息覆盖层（左上角，连点5下空白处显示） -->
+        <TextView
+            android:id="@+id/tv_debug_overlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/camera_label_background"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:text=""
+            android:textColor="#AAFFFFFF"
+            android:textSize="12sp"
+            android:fontFamily="monospace"
             android:visibility="gone" />
 
     </FrameLayout>

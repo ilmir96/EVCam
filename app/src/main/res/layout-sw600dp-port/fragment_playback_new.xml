@@ -87,7 +87,7 @@
             android:textColor="@color/button_text" />
     </LinearLayout>
 
-    <!-- Выбрать工具栏（隐藏） -->
+    <!-- 多选工具栏（隐藏） -->
     <LinearLayout
         android:id="@+id/multi_select_toolbar"
         android:layout_width="match_parent"
@@ -120,6 +120,17 @@
             android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:gravity="center" />
+
+        <Button
+            android:id="@+id/btn_share_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Поделиться"
+            android:textSize="20sp"
+            android:minHeight="48dp"
+            android:layout_marginEnd="4dp"
+            android:backgroundTint="@color/button_accent"
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/btn_delete_selected"
@@ -165,7 +176,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <!-- Все камеры模式：四宫格 -->
+                <!-- 多路模式：四宫格 -->
                 <LinearLayout
                     android:id="@+id/multi_view_layout"
                     android:layout_width="match_parent"
@@ -404,13 +415,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Двойное нажатие для увеличения"
+                        android:text="Двойной тап — увеличить"
                         android:textColor="@color/text_hint"
                         android:textSize="16sp" />
                 </LinearLayout>
             </com.kooo.evcam.AspectRatio16x9Container>
 
-            <!-- Воспр.控制栏（按钮放大） -->
+            <!-- 播放控制栏（按钮放大） -->
             <LinearLayout
                 android:id="@+id/controls_layout"
                 android:layout_width="match_parent"

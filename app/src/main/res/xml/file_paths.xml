@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- DCIM directory for recorded videos -->
+    <!-- DCIM directory for recorded videos (внутреннее хранилище) -->
     <external-path
         name="videos"
         path="DCIM/EVCam_Video/" />
-    <!-- DCIM directory for photos -->
+    <!-- DCIM directory for photos (внутреннее хранилище) -->
     <external-path
         name="photos"
         path="DCIM/EVCam_Photo/" />
-    <!-- Downloads directory for APK updates -->
+
+    <!-- Корневой каталог внешнего хранилища (для совместимости с разными путями хранилища) -->
+    <external-path
+        name="external_root"
+        path="." />
+
+    <!-- Каталог DCIM на внешнем хранилище -->
+    <external-path
+        name="external_dcim"
+        path="DCIM/" />
+
+    <!-- Приватный кеш приложения -->
+    <cache-path
+        name="cache"
+        path="." />
+
+    <!-- Приватный каталог файлов приложения -->
+    <files-path
+        name="files"
+        path="." />
+
+    <!-- Downloads — для APK обновлений -->
     <external-path
         name="apk_updates"
         path="Download/" />

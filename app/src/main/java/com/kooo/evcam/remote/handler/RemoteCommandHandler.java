@@ -250,7 +250,7 @@ public abstract class RemoteCommandHandler {
         
         // 定时器延迟 до 首 раз数据写入后Запуск
         pendingDurationSeconds = durationSeconds;
-        AppLog.d(TAG, getPlatformName() + " Запись定时器将 首 раз数据写入后Запуск，时长: " + durationSeconds + "  сек.");
+        AppLog.d(TAG, getPlatformName() + " Запись定时器将 首 раз数据写入ЗЗапуск，时长: " + durationSeconds + "  сек.");
     }
     
     /**

@@ -184,7 +184,7 @@ public class TelegramBotManager {
                                     shouldStop = true;
                                     break;
                                 }
-                                AppLog.d(TAG, "409 冲突，ожидание " + CONFLICT_RETRY_DELAY_MS + "ms 后重试（第 " + conflictRetries + "  раз)");
+                                AppLog.d(TAG, "409 冲突，ожидание " + CONFLICT_RETRY_DELAY_MS + "ms З重试（第 " + conflictRetries + "  раз)");
                                 Thread.sleep(CONFLICT_RETRY_DELAY_MS);
                             } else {
                                 // ДругоеОшибка，短暂休眠后продолжить
@@ -202,7 +202,7 @@ public class TelegramBotManager {
                 // попытка重连
                 if (!shouldStop && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
                     reconnectAttempts++;
-                    AppLog.d(TAG, "将  " + RECONNECT_DELAY_MS + "ms 后попытка第 " + reconnectAttempts + "  раз重连");
+                    AppLog.d(TAG, "将  " + RECONNECT_DELAY_MS + "ms Зпопытка第 " + reconnectAttempts + "  раз重连");
                     mainHandler.postDelayed(() -> {
                         if (!shouldStop) {
                             startPolling();

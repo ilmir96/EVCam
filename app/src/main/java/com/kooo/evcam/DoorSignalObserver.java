@@ -345,7 +345,7 @@ public class DoorSignalObserver {
             int riRe = Integer.parseInt(getDoorRiReStsMethod.invoke(carSignalManager).toString());
             
             // 🔍 每 развсе输出Текущий车门Статус（用于отладка)
-            AppLog.d(TAG, String.format("🚪 车门Статус - 主驾:%d 副驾:%d 左后:%d 右后:%d", drvr, pass, leRe, riRe));
+            AppLog.d(TAG, String.format("🚪 车门Статус - 主驾:%d 副驾:%d ЛЗ:%d ПрЗ:%d", drvr, pass, leRe, riRe));
             
             // 主驾驶门（不触发Камера，只记录Статус)
             if (drvr != lastDoorDrvrSts) {

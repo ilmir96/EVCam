@@ -277,7 +277,7 @@ public class HeartbeatManager {
         // Отмена有 定时器
         stopScreenOffHeartbeat();
         
-        AppLog.d(TAG, "息屏推图将 30 сек.后Запуск");
+        AppLog.d(TAG, "息屏推图将 30 сек.ЗЗапуск");
         
         // 30 сек.后Вкл始Первый раз推图
         screenOffHeartbeatRunnable = new Runnable() {
@@ -752,7 +752,7 @@ public class HeartbeatManager {
             } else {
                 config.incrementFailCount();
                 config.setLastError(result.message);
-                AppLog.w(TAG, "心跳Ошибка: " + result.message);
+                AppLog.w(TAG, "Ошибка heartbeat: " + result.message);
                 notifyFailed(result.message);
             }
             
