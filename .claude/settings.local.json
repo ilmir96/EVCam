@@ -83,7 +83,20 @@
       "Bash(grep -rl \"<<<<<<< HEAD\" app/ 2>/dev/null; echo \"EXIT: $?\")",
       "Bash(grep -c \"<<<<<<\" app/src/main/java/com/kooo/evcam/*.java app/src/main/res/layout/*.xml app/build.gradle.kts 2>/dev/null || echo \"No conflicts remaining\")",
       "Bash(git add -A && git commit -m \"$\\(cat <<'EOF'\nСлияние изменений из upstream: оптимизация иконок контура авто, обновление цветов и толщины линий, упрощение layout-файлов \\(FrameLayout вместо LinearLayout\\), новые настройки статус-бара \\(цвет, прозрачность, стиль анимации\\)\n\nCo-Authored-By: Claude Opus 4.6 \\(1M context\\) <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git fetch upstream 2>&1)"
+      "Bash(git fetch upstream 2>&1)",
+      "Bash(git fetch:*)",
+      "Bash(find /Users/ilmiribragimov/projects/EVCam/app/src/main/res/layout* -name \"*.xml\" -type f)",
+      "Bash(find /Users/ilmiribragimov/projects/EVCam/app/src/main/res/layout* -name \"*.xml\" -exec grep -l '[А-Яа-яЁё]' {} \\\\;)",
+      "Bash(ls:*)",
+      "Bash(mkdir -p /tmp/evcam_ru_snapshot)",
+      "Read(//tmp/evcam_ru_snapshot/**)",
+      "Bash(git merge:*)",
+      "Bash(git checkout:*)",
+      "Bash(python3:*)",
+      "Bash(grep -rn:*)",
+      "Bash(git:*)",
+      "Bash(chmod +x /tmp/msg_filter.sh)",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --msg-filter '/tmp/msg_filter.sh' 683eec8..HEAD)"
     ],
     "deny": [],
     "ask": []
