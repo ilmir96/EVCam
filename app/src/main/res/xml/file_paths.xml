@@ -8,4 +8,8 @@
     <external-path
         name="photos"
         path="DCIM/EVCam_Photo/" />
+    <!-- Downloads directory for APK updates -->
+    <external-path
+        name="apk_updates"
+        path="Download/" />
 </paths>

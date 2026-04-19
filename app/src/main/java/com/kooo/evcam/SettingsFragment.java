@@ -2094,7 +2094,20 @@ public class SettingsFragment extends Fragment {
     }
     
     // ==================== 版本обновление相Выкл方法 ====================
-    
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Возврат с экрана разрешения «Установка из неизвестных источников»:
+        // если разрешение выдано — повторяем установку запомненного APK.
+        if (requestCode == ApkInstallHelper.REQUEST_CODE_INSTALL_PERMISSION) {
+            File pending = ApkInstallHelper.getPendingApk(getContext());
+            if (pending != null) {
+                ApkInstallHelper.installApk(this, pending);
+            }
+        }
+    }
+
     /**
      * инициализация版本обновлениефункция
      */
@@ -2249,7 +2262,10 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onComplete(java.io.File apkFile) {
                 progressDialog.dismiss();
-                showDownloadCompleteDialog(apkFile, newVersion);
+                // Автозапуск стандартной установки APK через системный установщик.
+                // Перед установкой запоминаем путь — после MY_PACKAGE_REPLACED файл будет удалён.
+                ApkInstallHelper.markPendingApk(getContext(), apkFile);
+                ApkInstallHelper.installApk(SettingsFragment.this, apkFile);
             }
             
             @Override
@@ -2258,97 +2274,6 @@ public class SettingsFragment extends Fragment {
                 if (!"Загрузка отменена".equals(error)) {
                     Toast.makeText(getContext(), "Ошибка скачивания: " + error, Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
-    }
-    
-    /**
-     * 显示скачиваниезавершение 话框（提供 ADB установка и вручнуюустановка两种方式)
-     */
-    private void showDownloadCompleteDialog(java.io.File apkFile, String newVersion) {
-        if (getContext() == null) return;
-        
-        String filePath = apkFile.getAbsolutePath();
-        // 简化Путь显示
-        String displayPath = filePath;
-        String internalRoot = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        if (filePath.startsWith(internalRoot)) {
-            displayPath = filePath.replace(internalRoot, "Внутреннее хранилище");
-        }
-        
-        String message = "EVCam v" + newVersion + " скачана！\n\n" +
-                "Расположение файла：\n" + displayPath + "\n\n" +
-                "Выберите способ установки：";
-        
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext(), R.style.Theme_Cam_MaterialAlertDialog)
-                .setTitle("Скачивание завершено")
-                .setMessage(message)
-                .setPositiveButton("Установка через ADB", (dialog, which) -> {
-                    startAdbInstall(apkFile);
-                })
-                .setNeutralButton("Установить вручную", (dialog, which) -> {
-                    Toast.makeText(getContext(),
-                            "Используйте файловый менеджер, откройте папку Download для установки",
-                            Toast.LENGTH_LONG).show();
-                })
-                .setCancelable(false)
-                .show();
-    }
-    
-    /**
-     * 通过 ADB установка APK（弹出 д.志 话框显示进度)
-     */
-    private void startAdbInstall(java.io.File apkFile) {
-        if (getContext() == null) return;
-        
-        // 创建可滚动  д.志视图
-        android.widget.ScrollView scrollView = new android.widget.ScrollView(getContext());
-        scrollView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        // 限制максимумВысокий度，防止 话框过大
-        scrollView.setMinimumHeight(300);
-        
-        TextView logView = new TextView(getContext());
-        logView.setPadding(48, 24, 48, 24);
-        logView.setTextSize(12);
-        logView.setTypeface(android.graphics.Typeface.MONOSPACE);
-        logView.setTextColor(ContextCompat.getColor(getContext(), R.color.text_primary));
-        scrollView.addView(logView);
-        
-        androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(
-                getContext(), R.style.Theme_Cam_MaterialAlertDialog)
-                .setTitle("Установка обновления через ADB")
-                .setView(scrollView)
-                .setCancelable(false)
-                .setNegativeButton("Закрыть", null)
-                .create();
-        dialog.show();
-        
-        // установка期间ОтключитьЗакрыто按钮
-        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setEnabled(false);
-        
-        AdbPermissionHelper adbHelper = new AdbPermissionHelper(getContext());
-        adbHelper.installApk(apkFile.getAbsolutePath(), new AdbPermissionHelper.Callback() {
-            @Override
-            public void onLog(String message) {
-                if (getContext() == null) return;
-                logView.append(message + "\n");
-                scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
-            }
-            
-            @Override
-            public void onComplete(boolean allSuccess) {
-                if (dialog.isShowing()) {
-                    dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setEnabled(true);
-                }
-                if (!allSuccess) {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(),
-                                "Ошибка установки через ADB, попробуйте установить вручную",
-                                Toast.LENGTH_LONG).show();
-                    }
-                }
-                // установкаУспешно后 app 会 Системаперезагрузка，不необходимо额外处理
             }
         });
     }
